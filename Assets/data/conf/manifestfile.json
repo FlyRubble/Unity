@@ -1,0 +1,17 @@
+{
+	"data": 
+		{
+			"data/image/icon.png": 
+				{
+					"name": "data/image/icon.png",
+					"MD5": "d60350a135fce5031dcc740e318c93ea",
+					"size": 603
+				},
+			"data/scene/launch.unity": 
+				{
+					"name": "data/scene/launch.unity",
+					"MD5": "43adb2648dc9bcd7b1f514c284d63c08",
+					"size": 116
+				}
+		}
+}
