@@ -1,17 +1,41 @@
 {
 	"data": 
 		{
+			"data/conf/aa - \u526F\u672C (2).txt": 
+				{
+					"name": "data/conf/aa - \u526F\u672C (2).txt",
+					"MD5": "fc48c923e4cdb93cb607bf4427ec5010",
+					"size": 2
+				},
+			"data/conf/aa - \u526F\u672C.txt": 
+				{
+					"name": "data/conf/aa - \u526F\u672C.txt",
+					"MD5": "8686aae2f964d5e55aa01d1404382fa1",
+					"size": 2
+				},
+			"data/conf/aa.txt": 
+				{
+					"name": "data/conf/aa.txt",
+					"MD5": "376203a450e2af4f64f918801e98d579",
+					"size": 2
+				},
+			"data/conf/aabb.txt": 
+				{
+					"name": "data/conf/aabb.txt",
+					"MD5": "cfe75b88217861dc7367a9695387c7db",
+					"size": 2
+				},
 			"data/image/icon.png": 
 				{
 					"name": "data/image/icon.png",
-					"MD5": "d60350a135fce5031dcc740e318c93ea",
-					"size": 603
+					"MD5": "fd5a121fc588c48463946ee4aa527203",
+					"size": 113
 				},
-			"data/scene/launch.unity": 
+			"data/scene/launch.scene": 
 				{
-					"name": "data/scene/launch.unity",
-					"MD5": "43adb2648dc9bcd7b1f514c284d63c08",
-					"size": 116
+					"name": "data/scene/launch.scene",
+					"MD5": "2a9163ed31d56e5a8a4956298ef34320",
+					"size": 132
 				}
 		}
 }

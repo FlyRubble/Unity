@@ -20,82 +20,16 @@ public class LaunchInspector : Editor
 		BundleVersionCode,
 		ScriptingDefineSymbols
 	}
-
-    /// <summary>
-    /// 工程设置路径
-    /// </summary>
-    public string projectSettings
-    {
-        get { return Directory.GetCurrentDirectory() + "/ProjectSettings/App.json"; }
-    }
-
-    /// <summary>
-    /// app路径
-    /// </summary>
-    public string appPath
-    {
-        get { return Directory.GetCurrentDirectory() + "/Assets/data/resources/app.json"; }
-    }
-
-    /// <summary>
-    /// App清单
-    /// </summary>
-    class AppManifest
-    {
-        #region Variable
-        /// <summary>
-        /// 配置组的选择
-        /// </summary>
-        private int m_selected = 0;
-
-        /// <summary>
-        /// App表
-        /// </summary>
-        private List<App> m_list = new List<App>();
-        #endregion
-
-        #region Property
-        /// <summary>
-        /// 配置组选择
-        /// </summary>
-        /// <value>The selected.</value>
-        public int selected
-        {
-            get { return m_selected; }
-            set { m_selected = value; }
-        }
-
-        /// <summary>
-        /// App表
-        /// </summary>
-        public List<App> list
-        {
-            get { return m_list; }
-            set { m_list = value; }
-        }
-
-        /// <summary>
-        /// 配置组名字表
-        /// </summary>
-        public List<string> nameLsit
-        {
-            get
-            {
-                List<string> list = new List<string>();
-                for (int i = 0; i < m_list.Count; ++i)
-                {
-                    list.Add(m_list[i].tag);
-                }
-                return list;
-            }
-        }
-        #endregion
-    }
-
+    
     /// <summary>
     /// Settings清单
     /// </summary>
-    private AppManifest m_appManifest = new AppManifest();
+    private Settings m_settings = null;
+
+    /// <summary>
+    /// 启动配置
+    /// </summary>
+    private LaunchConfig m_app = null;
 
     /// <summary>
     /// 是否打包完整资源
@@ -108,33 +42,63 @@ public class LaunchInspector : Editor
     private bool m_buildUpdateAsset = false;
 
     /// <summary>
+    /// 工程设置路径
+    /// </summary>
+    public string appSettings
+    {
+        get { return Directory.GetCurrentDirectory() + "/Assets/App.settings"; }
+    }
+
+    /// <summary>
+    /// app路径
+    /// </summary>
+    public string appJson
+    {
+        get { return Directory.GetCurrentDirectory() + "/Assets/data/resources/app.json"; }
+    }
+
+    /// <summary>
+    /// 配置组名字表
+    /// </summary>
+    public List<string> nameList
+    {
+        get
+        {
+            List<string> names = new List<string>();
+            for (int i = 0; i < m_settings.launchConfig.Count; ++i)
+            {
+                names.Add(m_settings.launchConfig[i].tag);
+            }
+            return names;
+        }
+    }
+
+    /// <summary>
     /// OnEnable
     /// </summary>
     private void OnEnable()
     {
-        if (!File.Exists(projectSettings))
+        if (!File.Exists(appSettings))
         {
-            m_appManifest.list.Add(new App() { tag = "自定义" });
-            File.WriteAllText(projectSettings, JsonWriter.Serialize(m_appManifest));
+            m_settings = new Settings();
+            m_settings.launchConfig.Add(new LaunchConfig() { tag = "自定义" });
+            File.WriteAllText(appSettings, JsonWriter.Serialize(m_settings));
         }
 
-        m_appManifest = JsonReader.Deserialize<AppManifest>(File.ReadAllText(projectSettings));
-        App app = null;
-        for (int i = 0; i < m_appManifest.list.Count; ++i)
+        m_settings = JsonReader.Deserialize<Settings>(File.ReadAllText(appSettings));
+        for (int i = 0; i < m_settings.launchConfig.Count; ++i)
         {
-            app = m_appManifest.list[i];
-            if (app.tag.Equals("自定义"))
+            m_app = m_settings.launchConfig[i];
+            if (m_app.tag.Equals("自定义"))
             {
-                m_appManifest.list.Remove(app);
-                m_appManifest.list.Insert(0, app);
+                m_settings.launchConfig.Remove(m_app);
+                m_settings.launchConfig.Insert(0, m_app);
                 break;
             }
         }
 
-        app = m_appManifest.list[m_appManifest.selected];
-        File.WriteAllText(appPath, JsonWriter.Serialize(app));
-        AssetDatabase.Refresh();
-        App.instance.Init();
+        m_app = m_settings.launchConfig[m_settings.selected];
+        ChangeSettings(ChangeType.ScriptingDefineSymbols);
     }
 
     /// <summary>
@@ -149,8 +113,7 @@ public class LaunchInspector : Editor
 			bool bSave = false;
 			string value = string.Empty;
 			// 模式
-			App.instance.scriptingDefineSymbols = PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
-			var index = App.instance.scriptingDefineSymbols.Contains("AB_MODE") ? 1 : 0;
+			var index = m_app.scriptingDefineSymbols.Contains("AB_MODE") ? 1 : 0;
 			var selected = GUILayout.Toolbar(index, new string[] { "编辑器模式", "高级AB模式" });
 			if (index != selected)
             {
@@ -158,37 +121,37 @@ public class LaunchInspector : Editor
                 ModeToggle (selected);
             }
 			// App名字
-			value = EditorGUILayout.TextField("Product Name", App.instance.appName);
-			if (value != App.instance.appName) {
+			value = EditorGUILayout.TextField("Product Name", m_app.appName);
+			if (value != m_app.appName) {
 				bSave = true;
-				App.instance.appName = value;
+				m_app.appName = value;
 				ChangeSettings (ChangeType.AppName);
 			}
 			// 包名
-			value = EditorGUILayout.TextField("Bundle Identifier", App.instance.bundleIdentifier);
-			if (value != App.instance.bundleIdentifier) {
+			value = EditorGUILayout.TextField("Bundle Identifier", m_app.bundleIdentifier);
+			if (value != m_app.bundleIdentifier) {
 				bSave = true;
-				App.instance.bundleIdentifier = value;
+				m_app.bundleIdentifier = value;
 				ChangeSettings (ChangeType.BundleIdentifier);
 			}
 			// 版本
-			value = EditorGUILayout.TextField("Version*", App.instance.version);
-			if (value != App.instance.version) {
+			value = EditorGUILayout.TextField("Version*", m_app.version);
+			if (value != m_app.version) {
 				bSave = true;
-				App.instance.version = value;
+				m_app.version = value;
 				ChangeSettings (ChangeType.Version);
 			}
 			// 版本Code
 			#if UNITY_ANDROID
-			App.instance.bundleVersionCode = EditorGUILayout.IntField("BuildVersionCode", App.instance.bundleVersionCode);
-			if (PlayerSettings.Android.bundleVersionCode != App.instance.bundleVersionCode)
+			m_app.bundleVersionCode = EditorGUILayout.IntField("BuildVersionCode", m_app.bundleVersionCode);
+			if (PlayerSettings.Android.bundleVersionCode != m_app.bundleVersionCode)
 			{
 				bSave = true;	
 				ChangeSettings (ChangeType.BundleVersionCode);
 			}
 			#elif UNITY_IOS
-			App.instance.bundleVersionCode = EditorGUILayout.IntField("BuildNumber", App.instance.bundleVersionCode);
-			if (PlayerSettings.Android.bundleVersionCode != App.instance.bundleVersionCode)
+			m_app.bundleVersionCode = EditorGUILayout.IntField("BuildNumber", m_app.bundleVersionCode);
+			if (PlayerSettings.Android.bundleVersionCode != m_app.bundleVersionCode)
 			{
 				bSave = true;	
 				ChangeSettings (ChangeType.BundleVersionCode);
@@ -196,7 +159,7 @@ public class LaunchInspector : Editor
 			#else
 			EditorGUI.BeginDisabledGroup(true);
 			EditorGUILayout.BeginHorizontal();
-			EditorGUILayout.IntField("BuildVersionCode", App.instance.bundleVersionCode);
+			EditorGUILayout.IntField("BuildVersionCode", m_app.bundleVersionCode);
 			EditorGUILayout.LabelField("*仅Android或IOS有效");
 			EditorGUILayout.EndHorizontal();
 			EditorGUI.EndDisabledGroup();
@@ -205,16 +168,17 @@ public class LaunchInspector : Editor
 			// 平台、宏定义
 			EditorGUI.BeginDisabledGroup(true);
 			EditorGUILayout.TextField("Platform", EditorUserBuildSettings.activeBuildTarget.ToString());
-			EditorGUILayout.TextField("Scripting Define Symbol", App.instance.scriptingDefineSymbols);
-			EditorGUI.EndDisabledGroup();
+            EditorGUILayout.TextField("Scripting Define Symbol", m_app.scriptingDefineSymbols);
+            EditorGUI.EndDisabledGroup();
 
             // 设置配置选项组
-            var list = m_appManifest.nameLsit;
-            selected = EditorGUILayout.Popup("服务器配置", m_appManifest.selected, list.ToArray());
-            if (selected != m_appManifest.selected)
+            var list = nameList;
+            selected = EditorGUILayout.Popup("服务器配置", m_settings.selected, list.ToArray());
+            if (selected != m_settings.selected)
             {
                 bSave = true;
-                m_appManifest.selected = selected;
+                m_settings.selected = selected;
+                m_app = m_settings.launchConfig[m_settings.selected];
 
                 ChangeSettings(ChangeType.AppName);
                 ChangeSettings(ChangeType.BundleIdentifier);
@@ -232,83 +196,105 @@ public class LaunchInspector : Editor
 			EditorGUI.EndDisabledGroup();
 
 			// 其它字段属性
-			EditorGUI.BeginDisabledGroup(m_appManifest.selected != 0 || Application.isPlaying);
+			EditorGUI.BeginDisabledGroup(m_settings.selected != 0);
             {
 				// 登陆地址
-				value = EditorGUILayout.TextField("登录地址", App.instance.loginUrl);
-				if (value != App.instance.loginUrl) {
+				value = EditorGUILayout.TextField("登录地址", m_app.loginUrl);
+				if (value != m_app.loginUrl) {
 					bSave = true;
-					App.instance.loginUrl = value;
+					m_app.loginUrl = value;
 				}
 
 				// URL
-				value = EditorGUILayout.TextField("CDN资源地址", App.instance.CDN);
-				if (value != App.instance.CDN) {
+				value = EditorGUILayout.TextField("CDN资源地址", m_app.cdn);
+				if (value != m_app.cdn) {
 					bSave = true;
-					App.instance.CDN = value;
+					m_app.cdn = value;
 				}
 
 				// 备用URL
-				value = EditorGUILayout.TextField("CDN备用资源地址", App.instance.spareCDN);
-				if (value != App.instance.spareCDN) {
+				value = EditorGUILayout.TextField("CDN备用资源地址", m_app.spareCDN);
+				if (value != m_app.spareCDN) {
 					bSave = true;
-					App.instance.spareCDN = value;
+					m_app.spareCDN = value;
 				}
 
 				// 是否开启引导
-				bool bValue = EditorGUILayout.Toggle("开启新手引导?", App.instance.isOpenGuide);
-				if (bValue != App.instance.isOpenGuide) {
+				bool bValue = EditorGUILayout.Toggle("开启新手引导?", m_app.isOpenGuide);
+				if (bValue != m_app.isOpenGuide) {
 					bSave = true;
-					App.instance.isOpenGuide = bValue;
+					m_app.isOpenGuide = bValue;
 				}
 
 				// 是否开启更新模式
-				bValue = EditorGUILayout.Toggle("开启资源更新?", App.instance.updateMode);
-				if (bValue != App.instance.updateMode) {
+				bValue = EditorGUILayout.Toggle("开启资源更新?", m_app.updateMode);
+				if (bValue != m_app.updateMode) {
 					bSave = true;
-					App.instance.updateMode = bValue;
+					m_app.updateMode = bValue;
 				}
 
 				// 是否完全解锁所有功能
-				bValue = EditorGUILayout.Toggle("开启所有功能?", App.instance.functionUnlock);
-				if (bValue != App.instance.functionUnlock) {
+				bValue = EditorGUILayout.Toggle("开启所有功能?", m_app.functionUnlock);
+				if (bValue != m_app.functionUnlock) {
 					bSave = true;
-					App.instance.functionUnlock = bValue;
+					m_app.functionUnlock = bValue;
 				}
 
 				// 是否开启日志
-				bValue = EditorGUILayout.Toggle("开启日志&GM工具?", App.instance.log);
-				if (bValue != App.instance.log) {
+				bValue = EditorGUILayout.Toggle("开启日志&GM工具?", m_app.log);
+				if (bValue != m_app.log) {
 					bSave = true;
-					App.instance.log = bValue;
+					m_app.log = bValue;
 				}
 
 				// 是否开启Web日志
-				bValue = EditorGUILayout.Toggle("开启远程日志?", App.instance.webLog);
-				if (bValue != App.instance.webLog) {
+				bValue = EditorGUILayout.Toggle("开启远程日志?", m_app.webLog);
+				if (bValue != m_app.webLog) {
 					bSave = true;
-					App.instance.webLog = bValue;
+					m_app.webLog = bValue;
 				}
 
-				// [安卓]CDN资源标签
-				value = EditorGUILayout.TextField("[安卓]CDN资源标签", App.instance.androidPlatformName);
-				if (value != App.instance.androidPlatformName) {
+                // 远程日志白名单
+                string ip = "";
+                for (int i = 0; i < m_app.webLogIp.Count; ++i)
+                {
+                    ip += ";" + m_app.webLogIp[i];
+                }
+                if (ip.StartsWith(",") || ip.StartsWith(";") || ip.StartsWith("|"))
+                {
+                    ip = ip.Substring(1, ip.Length - 1);
+                }
+                value = EditorGUILayout.TextField("远程日志白名单", ip);
+                if (value != ip)
+                {
+                    bSave = true;
+                    m_app.webLogIp.Clear();
+                    string[] array = value.Split(',', ';', '|');
+                    for (int i = 0; i < array.Length; ++i)
+                    {
+                        m_app.webLogIp.Add(array[i]);
+                    }
+                }
+
+                // [安卓]CDN资源标签
+                value = EditorGUILayout.TextField("[安卓]CDN资源标签", m_app.androidPlatformName);
+				if (value != m_app.androidPlatformName) {
 					bSave = true;
-					App.instance.androidPlatformName = value;
+					m_app.androidPlatformName = value;
 				}
 
 				// [苹果]CDN资源标签
-				value = EditorGUILayout.TextField("[苹果]CDN资源标签", App.instance.iOSPlatformName);
-				if (value != App.instance.iOSPlatformName) {
+				value = EditorGUILayout.TextField("[苹果]CDN资源标签", m_app.iOSPlatformName);
+				if (value != m_app.iOSPlatformName) {
 					bSave = true;
-					App.instance.iOSPlatformName = value;
+					m_app.iOSPlatformName = value;
 				}
 
 				// [桌面]CDN资源标签
-				value = EditorGUILayout.TextField("[桌面]CDN资源标签", App.instance.defaultPlatformName);
-				if (value != App.instance.defaultPlatformName) {
+				value = EditorGUILayout.TextField("[桌面]CDN资源标签", m_app.defaultPlatformName);
+				if (value != m_app.defaultPlatformName) {
 					bSave = true;
-					App.instance.defaultPlatformName = value;
+					m_app.defaultPlatformName = value;
 				}
             }
 			EditorGUI.EndDisabledGroup();
@@ -320,15 +306,40 @@ public class LaunchInspector : Editor
 				{
 					bSave = true;
 					selected = list.IndexOf ("自定义");
-					m_appManifest.selected = selected;
-				}
+                    m_settings.selected = selected;
+
+                    LaunchConfig app = m_settings.launchConfig[m_settings.selected];
+                    app.appName = m_app.appName;
+                    app.bundleIdentifier = m_app.bundleIdentifier;
+                    app.version = m_app.version;
+                    app.bundleVersionCode = m_app.bundleVersionCode;
+                    app.scriptingDefineSymbols = m_app.scriptingDefineSymbols;
+                    app.loginUrl = m_app.loginUrl;
+                    app.cdn = m_app.cdn;
+                    app.spareCDN = m_app.spareCDN;
+                    app.isOpenGuide = m_app.isOpenGuide;
+                    app.updateMode = m_app.updateMode;
+                    app.functionUnlock = m_app.functionUnlock;
+                    app.log = m_app.log;
+                    app.webLog = m_app.webLog;
+                    app.webLogIp = m_app.webLogIp;
+                    app.androidPlatformName = m_app.androidPlatformName;
+                    app.iOSPlatformName = m_app.iOSPlatformName;
+                    app.defaultPlatformName = m_app.defaultPlatformName;
+                    m_app = app;
+
+                    ChangeSettings(ChangeType.AppName);
+                    ChangeSettings(ChangeType.BundleIdentifier);
+                    ChangeSettings(ChangeType.Version);
+                    ChangeSettings(ChangeType.BundleVersionCode);
+                    ChangeSettings(ChangeType.ScriptingDefineSymbols);
+                }
 				if (GUILayout.Button("编辑配置..."))
 				{
-                    string path = Directory.GetCurrentDirectory() + "/ProjectSettings/App.instance.ini";
-                    if (!File.Exists (path)) {
-						File.Create (path);
-					}
-					System.Diagnostics.Process.Start(path);
+                    if (File.Exists (appSettings))
+                    {
+                        System.Diagnostics.Process.Start(appSettings);
+                    }
 				}
 				EditorGUILayout.EndVertical();
 
@@ -341,16 +352,22 @@ public class LaunchInspector : Editor
 			if (GUILayout.Button ("清除本地资源解压缓存")) {
 				FileUtil.DeleteFileOrDirectory (Application.persistentDataPath);
 			}
-            // 打完整资源包应用
-            if (GUILayout.Button("打包完整资源"))
+
+            index = m_app.scriptingDefineSymbols.Contains("AB_MODE") ? 1 : 0;
+            EditorGUI.BeginDisabledGroup(index == 0);
             {
-                m_buildAsset = true;
+                // 打完整资源包应用
+                if (GUILayout.Button("打包完整资源"))
+                {
+                    m_buildAsset = true;
+                }
+                // 打更新资源包
+                if (GUILayout.Button("打包更新资源"))
+                {
+                    m_buildUpdateAsset = true;
+                }
             }
-            // 打更新资源包
-            if (GUILayout.Button("打包更新资源"))
-            {
-                m_buildUpdateAsset = true;
-            }
+            EditorGUI.EndDisabledGroup();
 
             serializedObject.ApplyModifiedProperties();
 
@@ -358,11 +375,28 @@ public class LaunchInspector : Editor
             {
 				bSave = false;
 
-                File.WriteAllText(projectSettings, JsonWriter.Serialize(m_appManifest));
-                App app = m_appManifest.list[m_appManifest.selected];
-                File.WriteAllText(appPath, JsonWriter.Serialize(app));
+                File.WriteAllText(appSettings, JsonWriter.Serialize(m_settings));
+                
+                App app = new App();
+                app.version = m_app.version;
+                app.loginUrl = m_app.loginUrl;
+                app.cdn = m_app.cdn;
+                app.spareCDN = m_app.spareCDN;
+                app.isOpenGuide = m_app.isOpenGuide;
+                app.updateMode = m_app.updateMode;
+                app.functionUnlock = m_app.functionUnlock;
+                app.log = m_app.log;
+                app.webLog = m_app.webLog;
+                app.webLogIp = m_app.webLogIp;
+#if UNITY_IOS
+                app.platform = m_app.iOSPlatformName;
+#elif UNITY_ANDROID
+                app.platform = m_app.androidPlatformName;
+#else
+                app.platform = m_app.defaultPlatformName;
+#endif
+                File.WriteAllText(appJson, JsonWriter.Serialize(app));
                 AssetDatabase.Refresh();
-                App.instance.Init();
             }
 		}
 		EditorGUI.EndChangeCheck ();
@@ -372,67 +406,77 @@ public class LaunchInspector : Editor
         if (m_buildAsset)
         {
             m_buildAsset = false;
-            AssetBundleEditor.BuildAssetBundles(AssetBundleEditor.outputPath);
-            AssetBundleEditor.BuildManifestFile(AssetBundleEditor.outputPath);
-            AssetBundleEditor.BuildUpdateFile(AssetBundleEditor.outputPath);
-            AssetBundleEditor.CopyAssetBundles();
+            AssetBundleEditor.BuildAssetBundlesAndCopy(AssetBundleEditor.outputPath);
+            GUIUtility.ExitGUI();
         }
         // 打更新资源包
-        if (m_buildAsset)
+        if (m_buildUpdateAsset)
         {
             m_buildUpdateAsset = false;
-            AssetBundleEditor.BuildAssetBundles(AssetBundleEditor.outputPath);
-            AssetBundleEditor.CopyUpdateAssetBundles();
+            AssetBundleEditor.BuildUpdateAssetBundlesAndZip(AssetBundleEditor.outputPath, AssetBundleEditor.outputVersionPath, App.Init().version, App.Init().platform, App.Init().cdn);
+            GUIUtility.ExitGUI();
         }
+
     }
 
-	/// <summary>
-	/// 模式切换
-	/// </summary>
-	/// <param name="selected">Selected.</param>
-	public void ModeToggle(int selected)
+    /// <summary>
+    /// 模式切换
+    /// </summary>
+    /// <param name="selected">Selected.</param>
+    public void ModeToggle(int selected)
     {
 		switch (selected) {
 		case 0:
 			{
-				App.instance.scriptingDefineSymbols = "";
-				var tokens = App.instance.scriptingDefineSymbols.Split(';');
-				foreach (var token in tokens)
-				{
-					if (token != "AB_MODE")
-					{
-						App.instance.scriptingDefineSymbols += token + ";";
-					}
-				}
-				ChangeSettings (ChangeType.ScriptingDefineSymbols);
-			} break;
+            var tokens = m_app.scriptingDefineSymbols.Split(';');
+            m_app.scriptingDefineSymbols = "";
+            foreach (var token in tokens)
+            {
+                if (token != "AB_MODE" && !string.IsNullOrEmpty(token))
+                {
+                    m_app.scriptingDefineSymbols += token + ";";
+                }
+            }
+            if (m_app.scriptingDefineSymbols.EndsWith(";"))
+            {
+                m_app.scriptingDefineSymbols = m_app.scriptingDefineSymbols.Substring(0, m_app.scriptingDefineSymbols.Length - 1);
+            }
+            ChangeSettings(ChangeType.ScriptingDefineSymbols);
+        } break;
 		case 1:
 			{
-				EditorBuildSettings.scenes = new EditorBuildSettingsScene[]
-				{
-					new EditorBuildSettingsScene("Assets/Launch.unity", true),
-				};
+            EditorBuildSettings.scenes = new EditorBuildSettingsScene[]
+            {
+                    new EditorBuildSettingsScene("Assets/Launch.unity", true),
+            };
 
-				FileUtil.DeleteFileOrDirectory (Application.persistentDataPath);
-				var tokens = App.instance.scriptingDefineSymbols.Split(';');
-				bool abMode = false;
-				foreach (var token in tokens)
-				{
-					if (token == "AB_MODE")
-					{
-						abMode = true;
-						break;
-					}
-				}
-				if (!abMode) {
-					if (App.instance.scriptingDefineSymbols.EndsWith (";")) {
-						App.instance.scriptingDefineSymbols += "AB_MODE;";
-					} else {
-						App.instance.scriptingDefineSymbols += ";AB_MODE;";
-					}
-				}
-				ChangeSettings (ChangeType.ScriptingDefineSymbols);
-			} break;
+            var tokens = m_app.scriptingDefineSymbols.Split(';');
+            bool abMode = false;
+            foreach (var token in tokens)
+            {
+                if (token == "AB_MODE")
+                {
+                    abMode = true;
+                    break;
+                }
+            }
+            if (!abMode)
+            {
+                if (m_app.scriptingDefineSymbols.EndsWith(";"))
+                {
+                    m_app.scriptingDefineSymbols += "AB_MODE";
+                }
+                else if (m_app.scriptingDefineSymbols.Length > 0)
+                {
+                    m_app.scriptingDefineSymbols += ";AB_MODE";
+                }
+                else
+                {
+                    m_app.scriptingDefineSymbols += "AB_MODE";
+                }
+            }
+            ChangeSettings(ChangeType.ScriptingDefineSymbols);
+        } break;
 		}
     }
 
@@ -445,30 +489,30 @@ public class LaunchInspector : Editor
 		switch (type) {
 		case ChangeType.AppName:
 			{
-				PlayerSettings.productName = App.instance.appName;
+				PlayerSettings.productName = m_app.appName;
 			} break;
 		case ChangeType.BundleIdentifier:
 			{
                 #if UNITY_ANDROID || UNITY_IOS
-				PlayerSettings.applicationIdentifier = App.instance.bundleIdentifier;
+				PlayerSettings.applicationIdentifier = m_app.bundleIdentifier;
                 #endif
 			} break;
 		case ChangeType.Version:
 			{
-				PlayerSettings.bundleVersion = App.instance.version;
+				PlayerSettings.bundleVersion = m_app.version;
 			} break;
 		case ChangeType.BundleVersionCode:
 			{
 				#if UNITY_ANDROID
-				PlayerSettings.Android.bundleVersionCode = App.instance.bundleVersionCode;
+				PlayerSettings.Android.bundleVersionCode = m_app.bundleVersionCode;
 				#elif UNITY_IOS
-				PlayerSettings.iOS.buildNumber = App.instance.bundleVersionCode;
+				PlayerSettings.iOS.buildNumber = m_app.bundleVersionCode;
 				#endif
 			} break;
 		case ChangeType.ScriptingDefineSymbols:
 			{
-				if (!PlayerSettings.GetScriptingDefineSymbolsForGroup (EditorUserBuildSettings.selectedBuildTargetGroup).Equals (App.instance.scriptingDefineSymbols)) {
-					PlayerSettings.SetScriptingDefineSymbolsForGroup (EditorUserBuildSettings.selectedBuildTargetGroup, App.instance.scriptingDefineSymbols);
+				if (!PlayerSettings.GetScriptingDefineSymbolsForGroup (EditorUserBuildSettings.selectedBuildTargetGroup).Equals (m_app.scriptingDefineSymbols)) {
+					PlayerSettings.SetScriptingDefineSymbolsForGroup (EditorUserBuildSettings.selectedBuildTargetGroup, m_app.scriptingDefineSymbols);
 				}
 			} break;
 		}

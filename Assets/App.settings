@@ -1,0 +1,51 @@
+{
+	"selected": 0,
+	"launchConfig": 
+		[
+			{
+				"tag": "\u81EA\u5B9A\u4E49",
+				"appName": "aa",
+				"bundleIdentifier": "bb",
+				"version": "1.0.0",
+				"bundleVersionCode": 0,
+				"scriptingDefineSymbols": "AB_MODE",
+				"loginUrl": "dd",
+				"cdn": "file:///C:/Users/Administrator/Desktop/msg30",
+				"spareCDN": "ddd",
+				"isOpenGuide": true,
+				"updateMode": true,
+				"functionUnlock": false,
+				"log": false,
+				"webLog": false,
+				"webLogIp": 
+					[
+						"a",
+						"b"
+					],
+				"androidPlatformName": "Android_web",
+				"iOSPlatformName": "IOS",
+				"defaultPlatformName": "Windows"
+			},
+			{
+				"tag": "\u81EA\u5B9A\u4E490",
+				"appName": "",
+				"bundleIdentifier": "",
+				"version": "1.0.0",
+				"bundleVersionCode": 0,
+				"scriptingDefineSymbols": "AB_MODE",
+				"loginUrl": "",
+				"cdn": "",
+				"spareCDN": "",
+				"isOpenGuide": true,
+				"updateMode": true,
+				"functionUnlock": false,
+				"log": false,
+				"webLog": false,
+				"webLogIp": 
+					[],
+				"androidPlatformName": "Android",
+				"iOSPlatformName": "IOS",
+				"defaultPlatformName": "Windows"
+			}
+		]
+}

@@ -4,6 +4,8 @@ using System.IO;
 using System.Collections.Generic;
 using Framework.IO;
 using Framework.JsonFx;
+using ICSharpCode.SharpZipLib.Zip;
+using System;
 
 /// <summary>
 /// 资源打包
@@ -54,6 +56,34 @@ public class AssetBundleEditor
     }
 
     /// <summary>
+    /// 资源打包并拷贝
+    /// </summary>
+    /// <param name="output"></param>
+    public static void BuildAssetBundlesAndCopy(string output)
+    {
+        BuildAssetBundles(output);
+        BuildManifestFile(output);
+        BuildUpdateFile(output);
+        CopyAssetBundles(output);
+    }
+
+    /// <summary>
+    /// 资源打包并压缩更新资源包
+    /// </summary>
+    /// <param name="output"></param>
+    /// <param name="dest"></param>
+    /// <param name="version"></param>
+    /// <param name="platform"></param>
+    /// <param name="cdn"></param>
+    public static void BuildUpdateAssetBundlesAndZip(string output, string dest, string version, string platform, string cdn = null)
+    {
+        BuildAssetBundles(output);
+        BuildManifestFile(output);
+        BuildUpdateFile(output, cdn + "/" + platform);
+        CopyUpdateAssetBundles(output, dest, version, cdn + "/" + platform);
+    }
+
+    /// <summary>
     /// 资源打包
     /// </summary>
     public static void BuildAssetBundles(string output)
@@ -66,9 +96,10 @@ public class AssetBundleEditor
         }
         // 设置assetBundleName
         string dataPath = assetPath + "/data";
-        string[] paths = Directory.GetFiles(dataPath, "*.*", SearchOption.AllDirectories);
-        foreach (var path in paths)
+        string[] filePaths = Directory.GetFiles(dataPath, "*.*", SearchOption.AllDirectories);
+        foreach (var filePath in filePaths)
         {
+            string path = filePath;
             if (path.Contains("/Resources/") || path.Contains(@"\Resources\") || path.Contains("/resources/") || path.Contains(@"\resources\"))
             {
                 continue;
@@ -76,26 +107,33 @@ public class AssetBundleEditor
             string extension = Path.GetExtension(path);
             switch (extension)
             {
-                case ".meta":
-                case ".cs":
-                    { }
-                    break;
-                default:
-                    {
-                        string relativePath = path.Replace(assetPath, "Assets");
-                        var asset = AssetImporter.GetAtPath(relativePath);
-                        asset.assetBundleName = GetAssetBundleName(path);
-                    }
-                    break;
+            case ".meta":
+            case ".cs":
+            { }
+            continue;
             }
+
+            string relativePath = path.Replace(assetPath, "Assets");
+            var asset = AssetImporter.GetAtPath(relativePath);
+            switch (extension)
+            {
+            case ".unity":
+            {
+                path = path.Substring(0, path.Length - ".unity".Length) + ".scene";
+            }
+            break;
+            }
+            asset.assetBundleName = GetAssetBundleName(path);
         }
 
         // 打包
         if (Directory.Exists(output))
         {
-            Directory.Delete(output, true);
+            FileUtil.DeleteFileOrDirectory(output);
+            AssetDatabase.Refresh();
         }
         Directory.CreateDirectory(output);
+        AssetDatabase.Refresh();
         BuildPipeline.BuildAssetBundles(output, BuildAssetBundleOptions.ChunkBasedCompression, buildTarget);
         // 移除所有assetBundleName
         assetBundleNames = AssetDatabase.GetAllAssetBundleNames();
@@ -138,24 +176,39 @@ public class AssetBundleEditor
     {
         ManifestConfig newManifestConfig = GetManifest(output);
 
-        cdn = "file:///D:/Unity/Unity2018.2.4f1/StreamingAssets/Android";
         ManifestConfig oldManifestConfig = newManifestConfig;
         if (!string.IsNullOrEmpty(cdn))
         {
-            WWW www = new WWW(cdn + "/data/conf/manifestfile.json");
+            string url = cdn + "/data/conf/manifestfile.json";
+            WWW www = new WWW(url);
             while (!www.isDone) ;
             if (string.IsNullOrEmpty(www.error) && www.progress == 1f)
             {
-                TextAsset text = www.assetBundle.LoadAsset(Path.GetFileNameWithoutExtension(cdn)) as TextAsset;
+                TextAsset text = www.assetBundle.LoadAsset(Path.GetFileNameWithoutExtension(url)) as TextAsset;
                 oldManifestConfig = JsonReader.Deserialize<ManifestConfig>(text.text);
-                Debug.Log(www.text);
+                www.assetBundle.Unload(true);
             }
+            www.Dispose();
+        }
+
+        ManifestConfig manifestConfig = new ManifestConfig();
+        if (!string.IsNullOrEmpty(cdn))
+        {
+            string url = cdn + "/data/conf/updatefile.json";
+            WWW www = new WWW(url);
+            while (!www.isDone) ;
+            if (string.IsNullOrEmpty(www.error) && www.progress == 1f)
+            {
+                TextAsset text = www.assetBundle.LoadAsset(Path.GetFileNameWithoutExtension(url)) as TextAsset;
+                manifestConfig = JsonReader.Deserialize<ManifestConfig>(text.text);
+                www.assetBundle.Unload(true);
+            }
+            www.Dispose();
         }
 
         // 写入Manifest
         if (newManifestConfig != null && oldManifestConfig != null)
         {
-            ManifestConfig manifestConfig = new ManifestConfig();
             foreach (var data in newManifestConfig.data.Values)
             {
                 if (oldManifestConfig.Contains(data.name) && oldManifestConfig.Get(data.name).MD5 == data.MD5)
@@ -181,104 +234,113 @@ public class AssetBundleEditor
     /// <summary>
     /// 拷贝资源包
     /// </summary>
-    public static void CopyAssetBundles()
+    public static void CopyAssetBundles(string output)
     {
-        //    ManifestConfig manifestConfig = GetManifest();
-        //    // 写入Manifest
-        //    if (manifestConfig != null)
-        //    {
-        //        // 写入到文件
-        //        File.WriteAllText(outputManifestPath, JsonWriter.Serialize(manifestConfig));
-        //        // 拷贝资源
-        //        if (Directory.Exists(streamingAssets))
-        //        {
-        //            Directory.Delete(streamingAssets, true);
-        //        }
-        //        Directory.CreateDirectory(streamingAssets);
+        ManifestConfig manifestConfig = JsonReader.Deserialize<ManifestConfig>(File.ReadAllText(assetPath + "/data/conf/manifestfile.json"));
+        // 写入Manifest
+        if (manifestConfig != null)
+        {
+            // 拷贝资源
+            if (Directory.Exists(streamingAssets))
+            {
+                Directory.Delete(streamingAssets, true);
+            }
+            AssetDatabase.Refresh();
+            Directory.CreateDirectory(streamingAssets);
+            AssetDatabase.Refresh();
 
-        //        string path = streamingAssets + "/manifest.xml";
-        //        ManifestConfig oldManifest = new ManifestConfig(File.Exists(path) ? path : "");
-        //        oldManifest.Read();
-        //        foreach (var data in manifestConfig.data.Values)
-        //        {
-        //            if (oldManifest.data.ContainsKey(data.name) && oldManifest.data[data.name].MD5 == data.MD5)
-        //            {
-
-        //            }
-        //            else
-        //            {
-        //                path = streamingAssets + "/" + data.name;
-        //                DirectoryInfo info = Directory.GetParent(path);
-        //                if (!info.Exists)
-        //                {
-        //                    Directory.CreateDirectory(info.FullName);
-        //                }
-        //                FileUtil.CopyFileOrDirectory(outputPath + "/" + data.name, path);
-        //            }
-        //        }
-        //        File.Copy(outputManifestFilePath, assetPath + "/data/resources/manifest.txt", true);
-        //        AssetDatabase.Refresh();
-        //    }
+            FileUtil.CopyFileOrDirectory(output + "/data", streamingAssets + "/data");
+            string[] filePaths = Directory.GetFiles(streamingAssets + "/data", "*.manifest", SearchOption.AllDirectories);
+            foreach (var filePath in filePaths)
+            {
+                FileUtil.DeleteFileOrDirectory(filePath);
+            }
+            AssetDatabase.Refresh();
+        }
     }
 
-/// <summary>
-/// 拷贝更新资源包
-/// </summary>
-public static void CopyUpdateAssetBundles()
+    /// <summary>
+    /// 拷贝更新资源包
+    /// </summary>
+    public static void CopyUpdateAssetBundles(string output, string dest, string version, string cdn = null)
     {
-        //ManifestConfig manifestConfig = GetManifest();
-        //// 写入Manifest
-        //if (manifestConfig != null)
-        //{
-        //    // 旧版本清单
-        //    ManifestConfig localManifestConfig = new ManifestConfig(outputManifestFilePath);
-        //    localManifestConfig.Read();
-        //    // 更新文件清单
-        //    ManifestConfig localUpdateManifestConfig = new ManifestConfig(outputUpdateManifestFilePath);
-        //    localUpdateManifestConfig.Read();
-        //    // 版本文件比较
-        //    ManifestConfig updateManifestConfig = new ManifestConfig();
-        //    List<string> paths = new List<string>();
-        //    foreach (var data in manifestConfig.data)
-        //    {
-        //        if (localManifestConfig.data.ContainsKey(data.Key) && localManifestConfig.data[data.Key].MD5.Equals(data.Value.MD5))
-        //        {
-        //            continue;
-        //        }
-        //        updateManifestConfig.Add(data.Value);
-        //        if (localUpdateManifestConfig.data.ContainsKey(data.Key) && localUpdateManifestConfig.data[data.Key].MD5.Equals(data.Value.MD5))
-        //        {
-        //            continue;
-        //        }
-        //        paths.Add(data.Value.name);
-        //    }
+        ManifestConfig remote = new ManifestConfig();
+        if (!string.IsNullOrEmpty(cdn))
+        {
+            string url = cdn + "/data/conf/updatefile.json";
+            WWW www = new WWW(url);
+            while (!www.isDone) ;
+            if (string.IsNullOrEmpty(www.error) && www.progress == 1f)
+            {
+                TextAsset text = www.assetBundle.LoadAsset(Path.GetFileNameWithoutExtension(url)) as TextAsset;
+                remote = JsonReader.Deserialize<ManifestConfig>(text.text);
+                www.assetBundle.Unload(true);
+            }
+            www.Dispose();
+        }
 
-        //    // 输出文件
-        //    if (paths.Count > 0)
-        //    {
-        //        App.instance.Init();
-        //        // 文件夹
-        //        string directory = string.Format(outputVersionPath + "/v{0}", App.instance.version);
-        //        if (Directory.Exists(directory))
-        //        {
-        //            Directory.Delete(directory, true);
-        //        }
-        //        Directory.CreateDirectory(directory);
-        //        // 文件
-        //        updateManifestConfig.Write(outputUpdateManifestFilePath);
-        //        updateManifestConfig.Write(directory + "/update.txt");
-        //        foreach (var data in paths)
-        //        {
-        //            string path = directory + "/" + data;
-        //            DirectoryInfo info = Directory.GetParent(path);
-        //            if (!info.Exists)
-        //            {
-        //                Directory.CreateDirectory(info.FullName);
-        //            }
-        //            File.Copy(outputPath + "/" + data, directory + "/" + data, true);
-        //        }
-        //    }
-        //}
+        ManifestConfig local = JsonReader.Deserialize<ManifestConfig>(File.ReadAllText(assetPath + "/data/conf/updatefile.json"));
+        if (local != null)
+        {
+            ManifestConfig manifestConfig = new ManifestConfig();
+            foreach (var data in local.data.Values)
+            {
+                if (remote.Contains(data.name) && remote.Get(data.name).MD5 == data.MD5)
+                {
+                    continue;
+                }
+                manifestConfig.Add(data);
+            }
+            if (!Directory.Exists(dest))
+            {
+                Directory.CreateDirectory(dest);
+            }
+            string updateFilePath = dest + "/updatefile.json";
+            string updateFileValue = JsonWriter.Serialize(manifestConfig);
+            File.WriteAllText(updateFilePath, updateFileValue);
+            AssetDatabase.Refresh();
+
+            manifestConfig.Add(new Manifest() { name = "data/conf/manifestfile.json" });
+            manifestConfig.Add(new Manifest() { name = "data/conf/updatefile.json" });
+
+            using (MemoryStream stream = new MemoryStream())
+            {
+                using (ZipOutputStream zip = new ZipOutputStream(stream))
+                {
+                    zip.SetComment(version);
+                    foreach (var data in manifestConfig.data.Values)
+                    {
+                        ZipEntry entry = new ZipEntry(data.name);
+                        entry.DateTime = new DateTime();
+                        entry.DosTime = 0;
+                        zip.PutNextEntry(entry);
+
+                        string filepPth = output + "/" + data.name;
+                        var bytes = File.ReadAllBytes(filepPth);
+                        zip.Write(bytes, 0, bytes.Length);
+                    }
+
+                    zip.Finish();
+                    zip.Flush();
+
+                    var fileBytes = new byte[stream.Length];
+                    Array.Copy(stream.GetBuffer(), fileBytes, fileBytes.Length);
+
+                    string platform = "PC";
+#if UNITY_ANDROID
+                    platform = "Android";
+#elif UNITY_IOS
+                    platform = "iOS";
+#endif
+                    DateTime dt = DateTime.Now;
+                    string date = string.Format("{0}.{1}.{2}_{3}.{4}.{5}", dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second);
+                    string md5 = GetMD5(fileBytes);
+                    File.WriteAllBytes(string.Format("{0}/{1}_{2}_{3}_{4}.zip", dest, platform, version, date, md5), fileBytes);
+                }
+            }
+            File.Delete(updateFilePath);
+            AssetDatabase.Refresh();
+        }
     }
 
     /// <summary>
@@ -375,6 +437,33 @@ public static void CopyUpdateAssetBundles()
             throw new System.Exception(e.Message);
         }
         return ab;
+    }
+
+    /// <summary>
+    /// 得到MD5值
+    /// </summary>
+    /// <param name="bytes"></param>
+    /// <returns></returns>
+    private static string GetMD5(byte[] bytes)
+    {
+        string md5Value = string.Empty;
+        try
+        {
+            System.Security.Cryptography.MD5 md5 = new System.Security.Cryptography.MD5CryptoServiceProvider();
+            byte[] retVal = md5.ComputeHash(bytes);
+
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            for (int i = 0; i < retVal.Length; i++)
+            {
+                sb.Append(retVal[i].ToString("x2"));
+            }
+            md5Value = sb.ToString();
+        }
+        catch (System.Exception e)
+        {
+            throw new System.Exception(e.Message);
+        }
+        return md5Value;
     }
 
     /// <summary>

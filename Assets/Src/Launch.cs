@@ -8,7 +8,7 @@ public class Launch : MonoBehaviour
     /// </summary>
     void Awake()
     {
-        App.instance.Init();
+        App.Init();
     }
 
     /// <summary>

@@ -1,18 +1,42 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using Framework.Singleton;
-using Framework.JsonFx;
 
 /// <summary>
-/// App
+/// 启动配置
 /// </summary>
-public sealed class App
+public class LaunchConfig
 {
     #region Variable
+    /// <summary>
+    /// 标签
+    /// </summary>
+    private string m_tag = string.Empty;
+
+    /// <summary>
+    /// 游戏名字
+    /// </summary>
+    private string m_appName = string.Empty;
+
+    /// <summary>
+    /// 游戏包名
+    /// </summary>
+    private string m_bundleIdentifier = string.Empty;
+
     /// <summary>
     /// 游戏版本[App版本、显示版本、资源版本一致]
     /// </summary>
     private string m_version = "1.0.0";
+
+    /// <summary>
+    /// 构建版本
+    /// </summary>
+    private int m_bundleVersionCode = 0;
+
+    /// <summary>
+    /// 宏定义
+    /// </summary>
+    private string m_scriptingDefineSymbols = string.Empty;
 
     /// <summary>
     /// 登陆地址
@@ -20,12 +44,12 @@ public sealed class App
     private string m_loginUrl = string.Empty;
 
     /// <summary>
-    /// 首选cdn
+    /// 首选CDN
     /// </summary>
     private string m_cdn = string.Empty;
 
     /// <summary>
-    /// 备用cdn
+    /// 备用CDN
     /// </summary>
     private string m_spareCDN = string.Empty;
 
@@ -57,22 +81,52 @@ public sealed class App
     /// <summary>
     /// WebLog白名单
     /// </summary>
-    private List<string> m_webLogIp = new List<string>();
+    private List<string> m_webLogIp = new List<string>(2);
 
     /// <summary>
-    /// 平台标签
+    /// 安卓平台标签
     /// </summary>
-    private string m_platform = "Android";
-    #endregion
+    private string m_androidPlatformName = "Android";
 
-    #region Static Variable
     /// <summary>
-    /// 全局
+    /// IOS平台标签
     /// </summary>
-    private static App m_instance = null;
+    private string m_iOSPlatformName = "IOS";
+
+    /// <summary>
+    /// 默认平台标签
+    /// </summary>
+    private string m_defaultPlatformName = "Windows";
     #endregion
 
     #region Property
+    /// <summary>
+    /// 标签
+    /// </summary>
+    public string tag
+    {
+        get { return m_tag; }
+        set { m_tag = value; }
+    }
+
+    /// <summary>
+    /// 游戏名字
+    /// </summary>
+    public string appName
+    {
+        get { return m_appName; }
+        set { m_appName = value; }
+    }
+
+    /// <summary>
+    /// 游戏包名
+    /// </summary>
+    public string bundleIdentifier
+    {
+        get { return m_bundleIdentifier; }
+        set { m_bundleIdentifier = value; }
+    }
+
     /// <summary>
     /// 游戏版本[App版本、显示版本、资源版本一致]
     /// </summary>
@@ -80,6 +134,25 @@ public sealed class App
     {
         get { return m_version; }
         set { m_version = value; }
+    }
+
+    /// <summary>
+    /// 构建版本
+    /// </summary>
+    public int bundleVersionCode
+    {
+        get { return m_bundleVersionCode; }
+        set { m_bundleVersionCode = value; }
+    }
+
+    /// <summary>
+    /// 宏定义
+    /// </summary>
+    /// <value>The scripting define symbols.</value>
+    public string scriptingDefineSymbols
+    {
+        get { return m_scriptingDefineSymbols; }
+        set { m_scriptingDefineSymbols = value; }
     }
 
     /// <summary>
@@ -165,119 +238,30 @@ public sealed class App
     }
 
     /// <summary>
-    /// 平台标签
+    /// 安卓平台标签
     /// </summary>
-    public string platform
+    public string androidPlatformName
     {
-        get { return m_platform; }
-        set { m_platform = value; }
-    }
-    #endregion
-
-    #region Static Property
-    /// <summary>
-    /// 游戏版本[App版本、显示版本、资源版本一致]
-    /// </summary>
-    public static string getVersion
-    {
-        get { return m_instance.version; }
-        set { m_instance.version = value; }
+        get { return m_androidPlatformName; }
+        set { m_androidPlatformName = value; }
     }
 
     /// <summary>
-    /// 登陆地址
+    /// IOS平台标签
     /// </summary>
-    /// <value>The login URL.</value>
-    public static string getLoginUrl
+    public string iOSPlatformName
     {
-        get { return m_instance.loginUrl; }
+        get { return m_iOSPlatformName; }
+        set { m_iOSPlatformName = value; }
     }
 
     /// <summary>
-    /// 首选CDN
+    /// 默认平台标签
     /// </summary>
-    public static string getCDN
+    public string defaultPlatformName
     {
-        get { return m_instance.cdn; }
-    }
-
-    /// <summary>
-    /// 备用CDN
-    /// </summary>
-    public static string getSpareCDN
-    {
-        get { return m_instance.spareCDN; }
-    }
-
-    /// <summary>
-    /// 是否开启引导
-    /// </summary>
-    public static bool getIsOpenGuide
-    {
-        get { return m_instance.isOpenGuide; }
-    }
-
-    /// <summary>
-    /// 是否开启更新功能
-    /// </summary>
-    public static bool getUpdateMode
-    {
-        get { return m_instance.updateMode; }
-    }
-
-    /// <summary>
-    /// 是否功能全解锁
-    /// </summary>
-    public static bool getFunctionUnlock
-    {
-        get { return m_instance.functionUnlock; }
-    }
-
-    /// <summary>
-    /// 是否开启日志
-    /// </summary>
-    public static bool getLog
-    {
-        get { return m_instance.log; }
-    }
-
-    /// <summary>
-    /// 是否开启Web日志
-    /// </summary>
-    public static bool getWebLog
-    {
-        get { return m_instance.webLog; }
-    }
-
-    /// <summary>
-    /// WebLog白名单
-    /// </summary>
-    public static List<string> getWebLogIp
-    {
-        get { return m_instance.webLogIp; }
-    }
-    
-    /// <summary>
-    /// 平台标签
-    /// </summary>
-    public static string getPlatform
-    {
-        get
-        {
-            return m_instance.platform;
-        }
-    }
-    #endregion
-
-    #region Function
-    /// <summary>
-    /// 初始化
-    /// </summary>
-    public static App Init()
-    {
-        TextAsset t = Resources.Load("app") as TextAsset;
-        m_instance = JsonReader.Deserialize<App>(t.text);
-        return m_instance;
+        get { return m_defaultPlatformName; }
+        set { m_defaultPlatformName = value; }
     }
     #endregion
 }
