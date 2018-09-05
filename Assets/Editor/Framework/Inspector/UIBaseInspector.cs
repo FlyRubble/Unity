@@ -22,11 +22,14 @@ namespace Framework
                     property = serializedObject.FindProperty("m_cache");
                     EditorGUILayout.PropertyField(property);
 
-                    property = serializedObject.FindProperty("m_sortOrder");
+                    property = serializedObject.FindProperty("m_sibling");
                     EditorGUILayout.PropertyField(property);
 
-                    property = serializedObject.FindProperty("m_defaultActive");
-                    EditorGUILayout.PropertyField(property);
+                    if ((Sibling)property.intValue == Sibling.Custom)
+                    {
+                        property = serializedObject.FindProperty("m_sortOrder");
+                        EditorGUILayout.PropertyField(property);
+                    }
                 }
 
                 if (GUILayout.Button("添加操作的UI容器"))

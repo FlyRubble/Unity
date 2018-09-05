@@ -152,6 +152,83 @@ namespace Framework
         }
 
         /// <summary>
+        /// 插入通知
+        /// </summary>
+        /// <param name="obs"></param>
+        /// <param name="name"></param>
+        /// <param name="index"></param>
+        public void InsertNotification(IObserver obs, string name, int index = 0)
+        {
+            if (null == obs) return;
+
+            if (string.IsNullOrEmpty(name)) return;
+            if (!m_nData.ContainsKey(name))
+            {
+                m_nData.Add(name, new List<IObserver>());
+            }
+            m_nData[name].Insert(index, obs);
+
+            if (!obs.nName.Contains(name))
+            {
+                obs.nName.Insert(index, name);
+            }
+        }
+
+        /// <summary>
+        /// 插入通知
+        /// </summary>
+        /// <param name="obs"></param>
+        /// <param name="name"></param>
+        /// <param name="index"></param>
+        public void InsertNotification(IObserver obs, string[] name, int index = 0)
+        {
+            if (null == obs) return;
+
+            if (null == name) return;
+            for (int i = name.Length - 1; i >= 0; --i)
+            {
+                if (string.IsNullOrEmpty(name[i])) continue;
+                if (!m_nData.ContainsKey(name[i]))
+                {
+                    m_nData.Add(name[i], new List<IObserver>());
+                }
+                m_nData[name[i]].Insert(index, obs);
+
+                if (!obs.nName.Contains(name[i]))
+                {
+                    obs.nName.Insert(index, name[i]);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 插入通知
+        /// </summary>
+        /// <param name="obs"></param>
+        /// <param name="name"></param>
+        /// <param name="index"></param>
+        public void InsertNotification(IObserver obs, List<string> name, int index = 0)
+        {
+            if (null == obs) return;
+
+            if (null == name) return;
+            for(int i = name.Count - 1; i >= 0; --i)
+            {
+                if (string.IsNullOrEmpty(name[i])) continue;
+                if (!m_nData.ContainsKey(name[i]))
+                {
+                    m_nData.Add(name[i], new List<IObserver>());
+                }
+                m_nData[name[i]].Insert(index, obs);
+
+                if (!obs.nName.Contains(name[i]))
+                {
+                    obs.nName.Insert(index, name[i]);
+                }
+            }
+        }
+
+        /// <summary>
         /// 移除通知
         /// </summary>
         /// <param name="obs"></param>
