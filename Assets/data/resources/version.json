@@ -1,0 +1,15 @@
+{
+	"productName": "n11",
+	"version": "n1",
+	"loginUrl": "n1",
+	"cdn": "n1",
+	"isOpenGuide": true,
+	"isOpenUpdate": true,
+	"isUnlockAllFunction": false,
+	"log": false,
+	"webLog": false,
+	"webLogIp": "",
+	"androidPlatformName": "n1",
+	"iOSPlatformName": "n1",
+	"defaultPlatformName": "n1"
+}

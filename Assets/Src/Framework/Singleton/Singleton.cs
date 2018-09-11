@@ -17,7 +17,6 @@ namespace Framework
 			{
 				get
 				{
-
 					return Nested.g_instance;
 				}
 			}
