@@ -1,23 +1,22 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using Framework;
 using Framework.IO;
+using UnityAsset;
+using Framework.Event;
 
 public class Launch : MonoBehaviour
 {
-    public Dictionary<string, object> a;
-
     /// <summary>
     /// 启动
     /// </summary>
     void Awake()
     {
         App.Init();
+        AssetManager.instance.maxLoader = Const.MAX_LOADER;
+        Schedule.instance.Start();
+        StateMachine.instance.OnEnter(new Unzip());
 
-        Debug.Log(App.productName);
-        Debug.Log(App.version);
-        Debug.Log(App.isOpenGuide);
-        Debug.Log(App.webLogIp.Count);
-        Debug.Log(App.platform);
+        //Object o = UnityEditor.AssetDatabase.LoadAssetAtPath("Assets", typeof(Object))
     }
 
     /// <summary>
@@ -31,4 +30,11 @@ public class Launch : MonoBehaviour
             ManifestConfig manifest = new ManifestConfig();
         }
 	}
+
+    private void Update()
+    {
+        AssetManager.instance.Update();
+        Schedule.instance.Update(Time.deltaTime);
+        StateMachine.instance.Update();
+    }
 }

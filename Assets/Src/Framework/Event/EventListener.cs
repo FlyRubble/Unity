@@ -3,9 +3,10 @@ using System.Collections.Generic;
 
 namespace Framework
 {
+    using Singleton;
     namespace Event
     {
-		public class EventListener<Type> : Singleton.Singleton<EventListener<Type>>
+		public class EventListener<Type> : Singleton<EventListener<Type>>
         {
             /// <summary>
             /// 事件字典表

@@ -5,6 +5,7 @@ namespace Framework
 {
     using Singleton;
     using Event;
+    using UnityAsset;
     namespace UI
     {
         /// <summary>
@@ -151,27 +152,28 @@ namespace Framework
                     else
                     {
                         m_param.Add(name, param);
-                        UnityEngine.Object o = Resources.Load(name);
-
-                        {
-                            GameObject go = GameObject.Instantiate(o) as GameObject;
-                            go.name = go.name.Replace("(Clone)", "");
-                            go.transform.parent = m_root;
-                            go.transform.localPosition = Vector3.zero;
-                            go.transform.localScale = Vector3.one;
-                            go.transform.localRotation = Quaternion.identity;
-                            UIBase t = go.GetComponent<UIBase>();
-                            if (null != t)
+                        AssetManager.instance.Load("data/ui/" + name + ".prefab", (bResult, asset)=> {
+                            if (bResult && asset != null)
                             {
-                                m_data.Add(name, t);
-                                t.Open(m_param.ContainsKey(name) ? m_param[name] : null);
+                                GameObject go = GameObject.Instantiate(asset) as GameObject;
+                                go.name = go.name.Replace("(Clone)", "");
+                                go.transform.parent = m_root;
+                                go.transform.localPosition = Vector3.zero;
+                                go.transform.localScale = Vector3.one;
+                                go.transform.localRotation = Quaternion.identity;
+                                UIBase t = go.GetComponent<UIBase>();
+                                if (null != t)
+                                {
+                                    m_data.Add(name, t);
+                                    t.Open(m_param.ContainsKey(name) ? m_param[name] : null);
+                                }
+                                else
+                                {
+                                    Debug.LogErrorFormat("UI: '{0}' is not find!", name);
+                                }
+                                m_param.Remove(name);
                             }
-                            else
-                            {
-                                Debug.LogErrorFormat("UI: '{0}' is not find!", name);
-                            }
-                            m_param.Remove(name);
-                        }
+                        });
                     }
                 }
             }

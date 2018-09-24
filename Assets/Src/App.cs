@@ -190,9 +190,26 @@ public sealed class App
 #endif
         }
     }
-    #endregion
 
-    #region Function
+    /// <summary>
+    /// 本地URL
+    /// </summary>
+    public static string localUrl
+    {
+        get
+        {
+#if UNITY_ANDROID
+            return "jar:file://" + Application.dataPath + "!/assets/";
+#elif UNITY_IOS
+            return "file://" + Application.dataPath + "/Raw/";
+#else
+            return "file:///" + Application.dataPath + "/StreamingAssets/";
+#endif
+        }
+    }
+#endregion
+
+#region Function
     /// <summary>
     /// 初始化
     /// </summary>
@@ -287,5 +304,5 @@ public sealed class App
             m_defaultPlatformName = data[DefaultPlatformName].ToString();
         }
     }
-    #endregion
+#endregion
 }

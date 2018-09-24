@@ -43,7 +43,7 @@
         /// <summary>
         /// 更新状态
         /// </summary>
-        public virtual void OnUpdate()
+        public virtual void Update()
         {
 
         }

@@ -45,9 +45,9 @@
         /// <summary>
         /// 更新状态
         /// </summary>
-        public void OnUpdate()
+        public void Update()
         {
-            m_current.OnUpdate();
+            m_current.Update();
         }
         #endregion
     }

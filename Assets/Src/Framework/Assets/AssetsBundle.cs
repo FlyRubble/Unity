@@ -17,7 +17,7 @@ namespace UnityAsset
         /// 是否完成
         /// </summary>
         /// <value><c>true</c> if is done; otherwise, <c>false</c>.</value>
-        public new bool isDone
+        public override bool isDone
         {
             get { return m_www != null ? m_www.isDone : false; }
         }
@@ -26,7 +26,7 @@ namespace UnityAsset
         /// 进度
         /// </summary>
         /// <value>The progress.</value>
-        public new float progress
+        public override float progress
         {
             get { return m_www != null ? m_www.progress : 0f; }
         }

@@ -35,7 +35,7 @@ namespace Framework
             /// 需要操作的GameObject列表
             /// </summary>
             [Header("需要操作的GameObject列表")]
-            [SerializeField] public List<GameObject> m_list;
+            [SerializeField] public List<GameObject> m_list = new List<GameObject>();
 
             /// <summary>
             /// Canvas设置层级后跟显示相关

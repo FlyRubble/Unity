@@ -198,6 +198,30 @@ namespace UnityAsset
         }
 
         /// <summary>
+        /// 加载资源
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="action"></param>
+        public void Load(string path, Action<bool, Object> action)
+        {
+#if AB_MODE
+            path = App.localUrl + path;
+            if (action != null)
+            {
+                AssetBundleLoadAsync(path, (bResult, asset) => {
+                    action(bResult, asset.mainAsset);
+                });
+            }
+#else
+            if (action != null)
+            {
+                path = "Assets/" + path;
+                action(true, UnityEditor.AssetDatabase.LoadAssetAtPath(path, typeof(Object)));
+            }
+#endif
+        }
+
+        /// <summary>
         /// 更新
         /// </summary>
         public void Update()
@@ -213,18 +237,21 @@ namespace UnityAsset
                     {
                         switch (kvp.Value.loadState)
                         {
-                        case AsyncAsset.LoadState.Wait:
-                        {
-                            kvp.Value.AsyncLoad();
-                        } break;
-                        case AsyncAsset.LoadState.Loading:
-                        {
-                            if (kvp.Value.isDone)
-                            {
-                                kvp.Value.Complete();
-                                m_remove.Add(kvp.Value);
-                            }
-                        } break;
+                            case AsyncAsset.LoadState.Wait:
+                                {
+                                    kvp.Value.AsyncLoad();
+                                }
+                                break;
+                            case AsyncAsset.LoadState.Loading:
+                                {
+                                    Debug.Log(kvp.Value.url);
+                                    if (kvp.Value.isDone)
+                                    {
+                                        kvp.Value.Complete();
+                                        m_remove.Add(kvp.Value);
+                                    }
+                                }
+                                break;
                         }
                         if (--m_currentMaxLoader == 0)
                         {
@@ -342,6 +369,6 @@ namespace UnityAsset
                 Resources.UnloadUnusedAssets();
             }
         }
-        #endregion
+#endregion
     }
 }

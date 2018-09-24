@@ -52,7 +52,7 @@ namespace UnityAsset
         /// 是否完成
         /// </summary>
         /// <value><c>true</c> if is done; otherwise, <c>false</c>.</value>
-        public new bool isDone
+        public virtual bool isDone
         {
             get { return false; }
         }
@@ -61,7 +61,7 @@ namespace UnityAsset
         /// 进度
         /// </summary>
         /// <value>The progress.</value>
-        public new float progress
+        public virtual float progress
         {
             get { return 0f; }
         }
