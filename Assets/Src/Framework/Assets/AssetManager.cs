@@ -43,6 +43,11 @@ namespace UnityAsset
         /// 当前最大加载数
         /// </summary>
         int m_currentMaxLoader = 0;
+
+        /// <summary>
+        /// URL
+        /// </summary>
+        string m_url = string.Empty;
         #endregion
 
         #region Property
@@ -63,6 +68,15 @@ namespace UnityAsset
         {
             get { return m_maxLoader; }
             set { m_maxLoader = value; }
+        }
+
+        /// <summary>
+        /// URL
+        /// </summary>
+        public string url
+        {
+            get { return m_url; }
+            set { m_url = value; }
         }
         #endregion
 
@@ -204,19 +218,19 @@ namespace UnityAsset
         /// <param name="action"></param>
         public void Load(string path, Action<bool, Object> action)
         {
-#if AB_MODE
-            path = App.localUrl + path;
+#if UNITY_EDITOR && !AB_MODE
+            if (action != null)
+            {
+                path = "Assets/" + path;
+                action(true, UnityEditor.AssetDatabase.LoadAssetAtPath(path, typeof(Object)));
+            }
+#else
+            path = m_url + path;
             if (action != null)
             {
                 AssetBundleLoadAsync(path, (bResult, asset) => {
                     action(bResult, asset.mainAsset);
                 });
-            }
-#else
-            if (action != null)
-            {
-                path = "Assets/" + path;
-                action(true, UnityEditor.AssetDatabase.LoadAssetAtPath(path, typeof(Object)));
             }
 #endif
         }
@@ -244,7 +258,6 @@ namespace UnityAsset
                                 break;
                             case AsyncAsset.LoadState.Loading:
                                 {
-                                    Debug.Log(kvp.Value.url);
                                     if (kvp.Value.isDone)
                                     {
                                         kvp.Value.Complete();

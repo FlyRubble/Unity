@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using Framework.JsonFx;
+using Framework.IO;
 
 /// <summary>
 /// App
@@ -90,6 +91,11 @@ public sealed class App
     /// [桌面]平台标签
     /// </summary>
     private static string m_defaultPlatformName = string.Empty;
+
+    /// <summary>
+    /// 资源清单文件
+    /// </summary>
+    private static ManifestConfig m_manifest = new ManifestConfig();
     #endregion
 
     #region Property
@@ -192,24 +198,82 @@ public sealed class App
     }
 
     /// <summary>
-    /// 本地URL
+    /// 资源清单文件
     /// </summary>
-    public static string localUrl
+    public static ManifestConfig manifest
+    {
+        get { return m_manifest; }
+        set { m_manifest = value; }
+    }
+
+    /// <summary>
+    /// assetPath
+    /// </summary>
+    public static string assetPath
     {
         get
         {
-#if UNITY_ANDROID
-            return "jar:file://" + Application.dataPath + "!/assets/";
-#elif UNITY_IOS
-            return "file://" + Application.dataPath + "/Raw/";
-#else
-            return "file:///" + Application.dataPath + "/StreamingAssets/";
-#endif
+            if (Application.platform == RuntimePlatform.Android)
+            {
+                return Application.persistentDataPath + "/";
+            }
+            else if (Application.platform == RuntimePlatform.IPhonePlayer)
+            {
+                return Application.persistentDataPath + "/";
+            }
+            else
+            {
+                return Application.persistentDataPath + "/";
+            }
         }
     }
-#endregion
 
-#region Function
+    /// <summary>
+    /// persistentDataPath
+    /// </summary>
+    public static string persistentDataPath
+    {
+        get
+        {
+            if (Application.platform == RuntimePlatform.Android)
+            {
+                return "jar:file://" + Application.persistentDataPath + "/";
+            }
+            else if (Application.platform == RuntimePlatform.IPhonePlayer)
+            {
+                return "file://" + Application.persistentDataPath + "/";
+            }
+            else
+            {
+                return "file:///" + Application.persistentDataPath + "/";
+            }
+        }
+    }
+
+    /// <summary>
+    /// streamingAssetsPath
+    /// </summary>
+    public static string streamingAssetsPath
+    {
+        get
+        {
+            if (Application.platform == RuntimePlatform.Android)
+            {
+                return Application.streamingAssetsPath + "/";
+            }
+            else if (Application.platform == RuntimePlatform.IPhonePlayer)
+            {
+                return "file://" + Application.streamingAssetsPath + "/";
+            }
+            else
+            {
+                return "file://" + Application.streamingAssetsPath + "/";
+            }
+        }
+    }
+    #endregion
+
+    #region Function
     /// <summary>
     /// 初始化
     /// </summary>
@@ -218,6 +282,15 @@ public sealed class App
         TextAsset t = Resources.Load("version") as TextAsset;
         Dictionary<string, object> data = JsonReader.Deserialize<Dictionary<string, object>>(t.text);
 
+        Update(data);
+    }
+
+    /// <summary>
+    /// 更新
+    /// </summary>
+    /// <param name="data"></param>
+    public static void Update(Dictionary<string, object> data)
+    {
         // 产品名
         if (data.ContainsKey(ProductName))
         {
@@ -304,5 +377,5 @@ public sealed class App
             m_defaultPlatformName = data[DefaultPlatformName].ToString();
         }
     }
-#endregion
+    #endregion
 }

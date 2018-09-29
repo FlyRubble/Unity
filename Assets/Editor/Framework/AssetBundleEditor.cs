@@ -152,6 +152,10 @@ public class AssetBundleEditor
     public static void BuildManifestFile(string output)
     {
         ManifestConfig manifestConfig = GetManifest(output);
+        foreach (var data in manifestConfig.data)
+        {
+            Debug.Log(data.Key);
+        }
         // 写入Manifest
         if (manifestConfig != null)
         {
@@ -240,10 +244,11 @@ public class AssetBundleEditor
         // 写入Manifest
         if (manifestConfig != null)
         {
+            AssetDatabase.Refresh();
             // 拷贝资源
             if (Directory.Exists(streamingAssets))
             {
-                Directory.Delete(streamingAssets, true);
+                FileUtil.DeleteFileOrDirectory(streamingAssets);
             }
             AssetDatabase.Refresh();
             Directory.CreateDirectory(streamingAssets);
@@ -338,7 +343,7 @@ public class AssetBundleEditor
                     File.WriteAllBytes(string.Format("{0}/{1}_{2}_{3}_{4}.zip", dest, platform, version, date, md5), fileBytes);
                 }
             }
-            File.Delete(updateFilePath);
+            Directory.Delete(updateFilePath);
             AssetDatabase.Refresh();
         }
     }

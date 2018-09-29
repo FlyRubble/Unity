@@ -14,9 +14,6 @@ public class Launch : MonoBehaviour
         App.Init();
         AssetManager.instance.maxLoader = Const.MAX_LOADER;
         Schedule.instance.Start();
-        StateMachine.instance.OnEnter(new Unzip());
-
-        //Object o = UnityEditor.AssetDatabase.LoadAssetAtPath("Assets", typeof(Object))
     }
 
     /// <summary>
@@ -24,13 +21,12 @@ public class Launch : MonoBehaviour
     /// </summary>
     void Start()
 	{
-        TextAsset asset = Resources.Load("manifest.txt") as TextAsset;
-        if (asset != null)
-        {
-            ManifestConfig manifest = new ManifestConfig();
-        }
-	}
+        StateMachine.instance.OnEnter(new Init());
+    }
 
+    /// <summary>
+    /// 
+    /// </summary>
     private void Update()
     {
         AssetManager.instance.Update();

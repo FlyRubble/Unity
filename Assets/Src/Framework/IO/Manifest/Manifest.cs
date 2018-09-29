@@ -69,6 +69,7 @@ namespace Framework
             public List<string> directDependencies
             {
                 get { return m_directDependencies; }
+                private set { m_directDependencies = value; }
             }
             #endregion
 

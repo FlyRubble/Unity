@@ -4,26 +4,44 @@
 			"data/image/icon.png": 
 				{
 					"name": "data/image/icon.png",
-					"MD5": "1ff3c15983db06052ec3ae0bb5edb003",
-					"size": 633
+					"MD5": "280229d1e44a5d87764cc552721c5242",
+					"size": 633,
+					"directDependencies": 
+						[]
 				},
 			"data/image/loading.png": 
 				{
 					"name": "data/image/loading.png",
-					"MD5": "f42f1ffb55a48414be7cc0d8e1992204",
-					"size": 776
+					"MD5": "9b3b9e3721529d3eb346607d3ceeda72",
+					"size": 637,
+					"directDependencies": 
+						[]
 				},
 			"data/scene/launch.scene": 
 				{
 					"name": "data/scene/launch.scene",
-					"MD5": "2a9163ed31d56e5a8a4956298ef34320",
-					"size": 132
+					"MD5": "affe7ecf16f6b75c0999a7203b62c94b",
+					"size": 116,
+					"directDependencies": 
+						[]
 				},
 			"data/ui/canvas.prefab": 
 				{
 					"name": "data/ui/canvas.prefab",
-					"MD5": "1c7cc0f3d2345a833dab923993cbd150",
-					"size": 6
+					"MD5": "e33bba2aee57f4d6c4a2e989750f31e1",
+					"size": 5,
+					"directDependencies": 
+						[]
+				},
+			"data/ui/uiloading.prefab": 
+				{
+					"name": "data/ui/uiloading.prefab",
+					"MD5": "9989a76c0adb7f011b5bf7c7af60e149",
+					"size": 4,
+					"directDependencies": 
+						[
+							"data/image/loading.png"
+						]
 				}
 		}
 }

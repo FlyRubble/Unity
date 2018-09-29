@@ -38,13 +38,21 @@ namespace Framework
             {
                 m_data = new Dictionary<string, UIBase>();
                 m_param = new Dictionary<string, Param>();
-
-                GameObject go = GameObject.Find("Canvas/Center");
-                if (null != go)
-                {
-                    GameObject.DontDestroyOnLoad(go.transform.parent.gameObject);
-                    m_root = go.transform;
-                }
+                
+                Helper.Load("data/ui/" + Const.UI_CANVAS + ".prefab", (bResult, asset) => {
+                    if (bResult && asset != null)
+                    {
+                        GameObject go = GameObject.Instantiate(asset) as GameObject;
+                        go.name = go.name.Replace("(Clone)", "");
+                        go.transform.parent = m_root;
+                        go.transform.localPosition = Vector3.zero;
+                        go.transform.localScale = Vector3.one;
+                        go.transform.localRotation = Quaternion.identity;
+                        
+                        GameObject.DontDestroyOnLoad(go);
+                        m_root = go.transform.Find("Center");
+                    }
+                });
             }
 
             /// <summary>
@@ -152,7 +160,7 @@ namespace Framework
                     else
                     {
                         m_param.Add(name, param);
-                        AssetManager.instance.Load("data/ui/" + name + ".prefab", (bResult, asset)=> {
+                        Helper.Load("data/ui/" + name + ".prefab", (bResult, asset)=> {
                             if (bResult && asset != null)
                             {
                                 GameObject go = GameObject.Instantiate(asset) as GameObject;

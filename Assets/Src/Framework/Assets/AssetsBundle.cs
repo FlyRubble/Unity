@@ -48,6 +48,17 @@ namespace UnityAsset
         }
 
         /// <summary>
+        /// 字节
+        /// </summary>
+        public override byte[] bytes
+        {
+            get
+            {
+                return m_www != null ? m_www.bytes : base.bytes;
+            }
+        }
+
+        /// <summary>
         /// 错误
         /// </summary>
         public override string error

@@ -76,6 +76,14 @@ namespace UnityAsset
         }
 
         /// <summary>
+        /// 字节
+        /// </summary>
+        public virtual byte[] bytes
+        {
+            get { return new byte[0]; }
+        }
+
+        /// <summary>
         /// 错误
         /// </summary>
         public virtual string error
@@ -118,6 +126,7 @@ namespace UnityAsset
         public virtual void Complete()
         {
             m_loadState = LoadState.Complete;
+            m_mainAsset = mainAsset;
         }
 
         /// <summary>
