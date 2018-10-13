@@ -67,7 +67,7 @@ namespace Framework
             {
                 www.assetBundle.Unload(true);
             }
-            Dictionary<string, object> data = JsonReader.Deserialize<Dictionary<string, object>>(t.text);
+            //Dictionary<string, object> data = JsonReader.Deserialize<Dictionary<string, object>>(t.text);
             // 解压
             //m_async.Clear();
             //AsyncAsset async = AssetManager.instance.AssetBundleLoadAsync(AssetManager.instance.url + Const.UPDATE_FILE, (bResult, asset) => {

@@ -7,6 +7,7 @@ namespace Framework
 {
     using UI;
     using IO;
+    using Event;
     using JsonFx;
     /// <summary>
     /// 状态
@@ -22,15 +23,23 @@ namespace Framework
         {
             base.OnEnter(param);
 
-            // 是否需要解压
-            bool bExists = File.Exists(App.assetPath + Const.MANIFESTFILE);
-            if (bExists)
+            // 选择沙盒路径还是流式路径
+            bool sandbox = App.version.Equals(PlayerPrefs.GetString(Const.SANDBOX_VERSION));
+            AssetManager.instance.url = sandbox ? App.persistentDataPath : App.streamingAssetsPath;
+            // 加载Loading界面
+            UIManager.instance.OpenUI(Const.UI_LOADING);
+
+            // 检测网络是否开启
+            if (App.internetReachability)
             {
-                StateMachine.instance.OnEnter(new CheckUpdate());
+                // 检测版本更新
+                StateMachine.instance.OnEnter(new VersionUpdate());
             }
             else
             {
-                StateMachine.instance.OnEnter(new Unzip());
+                // 网络不可达，退出
+                Action action = () => { Helper.Msg("网络不可达，请打开网络再试，现在需要退出"); };
+                UIManager.instance.OpenUI(Const.UI_NORMAL_TIPS_BOX, Param.Create(new object[] { UINormalTipsBox.SURE_ACTION, action, UINormalTipsBox.TEXT_CONTENT, "网络不可达，请打开网络再试，现在需要退出" }));
             }
         }
         #endregion

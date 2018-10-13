@@ -8,24 +8,6 @@ using Framework.IO;
 /// </summary>
 public sealed class App
 {
-    public const string Name = "name";
-    public const string ProductName = "productName";
-    public const string BundleIdentifier = "bundleIdentifier";
-    public const string Version = "version";
-    public const string BundleVersionCode = "bundleVersionCode";
-    public const string ScriptingDefineSymbols = "scriptingDefineSymbols";
-    public const string LoginUrl = "loginUrl";
-    public const string Cdn = "cdn";
-    public const string IsOpenGuide = "isOpenGuide";
-    public const string IsOpenUpdate = "isOpenUpdate";
-    public const string IsUnlockAllFunction = "isUnlockAllFunction";
-    public const string Log = "log";
-    public const string WebLog = "webLog";
-    public const string WebLogIp = "webLogIp";
-    public const string AndroidPlatformName = "androidPlatformName";
-    public const string IOSPlatformName = "iOSPlatformName";
-    public const string DefaultPlatformName = "defaultPlatformName";
-
     #region Variable
     /// <summary>
     /// 产品名
@@ -50,17 +32,17 @@ public sealed class App
     /// <summary>
     /// 是否开启引导
     /// </summary>
-    private static bool m_isOpenGuide = true;
+    private static bool m_openGuide = true;
 
     /// <summary>
     /// 是否开启更新功能
     /// </summary>
-    private static bool m_isOpenUpdate = true;
+    private static bool m_openUpdate = true;
 
     /// <summary>
     /// 是否功能全解锁
     /// </summary>
-    private static bool m_isUnlockAllFunction = false;
+    private static bool m_unlockAllFunction = false;
 
     /// <summary>
     /// 是否开启日志
@@ -96,6 +78,11 @@ public sealed class App
     /// 资源清单文件
     /// </summary>
     private static ManifestConfig m_manifest = new ManifestConfig();
+
+    /// <summary>
+    /// 远程版本
+    /// </summary>
+    private static Dictionary<string, object> m_remoteVersion = new Dictionary<string, object>();
     #endregion
 
     #region Property
@@ -135,25 +122,25 @@ public sealed class App
     /// <summary>
     /// 是否开启引导
     /// </summary>
-    public static bool isOpenGuide
+    public static bool openGuide
     {
-        get { return m_isOpenGuide; }
+        get { return m_openGuide; }
     }
 
     /// <summary>
     /// 是否开启更新功能
     /// </summary>
-    public static bool isOpenUpdate
+    public static bool openUpdate
     {
-        get { return m_isOpenUpdate; }
+        get { return m_openUpdate; }
     }
 
     /// <summary>
     /// 是否功能全解锁
     /// </summary>
-    public static bool isUnlockAllFunction
+    public static bool unlockAllFunction
     {
-        get { return m_isUnlockAllFunction; }
+        get { return m_unlockAllFunction; }
     }
 
     /// <summary>
@@ -204,6 +191,15 @@ public sealed class App
     {
         get { return m_manifest; }
         set { m_manifest = value; }
+    }
+
+    /// <summary>
+    /// 远程版本
+    /// </summary>
+    public static Dictionary<string, object> remoteVersion
+    {
+        get { return m_remoteVersion; }
+        set { m_remoteVersion = value; }
     }
 
     /// <summary>
@@ -271,6 +267,39 @@ public sealed class App
             }
         }
     }
+
+    /// <summary>
+    /// 网络是否可达
+    /// </summary>
+    public static bool internetReachability
+    {
+        get
+        {
+            return Application.internetReachability != NetworkReachability.NotReachable;
+        }
+    }
+
+    /// <summary>
+    /// 是否是流量网络
+    /// </summary>
+    public static bool dataNetwork
+    {
+        get
+        {
+            return Application.internetReachability == NetworkReachability.ReachableViaCarrierDataNetwork;
+        }
+    }
+
+    /// <summary>
+    /// 是否是Wifi网络
+    /// </summary>
+    public static bool wifi
+    {
+        get
+        {
+            return Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork;
+        }
+    }
     #endregion
 
     #region Function
@@ -292,64 +321,64 @@ public sealed class App
     public static void Update(Dictionary<string, object> data)
     {
         // 产品名
-        if (data.ContainsKey(ProductName))
+        if (data.ContainsKey(Const.PRODUCT_NAME))
         {
-            m_productName = data[ProductName].ToString();
+            m_productName = data[Const.PRODUCT_NAME].ToString();
         }
 
         // 游戏版本[App版本、显示版本、资源版本一致]
-        if (data.ContainsKey(Version))
+        if (data.ContainsKey(Const.VERSION))
         {
-            m_productName = data[Version].ToString();
+            m_productName = data[Const.VERSION].ToString();
         }
 
         // 登陆地址
-        if (data.ContainsKey(LoginUrl))
+        if (data.ContainsKey(Const.LOGIN_URL))
         {
-            m_loginUrl = data[LoginUrl].ToString();
+            m_loginUrl = data[Const.LOGIN_URL].ToString();
         }
 
         // Cdn
-        if (data.ContainsKey(Cdn))
+        if (data.ContainsKey(Const.CDN))
         {
-            m_cdn = data[Cdn].ToString();
+            m_cdn = data[Const.CDN].ToString();
         }
 
         // 是否开启引导
-        if (data.ContainsKey(IsOpenGuide))
+        if (data.ContainsKey(Const.OPEN_GUIDE))
         {
-            m_isOpenGuide = (bool)data[IsOpenGuide];
+            m_openGuide = (bool)data[Const.OPEN_GUIDE];
         }
 
         // 是否开启更新功能
-        if (data.ContainsKey(IsOpenUpdate))
+        if (data.ContainsKey(Const.OPEN_UPDATE))
         {
-            m_isOpenUpdate = (bool)data[IsOpenUpdate];
+            m_openUpdate = (bool)data[Const.OPEN_UPDATE];
         }
 
         // 是否功能全解锁
-        if (data.ContainsKey(IsUnlockAllFunction))
+        if (data.ContainsKey(Const.UNLOCK_ALL_FUNCTION))
         {
-            m_isUnlockAllFunction = (bool)data[IsUnlockAllFunction];
+            m_unlockAllFunction = (bool)data[Const.UNLOCK_ALL_FUNCTION];
         }
 
         // 是否开启日志
-        if (data.ContainsKey(Log))
+        if (data.ContainsKey(Const.LOG))
         {
-            m_log = (bool)data[Log];
+            m_log = (bool)data[Const.LOG];
         }
 
         // 是否开启Web日志
-        if (data.ContainsKey(WebLog))
+        if (data.ContainsKey(Const.WEB_LOG))
         {
-            m_webLog = (bool)data[WebLog];
+            m_webLog = (bool)data[Const.WEB_LOG];
         }
 
         // WebLog白名单
-        if (data.ContainsKey(WebLogIp))
+        if (data.ContainsKey(Const.WEB_LOG_IP))
         {
             m_webLogIp.Clear();
-            string[] array = data[WebLogIp].ToString().Split(',', ';', '|');
+            string[] array = data[Const.WEB_LOG_IP].ToString().Split(',', ';', '|');
             foreach (var ip in array)
             {
                 if (!string.IsNullOrEmpty(ip))
@@ -360,21 +389,21 @@ public sealed class App
         }
 
         // [安卓]平台标签
-        if (data.ContainsKey(AndroidPlatformName))
+        if (data.ContainsKey(Const.ANDROID_PLATFORM_NAME))
         {
-            m_androidPlatformName = data[AndroidPlatformName].ToString();
+            m_androidPlatformName = data[Const.ANDROID_PLATFORM_NAME].ToString();
         }
 
         // [苹果]平台标签
-        if (data.ContainsKey(IOSPlatformName))
+        if (data.ContainsKey(Const.IOS_PLATFORM_NAME))
         {
-            m_iOSPlatformName = data[IOSPlatformName].ToString();
+            m_iOSPlatformName = data[Const.IOS_PLATFORM_NAME].ToString();
         }
 
         // [桌面]平台标签
-        if (data.ContainsKey(DefaultPlatformName))
+        if (data.ContainsKey(Const.DEFAULT_PLATFORM_NAME))
         {
-            m_defaultPlatformName = data[DefaultPlatformName].ToString();
+            m_defaultPlatformName = data[Const.DEFAULT_PLATFORM_NAME].ToString();
         }
     }
     #endregion

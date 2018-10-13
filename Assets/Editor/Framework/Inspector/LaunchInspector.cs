@@ -24,42 +24,42 @@ public class LaunchInspector : Editor
     /// </summary>
     private List<Dictionary<string, object>> m_data = new List<Dictionary<string, object>>() {
         new Dictionary<string, object>(){
-            { App.Name, "n1" },
-            { App.ProductName, "n1" },
-            { App.BundleIdentifier, "n1" },
-            { App.Version, "n1" },
-            { App.BundleVersionCode, 0 },
-            { App.ScriptingDefineSymbols, "n1" },
-            { App.LoginUrl, "n1" },
-            { App.Cdn, "n1" },
-            { App.IsOpenGuide, true },
-            { App.IsOpenUpdate, true },
-            { App.IsUnlockAllFunction, false },
-            { App.Log, false },
-            { App.WebLog, false },
-            { App.WebLogIp, "" },
-            { App.AndroidPlatformName, "n1"},
-            { App.IOSPlatformName, "n1"},
-            { App.DefaultPlatformName, "n1"},
+            { Const.NAME, "n1" },
+            { Const.PRODUCT_NAME, "n1" },
+            { Const.BUNDLE_IDENTIFIER, "n1" },
+            { Const.VERSION, "n1" },
+            { Const.BUNDLE_VERSION_CODE, 0 },
+            { Const.SCRIPTING_DEFINE_SYMBOLS, "n1" },
+            { Const.LOGIN_URL, "n1" },
+            { Const.CDN, "n1" },
+            { Const.OPEN_GUIDE, true },
+            { Const.OPEN_UPDATE, true },
+            { Const.UNLOCK_ALL_FUNCTION, false },
+            { Const.LOG, false },
+            { Const.WEB_LOG, false },
+            { Const.WEB_LOG_IP, "" },
+            { Const.ANDROID_PLATFORM_NAME, "n1"},
+            { Const.IOS_PLATFORM_NAME, "n1"},
+            { Const.DEFAULT_PLATFORM_NAME, "n1"},
         },
         new Dictionary<string, object>(){
-            { App.Name, "n2" },
-            { App.ProductName, "n2" },
-            { App.BundleIdentifier, "n2" },
-            { App.Version, "n2" },
-            { App.BundleVersionCode, 1 },
-            { App.ScriptingDefineSymbols, "n2" },
-            { App.LoginUrl, "n2" },
-            { App.Cdn, "n2" },
-            { App.IsOpenGuide, true },
-            { App.IsOpenUpdate, true },
-            { App.IsUnlockAllFunction, false },
-            { App.Log, false },
-            { App.WebLog, false },
-            { App.WebLogIp, "" },
-            { App.AndroidPlatformName, "n2"},
-            { App.IOSPlatformName, "n2"},
-            { App.DefaultPlatformName, "n2"},
+            { Const.NAME, "n2" },
+            { Const.PRODUCT_NAME, "n2" },
+            { Const.BUNDLE_IDENTIFIER, "n2" },
+            { Const.VERSION, "n2" },
+            { Const.BUNDLE_VERSION_CODE, 1 },
+            { Const.SCRIPTING_DEFINE_SYMBOLS, "n2" },
+            { Const.LOGIN_URL, "n2" },
+            { Const.CDN, "n2" },
+            { Const.OPEN_GUIDE, true },
+            { Const.OPEN_UPDATE, true },
+            { Const.UNLOCK_ALL_FUNCTION, false },
+            { Const.LOG, false },
+            { Const.WEB_LOG, false },
+            { Const.WEB_LOG_IP, "" },
+            { Const.ANDROID_PLATFORM_NAME, "n2"},
+            { Const.IOS_PLATFORM_NAME, "n2"},
+            { Const.DEFAULT_PLATFORM_NAME, "n2"},
         }
     };
 
@@ -166,48 +166,48 @@ public class LaunchInspector : Editor
                 ModeToggle (selected);
             }
             // 产品名字
-			value = EditorGUILayout.TextField("Product Name", m_select[App.ProductName].ToString());
-			if (value != m_select[App.ProductName].ToString())
+			value = EditorGUILayout.TextField("Product Name", m_select[Const.PRODUCT_NAME].ToString());
+			if (value != m_select[Const.PRODUCT_NAME].ToString())
             {
 				bSave = true;
-                m_select[App.ProductName] = value;
+                m_select[Const.PRODUCT_NAME] = value;
 				ChangeSettings (ChangeType.ProductName);
 			}
 			// 包名
-			value = EditorGUILayout.TextField("Bundle Identifier", m_select[App.BundleIdentifier].ToString());
-			if (value != m_select[App.BundleIdentifier].ToString()) {
+			value = EditorGUILayout.TextField("Bundle Identifier", m_select[Const.BUNDLE_IDENTIFIER].ToString());
+			if (value != m_select[Const.BUNDLE_IDENTIFIER].ToString()) {
 				bSave = true;
-                m_select[App.BundleIdentifier] = value;
+                m_select[Const.BUNDLE_IDENTIFIER] = value;
 				ChangeSettings (ChangeType.BundleIdentifier);
 			}
 			// 版本
-			value = EditorGUILayout.TextField("Version*", m_select[App.Version].ToString());
-			if (value != m_select[App.Version].ToString()) {
+			value = EditorGUILayout.TextField("Version*", m_select[Const.VERSION].ToString());
+			if (value != m_select[Const.VERSION].ToString()) {
 				bSave = true;
-                m_select[App.Version] = value;
+                m_select[Const.VERSION] = value;
 				ChangeSettings (ChangeType.Version);
 			}
             // 版本Code
 #if UNITY_ANDROID
-			int bundleVersionCode = EditorGUILayout.IntField("BundleVersionCode", (int)m_select[App.BundleVersionCode]);
+			int bundleVersionCode = EditorGUILayout.IntField("BundleVersionCode", (int)m_select[Const.BUNDLE_VERSION_CODE]);
 			if (PlayerSettings.Android.bundleVersionCode != bundleVersionCode)
 			{
 				bSave = true;
-                m_select[App.BundleVersionCode] = bundleVersionCode;
+                m_select[Const.BUNDLE_VERSION_CODE] = bundleVersionCode;
 				ChangeSettings (ChangeType.BundleVersionCode);
 			}
 #elif UNITY_IOS
-            int buildNumber = EditorGUILayout.IntField("BuildNumber", (int)m_select[App.BundleVersionCode]);
+            int buildNumber = EditorGUILayout.IntField("BuildNumber", (int)m_select[Const.BUNDLE_VERSION_CODE]);
             if (PlayerSettings.iOS.buildNumber != buildNumber.ToString())
             {
                 bSave = true;
-                m_select[App.BundleVersionCode] = buildNumber;
+                m_select[Const.BUNDLE_VERSION_CODE] = buildNumber;
                 ChangeSettings(ChangeType.BundleVersionCode);
             }
 #else
-			EditorGUI.BeginDisabledGroup(true);
+            EditorGUI.BeginDisabledGroup(true);
 			EditorGUILayout.BeginHorizontal();
-			EditorGUILayout.IntField("BundleVersionCode", (int)m_select[App.BundleVersionCode]);
+			EditorGUILayout.IntField("BundleVersionCode", (int)m_select[Const.BUNDLE_VERSION_CODE]);
 			EditorGUILayout.LabelField("*仅Android或IOS有效");
 			EditorGUILayout.EndHorizontal();
 			EditorGUI.EndDisabledGroup();
@@ -216,12 +216,12 @@ public class LaunchInspector : Editor
             // 平台、宏定义
             EditorGUI.BeginDisabledGroup(true);
 			EditorGUILayout.TextField("Platform", EditorUserBuildSettings.activeBuildTarget.ToString());
-            EditorGUILayout.TextField("Scripting Define Symbol", m_select[App.ScriptingDefineSymbols].ToString());
+            EditorGUILayout.TextField("Scripting Define Symbol", m_select[Const.SCRIPTING_DEFINE_SYMBOLS].ToString());
             EditorGUI.EndDisabledGroup();
 
             // 设置配置选项组
-            selected = EditorGUILayout.Popup("服务器配置", m_nameList.IndexOf(m_select[App.Name].ToString()), m_nameList.ToArray());
-            if (selected != m_nameList.IndexOf(m_select[App.Name].ToString()))
+            selected = EditorGUILayout.Popup("服务器配置", m_nameList.IndexOf(m_select[Const.NAME].ToString()), m_nameList.ToArray());
+            if (selected != m_nameList.IndexOf(m_select[Const.NAME].ToString()))
             {
                 bSave = true;
                 m_select = m_data[selected];
@@ -245,57 +245,57 @@ public class LaunchInspector : Editor
 			EditorGUI.BeginDisabledGroup(selected != 0);
             {
 				// 登陆地址
-				value = EditorGUILayout.TextField("登录地址", m_select[App.LoginUrl].ToString());
-				if (value != m_select[App.LoginUrl].ToString()) {
+				value = EditorGUILayout.TextField("登录地址", m_select[Const.LOGIN_URL].ToString());
+				if (value != m_select[Const.LOGIN_URL].ToString()) {
 					bSave = true;
-                    m_select[App.LoginUrl] = value;
+                    m_select[Const.LOGIN_URL] = value;
 				}
 
 				// CDN
-				value = EditorGUILayout.TextField("CDN资源地址", m_select[App.Cdn].ToString());
-				if (value != m_select[App.Cdn].ToString()) {
+				value = EditorGUILayout.TextField("CDN资源地址", m_select[Const.CDN].ToString());
+				if (value != m_select[Const.CDN].ToString()) {
 					bSave = true;
-                    m_select[App.Cdn] = value;
+                    m_select[Const.CDN] = value;
 				}
 
 				// 是否开启引导
-				bool bValue = EditorGUILayout.Toggle("开启新手引导?", (bool)m_select[App.IsOpenGuide]);
-				if (bValue != (bool)m_select[App.IsOpenGuide]) {
+				bool bValue = EditorGUILayout.Toggle("开启新手引导?", (bool)m_select[Const.OPEN_GUIDE]);
+				if (bValue != (bool)m_select[Const.OPEN_GUIDE]) {
 					bSave = true;
-                    m_select[App.IsOpenGuide] = bValue;
+                    m_select[Const.OPEN_GUIDE] = bValue;
 				}
 
 				// 是否开启更新模式
-				bValue = EditorGUILayout.Toggle("开启资源更新?", (bool)m_select[App.IsOpenUpdate]);
-				if (bValue != (bool)m_select[App.IsOpenUpdate]) {
+				bValue = EditorGUILayout.Toggle("开启资源更新?", (bool)m_select[Const.OPEN_UPDATE]);
+				if (bValue != (bool)m_select[Const.OPEN_UPDATE]) {
 					bSave = true;
-                    m_select[App.IsOpenUpdate] = bValue;
+                    m_select[Const.OPEN_UPDATE] = bValue;
 				}
 
 				// 是否完全解锁所有功能
-				bValue = EditorGUILayout.Toggle("开启所有功能?", (bool)m_select[App.IsUnlockAllFunction]);
-				if (bValue != (bool)m_select[App.IsUnlockAllFunction]) {
+				bValue = EditorGUILayout.Toggle("开启所有功能?", (bool)m_select[Const.UNLOCK_ALL_FUNCTION]);
+				if (bValue != (bool)m_select[Const.UNLOCK_ALL_FUNCTION]) {
 					bSave = true;
-                    m_select[App.IsUnlockAllFunction] = bValue;
+                    m_select[Const.UNLOCK_ALL_FUNCTION] = bValue;
 				}
 
 				// 是否开启日志
-				bValue = EditorGUILayout.Toggle("开启日志&GM工具?", (bool)m_select[App.Log]);
-				if (bValue != (bool)m_select[App.Log]) {
+				bValue = EditorGUILayout.Toggle("开启日志&GM工具?", (bool)m_select[Const.LOG]);
+				if (bValue != (bool)m_select[Const.LOG]) {
 					bSave = true;
-                    m_select[App.Log] = bValue;
+                    m_select[Const.LOG] = bValue;
 				}
 
 				// 是否开启Web日志
-				bValue = EditorGUILayout.Toggle("开启远程日志?", (bool)m_select[App.WebLog]);
-				if (bValue != (bool)m_select[App.WebLog]) {
+				bValue = EditorGUILayout.Toggle("开启远程日志?", (bool)m_select[Const.WEB_LOG]);
+				if (bValue != (bool)m_select[Const.WEB_LOG]) {
 					bSave = true;
-                    m_select[App.WebLog] = bValue;
+                    m_select[Const.WEB_LOG] = bValue;
 				}
 
                 // 远程日志白名单
-                value = EditorGUILayout.TextField("远程日志白名单", m_select[App.WebLogIp].ToString());
-                if (value != m_select[App.WebLogIp].ToString())
+                value = EditorGUILayout.TextField("远程日志白名单", m_select[Const.WEB_LOG_IP].ToString());
+                if (value != m_select[Const.WEB_LOG_IP].ToString())
                 {
                     bSave = true;
                     string ip = string.Empty;
@@ -311,28 +311,28 @@ public class LaunchInspector : Editor
                     {
                         ip = ip.Substring(1, ip.Length - 1);
                     }
-                    m_select[App.WebLogIp] = ip;
+                    m_select[Const.WEB_LOG_IP] = ip;
                 }
 
                 // [安卓]CDN资源标签
-                value = EditorGUILayout.TextField("[安卓]CDN资源标签", m_select[App.AndroidPlatformName].ToString());
-				if (value != m_select[App.AndroidPlatformName].ToString()) {
+                value = EditorGUILayout.TextField("[安卓]CDN资源标签", m_select[Const.ANDROID_PLATFORM_NAME].ToString());
+				if (value != m_select[Const.ANDROID_PLATFORM_NAME].ToString()) {
 					bSave = true;
-                    m_select[App.AndroidPlatformName] = value;
+                    m_select[Const.ANDROID_PLATFORM_NAME] = value;
 				}
 
 				// [苹果]CDN资源标签
-				value = EditorGUILayout.TextField("[苹果]CDN资源标签", m_select[App.IOSPlatformName].ToString());
-				if (value != m_select[App.IOSPlatformName].ToString()) {
+				value = EditorGUILayout.TextField("[苹果]CDN资源标签", m_select[Const.IOS_PLATFORM_NAME].ToString());
+				if (value != m_select[Const.IOS_PLATFORM_NAME].ToString()) {
 					bSave = true;
-                    m_select[App.IOSPlatformName] = value;
+                    m_select[Const.IOS_PLATFORM_NAME] = value;
 				}
 
 				// [桌面]CDN资源标签
-				value = EditorGUILayout.TextField("[桌面]CDN资源标签", m_select[App.DefaultPlatformName].ToString());
-				if (value != m_select[App.DefaultPlatformName].ToString()) {
+				value = EditorGUILayout.TextField("[桌面]CDN资源标签", m_select[Const.DEFAULT_PLATFORM_NAME].ToString());
+				if (value != m_select[Const.DEFAULT_PLATFORM_NAME].ToString()) {
 					bSave = true;
-                    m_select[App.DefaultPlatformName] = value;
+                    m_select[Const.DEFAULT_PLATFORM_NAME] = value;
 				}
             }
 			EditorGUI.EndDisabledGroup();
@@ -436,19 +436,19 @@ public class LaunchInspector : Editor
     private void SaveVersion()
     {
         string[] list = new string[] {
-                    App.ProductName,
-                    App.Version,
-                    App.LoginUrl,
-                    App.Cdn,
-                    App.IsOpenGuide,
-                    App.IsOpenUpdate,
-                    App.IsUnlockAllFunction,
-                    App.Log,
-                    App.WebLog,
-                    App.WebLogIp,
-                    App.AndroidPlatformName,
-                    App.IOSPlatformName,
-                    App.DefaultPlatformName
+                    Const.PRODUCT_NAME,
+                    Const.VERSION,
+                    Const.LOGIN_URL,
+                    Const.CDN,
+                    Const.OPEN_GUIDE,
+                    Const.OPEN_UPDATE,
+                    Const.UNLOCK_ALL_FUNCTION,
+                    Const.LOG,
+                    Const.WEB_LOG,
+                    Const.WEB_LOG_IP,
+                    Const.ANDROID_PLATFORM_NAME,
+                    Const.IOS_PLATFORM_NAME,
+                    Const.DEFAULT_PLATFORM_NAME
                 };
         Dictionary<string, object> dic = new Dictionary<string, object>();
         for (int i = 0; i < list.Length; ++i)
@@ -484,7 +484,7 @@ public class LaunchInspector : Editor
             {
                 value = value.Substring(0, value.Length - 1);
             }
-            m_select[App.ScriptingDefineSymbols] = value;
+            m_select[Const.SCRIPTING_DEFINE_SYMBOLS] = value;
             ChangeSettings(ChangeType.ScriptingDefineSymbols);
         } break;
 		case 1:
@@ -510,7 +510,7 @@ public class LaunchInspector : Editor
                     value = "AB_MODE;" + value;
                 }
             }
-            m_select[App.ScriptingDefineSymbols] = value;
+            m_select[Const.SCRIPTING_DEFINE_SYMBOLS] = value;
             ChangeSettings(ChangeType.ScriptingDefineSymbols);
         } break;
 		}
@@ -526,33 +526,33 @@ public class LaunchInspector : Editor
         {
         case ChangeType.ProductName:
         {
-            PlayerSettings.productName = m_select[App.ProductName].ToString();
+            PlayerSettings.productName = m_select[Const.PRODUCT_NAME].ToString();
         }
         break;
         case ChangeType.BundleIdentifier:
         {
 #if UNITY_ANDROID || UNITY_IOS
-            PlayerSettings.applicationIdentifier = m_select[App.BundleIdentifier].ToString();
+            PlayerSettings.applicationIdentifier = m_select[Const.BUNDLE_IDENTIFIER].ToString();
 #endif
         }
         break;
         case ChangeType.Version:
         {
-            PlayerSettings.bundleVersion = m_select[App.Version].ToString();
+            PlayerSettings.bundleVersion = m_select[Const.VERSION].ToString();
         }
         break;
         case ChangeType.BundleVersionCode:
         {
 #if UNITY_ANDROID
-            PlayerSettings.Android.bundleVersionCode = (int)m_select[App.BundleVersionCode];
+            PlayerSettings.Android.bundleVersionCode = (int)m_select[Const.BUNDLE_VERSION_CODE];
 #elif UNITY_IOS
-            PlayerSettings.iOS.buildNumber = m_select[App.BundleVersionCode].ToString();
+            PlayerSettings.iOS.buildNumber = m_select[Const.BUNDLE_VERSION_CODE].ToString();
 #endif
         }
         break;
         case ChangeType.ScriptingDefineSymbols:
         {
-            string value = m_select[App.ScriptingDefineSymbols].ToString();
+            string value = m_select[Const.SCRIPTING_DEFINE_SYMBOLS].ToString();
             if (!PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup).Equals(value))
             {
                 PlayerSettings.SetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup, value);

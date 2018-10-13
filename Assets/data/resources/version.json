@@ -2,14 +2,14 @@
 	"productName": "n11",
 	"version": "1.0.0",
 	"loginUrl": "n1",
-	"cdn": "n1",
-	"isOpenGuide": true,
-	"isOpenUpdate": true,
-	"isUnlockAllFunction": false,
+	"cdn": "http://localhost/",
+	"openGuide": true,
+	"openUpdate": true,
+	"unlockAllFunction": false,
 	"log": false,
 	"webLog": false,
 	"webLogIp": "",
-	"androidPlatformName": "n1",
-	"iOSPlatformName": "n1",
-	"defaultPlatformName": "n1"
+	"androidPlatformName": "Android",
+	"iOSPlatformName": "iOS",
+	"defaultPlatformName": "PC"
 }

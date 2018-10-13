@@ -81,4 +81,13 @@ public class Helper
 #endif
         }
     }
+
+    public static void Msg(string msg, bool quit = false)
+    {
+        Debug.LogError(msg);
+        if (quit)
+        {
+            Application.Quit();
+        }
+    }
 }

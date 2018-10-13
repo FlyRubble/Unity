@@ -15,8 +15,16 @@ namespace Framework
             public override void OnInspectorGUI()
             {
                 var target = serializedObject.targetObject as UIBase;
-
-                SerializedProperty property = null;
+                // 脚本
+                EditorGUI.BeginDisabledGroup(true);
+                SerializedProperty property = serializedObject.GetIterator();
+                if (property.NextVisible(true))
+                {
+                    EditorGUILayout.PropertyField(property, new GUIContent("Script"), true, new GUILayoutOption[0]);
+                }
+                EditorGUI.EndDisabledGroup();
+                
+                // 其他属性
                 if (!target.name.StartsWith("_"))
                 {
                     property = serializedObject.FindProperty("m_cache");

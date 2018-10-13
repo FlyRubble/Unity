@@ -11,7 +11,7 @@ namespace Framework
     /// <summary>
     /// 状态
     /// </summary>
-    public class Unzip : State
+    public class SandboxAssetUpdate : State
     {
         #region Variable
         /// <summary>
@@ -44,7 +44,17 @@ namespace Framework
         {
             base.OnEnter(param);
 
-            AssetManager.instance.url = App.streamingAssetsPath;
+            // 沙盒路径是否有资源
+            bool sandbox = App.version.Equals(PlayerPrefs.GetString(Const.SANDBOX_VERSION));
+            //if (bExists)
+            //{
+            //    AssetManager.instance.url = App.persistentDataPath;
+            //    StateMachine.instance.OnEnter(new CheckUpdate());
+            //}
+            //else
+            //{
+            //    StateMachine.instance.OnEnter(new Unzip());
+            //}
             // 清空文件夹，以便重新解压
             if (Directory.Exists(Application.persistentDataPath))
             {
@@ -108,6 +118,7 @@ namespace Framework
                 if (m_currentSize == m_size)
                 {
                     AssetManager.instance.UnloadAssets();
+                    PlayerPrefs.SetString(Const.SANDBOX_VERSION, App.version);
                     StateMachine.instance.OnEnter(new CheckUpdate());
                 }
             }
