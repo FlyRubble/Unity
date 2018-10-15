@@ -24,42 +24,42 @@ public class LaunchInspector : Editor
     /// </summary>
     private List<Dictionary<string, object>> m_data = new List<Dictionary<string, object>>() {
         new Dictionary<string, object>(){
-            { Const.NAME, "n1" },
-            { Const.PRODUCT_NAME, "n1" },
-            { Const.BUNDLE_IDENTIFIER, "n1" },
-            { Const.VERSION, "n1" },
-            { Const.BUNDLE_VERSION_CODE, 0 },
-            { Const.SCRIPTING_DEFINE_SYMBOLS, "n1" },
-            { Const.LOGIN_URL, "n1" },
-            { Const.CDN, "n1" },
+            { Const.NAME, "自定义" },
+            { Const.PRODUCT_NAME, "街头篮球" },
+            { Const.BUNDLE_IDENTIFIER, "com.playgame.jtlq" },
+            { Const.VERSION, "1.0.0" },
+            { Const.BUNDLE_VERSION_CODE, 1 },
+            { Const.SCRIPTING_DEFINE_SYMBOLS, "" },
+            { Const.LOGIN_URL, "http://localhost/" },
+            { Const.CDN, "http://localhost/" },
             { Const.OPEN_GUIDE, true },
             { Const.OPEN_UPDATE, true },
             { Const.UNLOCK_ALL_FUNCTION, false },
             { Const.LOG, false },
             { Const.WEB_LOG, false },
             { Const.WEB_LOG_IP, "" },
-            { Const.ANDROID_PLATFORM_NAME, "n1"},
-            { Const.IOS_PLATFORM_NAME, "n1"},
-            { Const.DEFAULT_PLATFORM_NAME, "n1"},
+            { Const.ANDROID_PLATFORM_NAME, "Android"},
+            { Const.IOS_PLATFORM_NAME, "IOS"},
+            { Const.DEFAULT_PLATFORM_NAME, "PC"},
         },
         new Dictionary<string, object>(){
-            { Const.NAME, "n2" },
-            { Const.PRODUCT_NAME, "n2" },
-            { Const.BUNDLE_IDENTIFIER, "n2" },
-            { Const.VERSION, "n2" },
+            { Const.NAME, "本地测试" },
+            { Const.PRODUCT_NAME, "街头篮球" },
+            { Const.BUNDLE_IDENTIFIER, "com.playgame.jtlq" },
+            { Const.VERSION, "1.0.0" },
             { Const.BUNDLE_VERSION_CODE, 1 },
-            { Const.SCRIPTING_DEFINE_SYMBOLS, "n2" },
-            { Const.LOGIN_URL, "n2" },
-            { Const.CDN, "n2" },
+            { Const.SCRIPTING_DEFINE_SYMBOLS, "" },
+            { Const.LOGIN_URL, "http://localhost/" },
+            { Const.CDN, "http://localhost/" },
             { Const.OPEN_GUIDE, true },
             { Const.OPEN_UPDATE, true },
             { Const.UNLOCK_ALL_FUNCTION, false },
-            { Const.LOG, false },
+            { Const.LOG, true },
             { Const.WEB_LOG, false },
             { Const.WEB_LOG_IP, "" },
-            { Const.ANDROID_PLATFORM_NAME, "n2"},
-            { Const.IOS_PLATFORM_NAME, "n2"},
-            { Const.DEFAULT_PLATFORM_NAME, "n2"},
+            { Const.ANDROID_PLATFORM_NAME, "Android"},
+            { Const.IOS_PLATFORM_NAME, "IOS"},
+            { Const.DEFAULT_PLATFORM_NAME, "PC"},
         }
     };
 
@@ -345,6 +345,7 @@ public class LaunchInspector : Editor
                     bSave = true;
                     foreach (var kvp in m_select)
                     {
+                        if (kvp.Key.Equals(Const.NAME)) continue;
                         if (m_data[0].ContainsKey(kvp.Key))
                         {
                             m_data[0][kvp.Key] = kvp.Value;
@@ -371,10 +372,16 @@ public class LaunchInspector : Editor
                 }
                 EditorGUILayout.EndVertical();
 			}
-			// 清除本地资源解压缓存
-			if (GUILayout.Button ("清除本地资源解压缓存")) {
-				FileUtil.DeleteFileOrDirectory (Application.persistentDataPath);
-			}
+            // 打开本地沙盒资源目录
+            if (GUILayout.Button("打开本地沙盒资源目录"))
+            {
+                string persistentDataPath = Application.persistentDataPath.Replace("/", "\\");
+                System.Diagnostics.Process.Start("explorer.exe", persistentDataPath);
+            }
+            // 清除本地沙盒资源
+            if (GUILayout.Button ("清除本地沙盒资源")) {
+                PlayerPrefs.SetString(Const.SANDBOX_VERSION, null);
+            }
 
             value = PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
             index = value.Contains("AB_MODE") ? 1 : 0;

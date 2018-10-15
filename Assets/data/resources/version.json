@@ -1,15 +1,15 @@
 {
-	"productName": "n11",
+	"productName": "\u8857\u5934\u7BEE\u7403",
 	"version": "1.0.0",
-	"loginUrl": "n1",
+	"loginUrl": "http://localhost/",
 	"cdn": "http://localhost/",
 	"openGuide": true,
 	"openUpdate": true,
 	"unlockAllFunction": false,
-	"log": false,
+	"log": true,
 	"webLog": false,
 	"webLogIp": "",
 	"androidPlatformName": "Android",
-	"iOSPlatformName": "iOS",
+	"iOSPlatformName": "IOS",
 	"defaultPlatformName": "PC"
 }

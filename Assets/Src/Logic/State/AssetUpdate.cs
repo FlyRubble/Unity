@@ -11,7 +11,7 @@ namespace Framework
     /// <summary>
     /// 状态
     /// </summary>
-    public class CheckUpdate : State
+    public class AssetUpdate : State
     {
         #region Variable
         /// <summary>
