@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿using Framework.Event;
 using System.Collections.Generic;
 
 namespace Framework
@@ -200,6 +200,56 @@ namespace Framework
             {
                 return m_param.ContainsKey(name) ? m_param[name] : null;
             }
+        }
+
+        /// <summary>
+        /// 得到Bool
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public bool GetBool(object name)
+        {
+            return m_param.ContainsKey(name) ? (bool)m_param[name] : false;
+        }
+
+        /// <summary>
+        /// 得到Int
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public int GetInt(object name)
+        {
+            return m_param.ContainsKey(name) ? (int)m_param[name] : 0;
+        }
+
+        /// <summary>
+        /// 得到Float
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public float GetFloat(object name)
+        {
+            return m_param.ContainsKey(name) ? (float)m_param[name] : 0F;
+        }
+
+        /// <summary>
+        /// 得到String
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public string GetString(object name)
+        {
+            return m_param.ContainsKey(name) ? m_param[name].ToString() : null;
+        }
+
+        /// <summary>
+        /// 得到Action
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public Action GetAction(object name)
+        {
+            return m_param.ContainsKey(name) ? (Action)m_param[name] : null;
         }
 
         /// <summary>

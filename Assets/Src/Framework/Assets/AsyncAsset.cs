@@ -36,6 +36,11 @@ namespace UnityAsset
         /// 加载状态
         /// </summary>
         protected LoadState m_loadState = LoadState.None;
+
+        /// <summary>
+        /// 参数
+        /// </summary>
+        protected object m_args = null;
         #endregion
 
         #region Property
@@ -98,6 +103,15 @@ namespace UnityAsset
         public LoadState loadState
         {
             get { return m_loadState; }
+        }
+
+        /// <summary>
+        /// 参数
+        /// </summary>
+        public object args
+        {
+            get { return m_args; }
+            set { m_args = value; }
         }
         #endregion
 

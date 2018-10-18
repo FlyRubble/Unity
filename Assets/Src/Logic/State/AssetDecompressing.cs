@@ -37,7 +37,7 @@ namespace Framework
         /// <summary>
         /// 解压资源记录
         /// </summary>
-        private Dictionary<float, AsyncAsset> m_async = new Dictionary<float, AsyncAsset>();
+        private List<AsyncAsset> m_async = new List<AsyncAsset>();
         #endregion
 
         #region Function
@@ -48,7 +48,7 @@ namespace Framework
         public override void OnEnter(Param param = null)
         {
             base.OnEnter(param);
-
+            
             // 是否需要更新沙盒资源
             m_assetDecompressing = !App.version.Equals(PlayerPrefs.GetString(Const.SANDBOX_VERSION));
             if (m_assetDecompressing)
@@ -58,41 +58,57 @@ namespace Framework
                 {
                     Directory.Delete(Application.persistentDataPath, true);
                 }
-                // 获取清单文件
-                WWW www = new WWW(App.streamingAssetsPath + Const.MANIFESTFILE);
-                while (!www.isDone) ;
-                App.manifest = JsonReader.Deserialize<ManifestConfig>(www.assetBundle.LoadAsset<TextAsset>(Path.GetFileNameWithoutExtension(www.url)).text);
-                if (www.assetBundle != null)
-                {
-                    www.assetBundle.Unload(true);
-                }
                 // 解压准备
                 m_async.Clear();
                 AsyncAsset async = AssetManager.instance.AssetBundleLoadAsync(AssetManager.instance.url + Const.UPDATE_FILE, (bResult, asset) =>
                 {
-                    Helper.WriteAllBytes(App.assetPath + Const.UPDATE_FILE, asset.bytes);
+                    if (bResult)
+                    {
+                        Util.WriteAllBytes(App.assetPath + Const.UPDATE_FILE, asset.bytes);
+                    }
+                    else
+                    {
+                        Debugger.Log(asset.error);
+                    }
                 });
-                m_size += 0.1F;
-                m_async.Add(0.1F, async);
+                async.args = 0.1F;
+                m_size += (float)async.args;
+                m_async.Add(async);
                 foreach (var data in App.manifest.data.Values)
                 {
-                    m_size += data.size / 1024F;
                     async = AssetManager.instance.AssetBundleLoadAsync(AssetManager.instance.url + data.name, (bResult, asset) =>
                     {
-                        Helper.WriteAllBytes(App.assetPath + data.name, asset.bytes);
+                        if (bResult)
+                        {
+                            Util.WriteAllBytes(App.assetPath + data.name, asset.bytes);
+                        }
+                        else
+                        {
+                            Debugger.Log(asset.error);
+                        }
                     });
-                    m_async.Add(data.size / 1024F, async);
+                    async.args = data.size / 1024F;
+                    m_size += (float)async.args;
+                    m_async.Add(async);
                 }
                 async = AssetManager.instance.AssetBundleLoadAsync(AssetManager.instance.url + Const.MANIFESTFILE, (bResult, asset) =>
                 {
-                    Helper.WriteAllBytes(App.assetPath + Const.MANIFESTFILE, asset.bytes);
+                    if (bResult)
+                    {
+                        Util.WriteAllBytes(App.assetPath + Const.MANIFESTFILE, asset.bytes);
+                    }
+                    else
+                    {
+                        Debugger.LogError(asset.error);
+                    }
                 });
-                m_size += 0.5F;
-                m_async.Add(0.5F, async);
+                async.args = 0.5F;
+                m_size += (float)async.args;
+                m_async.Add(async);
             }
             else
             {
-                Debug.LogError("沙盒资源更新");
+                StateMachine.instance.OnEnter(new AssetUpdate());
             }
         }
 
@@ -105,25 +121,24 @@ namespace Framework
 
             if (m_assetDecompressing)
             {
+                float speed = m_currentSize;
                 if (Time.realtimeSinceStartup >= m_time + 1F)
                 {
                     m_time = Time.realtimeSinceStartup;
 
-                    float speed = m_currentSize;
                     m_currentSize = 0;
                     foreach (var data in m_async)
                     {
-                        m_currentSize += data.Key * data.Value.progress;
+                        m_currentSize += (float)data.args * data.progress;
                     }
                     speed = m_currentSize - speed;
-
-                    Debug.LogErrorFormat("解压进度{0:F2}/{1:F2}MB({2:F2}%),解压速度{3:F2}MB/s", m_currentSize, m_size, 100F * m_currentSize / m_size, speed);
-                    if (m_currentSize == m_size)
-                    {
-                        AssetManager.instance.UnloadAssets();
-                        PlayerPrefs.SetString(Const.SANDBOX_VERSION, App.version);
-                        //StateMachine.instance.OnEnter(new CheckUpdate());
-                    }
+                }
+                UIManager.instance.OpenUI(Const.UI_LOADING, Param.Create(new object[] { UILoading.SLIDER, 100F * m_currentSize / m_size }));
+                if (m_currentSize == m_size)
+                {
+                    m_assetDecompressing = false;
+                    //PlayerPrefs.SetString(Const.SANDBOX_VERSION, App.version);
+                    //StateMachine.instance.OnEnter(new AssetUpdate());
                 }
             }
         }

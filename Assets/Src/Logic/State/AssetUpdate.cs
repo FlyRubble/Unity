@@ -111,8 +111,8 @@ namespace Framework
             //        m_currentSize += data.Key * data.Value.progress;
             //    }
             //    speed = m_currentSize - speed;
-                
-            //    Debug.LogErrorFormat("解压进度{0:F2}/{1:F2}MB({2:F2}%),解压速度{3:F2}MB/s", m_currentSize, m_size, 100F * m_currentSize / m_size, speed);
+
+            //    Debugger.LogErrorFormat("解压进度{0:F2}/{1:F2}MB({2:F2}%),解压速度{3:F2}MB/s", m_currentSize, m_size, 100F * m_currentSize / m_size, speed);
             //}
         }
         #endregion

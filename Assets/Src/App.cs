@@ -75,6 +75,11 @@ public sealed class App
     private static string m_defaultPlatformName = string.Empty;
 
     /// <summary>
+    /// 新版本下载地址
+    /// </summary>
+    private static string m_newVersionDownloadUrl = string.Empty;
+
+    /// <summary>
     /// 资源清单文件
     /// </summary>
     private static ManifestConfig m_manifest = new ManifestConfig();
@@ -182,6 +187,15 @@ public sealed class App
             return m_defaultPlatformName;
 #endif
         }
+    }
+
+    /// <summary>
+    /// 新版本下载地址
+    /// </summary>
+    public static string newVersionDownloadUrl
+    {
+        get { return m_newVersionDownloadUrl; }
+        set { m_newVersionDownloadUrl = value; }
     }
 
     /// <summary>

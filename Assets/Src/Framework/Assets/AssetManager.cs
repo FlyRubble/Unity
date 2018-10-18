@@ -251,20 +251,20 @@ namespace UnityAsset
                     {
                         switch (kvp.Value.loadState)
                         {
-                            case AsyncAsset.LoadState.Wait:
-                                {
-                                    kvp.Value.AsyncLoad();
-                                }
-                                break;
-                            case AsyncAsset.LoadState.Loading:
-                                {
-                                    if (kvp.Value.isDone)
-                                    {
-                                        kvp.Value.Complete();
-                                        m_remove.Add(kvp.Value);
-                                    }
-                                }
-                                break;
+                        case AsyncAsset.LoadState.Wait:
+                        {
+                            kvp.Value.AsyncLoad();
+                        }
+                        break;
+                        case AsyncAsset.LoadState.Loading:
+                        {
+                            if (kvp.Value.isDone)
+                            {
+                                kvp.Value.Complete();
+                                m_remove.Add(kvp.Value);
+                            }
+                        }
+                        break;
                         }
                         if (--m_currentMaxLoader == 0)
                         {
@@ -278,11 +278,18 @@ namespace UnityAsset
                     }
                 }
                 // 等待加载中的处理
-                if (m_queue.Count > 0 && m_queue[0].isDone)
+                m_currentMaxLoader = Mathf.Min(m_maxLoader, m_queue.Count);
+                if (m_currentMaxLoader > 0)
                 {
-                    AsyncAssetBundle asyncBundle = m_queue[0];
-                    m_queue.RemoveAt(0);
-                    asyncBundle.Complete();
+                    for (int i = 0; i < m_currentMaxLoader; ++i)
+                    {
+                        if (m_queue[0].isDone)
+                        {
+                            AsyncAssetBundle asyncBundle = m_queue[0];
+                            m_queue.RemoveAt(0);
+                            asyncBundle.Complete();
+                        }
+                    }
                 }
             }
         }

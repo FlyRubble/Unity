@@ -38,8 +38,8 @@ namespace Framework
             {
                 m_data = new Dictionary<string, UIBase>();
                 m_param = new Dictionary<string, Param>();
-                
-                Helper.Load("data/ui/" + Const.UI_CANVAS + ".prefab", (bResult, asset) => {
+
+                Util.Load("data/ui/" + Const.UI_CANVAS + ".prefab", (bResult, asset) => {
                     if (bResult && asset != null)
                     {
                         GameObject go = GameObject.Instantiate(asset) as GameObject;
@@ -97,7 +97,7 @@ namespace Framework
                 UIBase t = null;
                 if (string.IsNullOrEmpty(name))
                 {
-                    Debug.LogErrorFormat("UI: name '{0}' is null or empty!", name);
+                    Debugger.LogErrorFormat("UI: name '{0}' is null or empty!", name);
                 }
                 else
                 {
@@ -128,7 +128,7 @@ namespace Framework
             {
                 if (string.IsNullOrEmpty(name))
                 {
-                    Debug.LogErrorFormat("UI: name '{0}' is null or empty!", name);
+                    Debugger.LogErrorFormat("UI: name '{0}' is null or empty!", name);
                     return;
                 }
 
@@ -148,7 +148,7 @@ namespace Framework
                     }
                     else
                     {
-                        Debug.LogErrorFormat("UI: '{0}' is not exist!", name);
+                        Debugger.LogErrorFormat("UI: '{0}' is not exist!", name);
                     }
                 }
                 else
@@ -160,7 +160,7 @@ namespace Framework
                     else
                     {
                         m_param.Add(name, param);
-                        Helper.Load("data/ui/" + name + ".prefab", (bResult, asset)=> {
+                        Util.Load("data/ui/" + name + ".prefab", (bResult, asset)=> {
                             if (bResult && asset != null)
                             {
                                 GameObject go = GameObject.Instantiate(asset) as GameObject;
@@ -169,6 +169,12 @@ namespace Framework
                                 go.transform.localPosition = Vector3.zero;
                                 go.transform.localScale = Vector3.one;
                                 go.transform.localRotation = Quaternion.identity;
+                                RectTransform rectTransform = go.transform as RectTransform;
+                                if (rectTransform != null)
+                                {
+                                    rectTransform.offsetMin = Vector3.zero;
+                                    rectTransform.offsetMax = Vector3.zero;
+                                }
                                 UIBase t = go.GetComponent<UIBase>();
                                 if (null != t)
                                 {
@@ -177,7 +183,7 @@ namespace Framework
                                 }
                                 else
                                 {
-                                    Debug.LogErrorFormat("UI: '{0}' is not find!", name);
+                                    Debugger.LogErrorFormat("UI: '{0}' is not find!", name);
                                 }
                                 m_param.Remove(name);
                             }
@@ -207,7 +213,7 @@ namespace Framework
             {
                 if (string.IsNullOrEmpty(name))
                 {
-                    Debug.LogErrorFormat("UI: name '{0}' is null or empty!", name);
+                    Debugger.LogErrorFormat("UI: name '{0}' is null or empty!", name);
                     return;
                 }
 
@@ -246,7 +252,7 @@ namespace Framework
             {
                 if (string.IsNullOrEmpty(name))
                 {
-                    Debug.LogErrorFormat("UI: name '{0}' is null or empty!", name);
+                    Debugger.LogErrorFormat("UI: name '{0}' is null or empty!", name);
                     return;
                 }
 
@@ -259,7 +265,7 @@ namespace Framework
                     }
                     else
                     {
-                        Debug.LogErrorFormat("UI: '{0}' is not exist!", name);
+                        Debugger.LogErrorFormat("UI: '{0}' is not exist!", name);
                     }
                 }
             }
@@ -285,7 +291,7 @@ namespace Framework
             {
                 if (string.IsNullOrEmpty(name))
                 {
-                    Debug.LogErrorFormat("UI: name '{0}' is null or empty!", name);
+                    Debugger.LogErrorFormat("UI: name '{0}' is null or empty!", name);
                     return;
                 }
 
@@ -306,7 +312,7 @@ namespace Framework
                     }
                     else
                     {
-                        Debug.LogErrorFormat("UI: '{0}' is not exist!", name);
+                        Debugger.LogErrorFormat("UI: '{0}' is not exist!", name);
                     }
                 }
             }
@@ -392,7 +398,7 @@ namespace Framework
             {
                 if (string.IsNullOrEmpty(name))
                 {
-                    Debug.LogErrorFormat("UI: name '{0}' is null or empty!", name);
+                    Debugger.LogErrorFormat("UI: name '{0}' is null or empty!", name);
                     return;
                 }
 
@@ -405,7 +411,7 @@ namespace Framework
                     }
                     else
                     {
-                        Debug.LogErrorFormat("UI: '{0}' is not exist!", name);
+                        Debugger.LogErrorFormat("UI: '{0}' is not exist!", name);
                     }
                 }
             }
@@ -431,7 +437,7 @@ namespace Framework
             {
                 if (string.IsNullOrEmpty(name))
                 {
-                    Debug.LogErrorFormat("UI: name '{0}' is null or empty!", name);
+                    Debugger.LogErrorFormat("UI: name '{0}' is null or empty!", name);
                     return;
                 }
 
@@ -443,7 +449,7 @@ namespace Framework
                 }
                 else
                 {
-                    Debug.LogErrorFormat("UI: '{0}' is not exist!", name);
+                    Debugger.LogErrorFormat("UI: '{0}' is not exist!", name);
                     return;
                 }
 

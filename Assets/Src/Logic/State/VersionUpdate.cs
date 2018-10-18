@@ -37,9 +37,14 @@ namespace Framework
             if (forceUpdate)
             {
                 // 需要更新版本
-                Action action = () => { Helper.Msg("需要更新版本"); Application.OpenURL("http://baidu.com"); };
-                UIManager.instance.OpenUI(Const.UI_NORMAL_TIPS_BOX, Param.Create(new object[] { UINormalTipsBox.SURE_ACTION, action, UINormalTipsBox.TEXT_CONTENT, "需要更新版本" }));
-                return;
+                Action sure = () => {
+                    Application.OpenURL(App.newVersionDownloadUrl);
+                };
+                Action close = () => {
+                    UIManager.instance.CloseUI(Const.UI_NORMAL_TIPS_BOX);
+                    Application.Quit();
+                };
+                UIManager.instance.OpenUI(Const.UI_NORMAL_TIPS_BOX, Param.Create(new object[] { UINormalTipsBox.ACTION_SURE, sure, UINormalTipsBox.TEXT_CONTENT, Const.ID_VERSION_LOW, UINormalTipsBox.ACTION_CLOSE, close }));
             }
             else
             {

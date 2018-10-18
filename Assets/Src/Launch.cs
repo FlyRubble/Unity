@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using Framework;
-using Framework.IO;
 using UnityAsset;
 using Framework.Event;
 
@@ -12,6 +11,8 @@ public class Launch : MonoBehaviour
     void Awake()
     {
         App.Init();
+        Debugger.logEnabled = App.log;
+        Debugger.webLogEnabled = App.webLog;
         AssetManager.instance.maxLoader = Const.MAX_LOADER;
         Schedule.instance.Start();
     }
@@ -20,7 +21,7 @@ public class Launch : MonoBehaviour
     /// 开始
     /// </summary>
     void Start()
-	{
+    {
         StateMachine.instance.OnEnter(new Init());
     }
 

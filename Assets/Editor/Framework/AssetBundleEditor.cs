@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using System.IO;
-using System.Collections.Generic;
 using Framework.IO;
 using Framework.JsonFx;
 using ICSharpCode.SharpZipLib.Zip;
@@ -152,10 +151,6 @@ public class AssetBundleEditor
     public static void BuildManifestFile(string output)
     {
         ManifestConfig manifestConfig = GetManifest(output);
-        foreach (var data in manifestConfig.data)
-        {
-            Debug.Log(data.Key);
-        }
         // 写入Manifest
         if (manifestConfig != null)
         {

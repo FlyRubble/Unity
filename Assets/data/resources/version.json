@@ -7,7 +7,7 @@
 	"openUpdate": true,
 	"unlockAllFunction": false,
 	"log": true,
-	"webLog": false,
+	"webLog": true,
 	"webLogIp": "",
 	"androidPlatformName": "Android",
 	"iOSPlatformName": "IOS",

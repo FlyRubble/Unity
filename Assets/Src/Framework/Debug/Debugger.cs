@@ -12,33 +12,38 @@ namespace Framework
 		/// <summary>
 		/// 是否显示日志
 		/// </summary>
-		static bool m_isDebug = true;
+		static bool m_logEnabled = true;
 
 		/// <summary>
 		/// 是否开启Web日志
 		/// </summary>
-		static bool m_isWebDebug;
-		#endregion
-		
-		#region Property
-		/// <summary>
-		/// 是否需要Debug日志
-		/// </summary>
-		/// <value><c>true</c> if is debug; otherwise, <c>false</c>.</value>
-		public static bool isDebug
-		{
-			get { return m_isDebug; }
-			set { m_isDebug = value; }
+		static bool m_webLogEnabled = false;
+        #endregion
+
+        #region Property
+        /// <summary>
+        /// 是否需要日志
+        /// </summary>
+        public static bool logEnabled
+        {
+			get
+            {
+                return m_logEnabled && UnityEngine.Debug.unityLogger.logEnabled;
+            }
+			set
+            {
+                m_logEnabled = value;
+                UnityEngine.Debug.unityLogger.logEnabled = m_logEnabled;
+            }
 		}
 
-		/// <summary>
-		/// 是否需要Web日志
-		/// </summary>
-		/// <value><c>true</c> if is web debug; otherwise, <c>false</c>.</value>
-		public static bool isWebDebug
-		{
-			get { return m_isWebDebug; }
-			set { m_isWebDebug = value; }
+        /// <summary>
+        /// 是否需要Web日志
+        /// </summary>
+        public static bool webLogEnabled
+        {
+			get { return m_webLogEnabled; }
+			set { m_webLogEnabled = value; }
 		}
 		#endregion
 
@@ -48,47 +53,50 @@ namespace Framework
 		/// </summary>
 		/// <param name="message">Message.</param>
 		public static void Log(object message)
-		{
-			if (m_isDebug)
-			{
-				UnityEngine.Debug.Log(message);
-			}
-			if (m_isWebDebug)
-			{
-				WebDebug(message);
-			}
+        {
+            UnityEngine.Debug.Log(message);
+            WebDebug(message);
+        }
+
+        /// <summary>
+        /// 日志
+        /// </summary>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        public static void LogFormat(string format, params object[] args)
+        {
+            UnityEngine.Debug.LogFormat(format, args);
+            WebDebugFormat(format, args);
+        }
+
+        /// <summary>
+        /// 错误日志
+        /// </summary>
+        /// <param name="message">Message.</param>
+        public static void LogError(object message)
+        {
+            UnityEngine.Debug.LogError(message);
+            WebDebug(message);
 		}
 
-		/// <summary>
-		/// 错误日志
-		/// </summary>
-		/// <param name="message">Message.</param>
-		public static void LogError(object message)
-		{
-			if (m_isDebug)
-			{
-				UnityEngine.Debug.LogError(message);
-			}
-			if (m_isWebDebug)
-			{
-				WebDebug(message);
-			}
-		}
+        /// <summary>
+        /// 错误日志
+        /// </summary>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        public static void LogErrorFormat(string format, params object[] args)
+        {
+            UnityEngine.Debug.LogErrorFormat(format, args);
+        }
 
-		/// <summary>
-		/// 异常日志
-		/// </summary>
-		/// <param name="exception">Exception.</param>
-		public static void LogException(Exception exception)
-		{
-			if (m_isDebug)
-			{
-				UnityEngine.Debug.LogException(exception);
-			}
-			if (m_isWebDebug)
-			{
-				WebDebug(exception);
-			}
+        /// <summary>
+        /// 异常日志
+        /// </summary>
+        /// <param name="exception">Exception.</param>
+        public static void LogException(Exception exception)
+        {
+            UnityEngine.Debug.LogException(exception);
+            WebDebug(exception);
 		}
 
 		/// <summary>
@@ -96,27 +104,50 @@ namespace Framework
 		/// </summary>
 		/// <param name="message">Message.</param>
 		public static void LogWarning(object message)
-		{
-			if (m_isDebug)
-			{
-				UnityEngine.Debug.LogWarning(message);
-			}
-			if (m_isWebDebug)
-			{
-				WebDebug(message);
-			}
+        {
+            UnityEngine.Debug.LogWarning(message);
+            WebDebug(message);
 		}
 
-		/// <summary>
-		/// Web日志
-		/// </summary>
-		/// <param name="message">Message.</param>
-		static void WebDebug(object message)
+        /// <summary>
+        /// 警告日志
+        /// </summary>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        public static void LogWarningFormat(string format, params object[] args)
+        {
+            UnityEngine.Debug.LogWarningFormat(format, args);
+            WebDebugFormat(format, args);
+        }
+
+        /// <summary>
+        /// Web日志
+        /// </summary>
+        /// <param name="message">Message.</param>
+        static void WebDebug(object message)
 		{
-			StackTrace st = new StackTrace(1, true);
-			string type = st.GetFrame(0).GetMethod().Name;
-			UnityEngine.Debug.Log(type + message + st.ToString());
+            if (m_webLogEnabled)
+            {
+                StackTrace st = new StackTrace(1, true);
+                string type = st.GetFrame(0).GetMethod().Name;
+                string value = type + message + st.ToString();
+            }
 		}
-		#endregion
-	}
+
+        /// <summary>
+        /// Web日志
+        /// </summary>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        static void WebDebugFormat(string format, params object[] args)
+        {
+            if (m_webLogEnabled)
+            {
+                StackTrace st = new StackTrace(1, true);
+                string type = st.GetFrame(0).GetMethod().Name;
+                string value = string.Format(type + format + st.ToString(), args);
+            }
+        }
+        #endregion
+    }
 }

@@ -12,6 +12,23 @@ namespace Framework
         /// </summary>
         public class UIBase : MonoBehaviour, IObserver
         {
+            #region Const
+            /// <summary>
+            /// 打开
+            /// </summary>
+            public const string OPEN = "open";
+
+            /// <summary>
+            /// 更新
+            /// </summary>
+            public const string UPDATE = "update";
+
+            /// <summary>
+            /// 关闭
+            /// </summary>
+            public const string CLOSE = "close";
+            #endregion
+
             #region Variable
             /// <summary>
             /// 缓存
@@ -173,9 +190,11 @@ namespace Framework
             {
                 Observer.instance.UnRegister(this);
             }
+
             #region Component
 
             #endregion
+
             /// <summary>
             /// 打开
             /// </summary>
@@ -186,7 +205,7 @@ namespace Framework
                 {
                     param = Param.Create();
                 }
-                Action action = param["open"] as Action;
+                Action action = param[OPEN] as Action;
                 Action open = () => {
                     this.Show();
                     if (null != action)
@@ -194,9 +213,9 @@ namespace Framework
                         action();
                     }
                 };
-                param.Add("open", open);
-                param.Remove("update");
-                param.Remove("close");
+                param.Add(OPEN, open);
+                param.Remove(UPDATE);
+                param.Remove(CLOSE);
                 OnNotification(param);
             }
 
@@ -210,9 +229,9 @@ namespace Framework
                 {
                     param = Param.Create();
                 }
-                param.TryAdd("update", null);
-                param.Remove("open");
-                param.Remove("close");
+                param.TryAdd(UPDATE, null);
+                param.Remove(OPEN);
+                param.Remove(CLOSE);
                 OnNotification(param);
             }
 
@@ -226,7 +245,7 @@ namespace Framework
                 {
                     param = Param.Create();
                 }
-                Action action = param["close"] as Action;
+                Action action = param[CLOSE] as Action;
                 Action close = () => {
                     this.Hide();
                     if (null != action)
@@ -234,9 +253,9 @@ namespace Framework
                         action();
                     }
                 };
-                param.Add("close", close);
-                param.Remove("open");
-                param.Remove("update");
+                param.Add(CLOSE, close);
+                param.Remove(OPEN);
+                param.Remove(UPDATE);
                 OnNotification(param);
             }
 
@@ -323,18 +342,26 @@ namespace Framework
             {
                 Param.Destroy(m_param);
                 m_param = param;
-
-                if (m_param.Contain("close"))
+                
+                if (m_param.Contain(UPDATE))
                 {
-                    Action close = m_param["close"] as Action;
+                    Action update = m_param[UPDATE] as Action;
+                    if (null != update)
+                    {
+                        update();
+                    }
+                }
+                else if (m_param.Contain(CLOSE))
+                {
+                    Action close = m_param[CLOSE] as Action;
                     if (null != close)
                     {
                         close();
                     }
                 }
-                else if (m_param.Contain("open"))
+                else if (m_param.Contain(OPEN))
                 {
-                    Action open = m_param["open"] as Action;
+                    Action open = m_param[OPEN] as Action;
                     if (null != open)
                     {
                         open();

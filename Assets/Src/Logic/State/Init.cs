@@ -26,9 +26,25 @@ namespace Framework
             // 选择沙盒路径还是流式路径
             bool sandbox = App.version.Equals(PlayerPrefs.GetString(Const.SANDBOX_VERSION));
             AssetManager.instance.url = sandbox ? App.persistentDataPath : App.streamingAssetsPath;
+            // 获取清单文件
+            WWW www = new WWW(AssetManager.instance.url + Const.MANIFESTFILE);
+            while (!www.isDone) ;
+            App.manifest = JsonReader.Deserialize<ManifestConfig>(www.assetBundle.LoadAsset<TextAsset>(Path.GetFileNameWithoutExtension(www.url)).text);
+            if (www.assetBundle != null)
+            {
+                www.assetBundle.Unload(true);
+            }
             // 加载Loading界面
-            UIManager.instance.OpenUI(Const.UI_LOADING);
+            UIManager.instance.OpenUI(Const.UI_LOADING, Param.Create(new object[] { UILoading.TEXT_TIPS, Const.ID_GETING, UILoading.SLIDER, 0F, UILoading.TEXT_DETAILS, "" }));
+            // 检测网络是否开启
+            InternetReachability();
+        }
 
+        /// <summary>
+        /// 检测网络是否开启
+        /// </summary>
+        private void InternetReachability()
+        {
             // 检测网络是否开启
             if (App.internetReachability)
             {
@@ -38,8 +54,14 @@ namespace Framework
             else
             {
                 // 网络不可达，退出
-                Action action = () => { Helper.Msg("网络不可达，请打开网络再试，现在需要退出"); };
-                UIManager.instance.OpenUI(Const.UI_NORMAL_TIPS_BOX, Param.Create(new object[] { UINormalTipsBox.SURE_ACTION, action, UINormalTipsBox.TEXT_CONTENT, "网络不可达，请打开网络再试，现在需要退出" }));
+                Action sure = () => {
+                    UIManager.instance.CloseUI(Const.UI_NORMAL_TIPS_BOX);
+                    Application.Quit();
+                };
+                Action close = () => {
+                    InternetReachability();
+                };
+                UIManager.instance.OpenUI(Const.UI_NORMAL_TIPS_BOX, Param.Create(new object[] { UINormalTipsBox.ACTION_SURE, sure, UINormalTipsBox.TEXT_CONTENT, Const.ID_NETWORK_INVALID, UINormalTipsBox.ACTION_CLOSE, close }));
             }
         }
         #endregion
