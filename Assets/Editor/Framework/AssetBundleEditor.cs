@@ -78,7 +78,7 @@ public class AssetBundleEditor
     {
         BuildAssetBundles(output);
         BuildManifestFile(output);
-        BuildUpdateFile(output, cdn + "/" + platform);
+        BuildUpdateFile(output, cdn + "/" + platform + "/v" + version);
         CopyUpdateAssetBundles(output, dest, version, cdn + "/" + platform);
     }
 
@@ -338,7 +338,7 @@ public class AssetBundleEditor
                     File.WriteAllBytes(string.Format("{0}/{1}_{2}_{3}_{4}.zip", dest, platform, version, date, md5), fileBytes);
                 }
             }
-            Directory.Delete(updateFilePath);
+            File.Delete(updateFilePath);
             AssetDatabase.Refresh();
         }
     }

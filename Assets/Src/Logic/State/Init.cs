@@ -35,7 +35,7 @@ namespace Framework
                 www.assetBundle.Unload(true);
             }
             // 加载Loading界面
-            UIManager.instance.OpenUI(Const.UI_LOADING, Param.Create(new object[] { UILoading.TEXT_TIPS, Const.ID_GETING, UILoading.SLIDER, 0F, UILoading.TEXT_DETAILS, "" }));
+            UIManager.instance.OpenUI(Const.UI_LOADING, Param.Create(new object[] { UILoading.TEXT_TIPS, Const.ID_GETING, UILoading.SLIDER, 0F, UILoading.TEXT_DETAILS, string.Empty }));
             // 检测网络是否开启
             InternetReachability();
         }

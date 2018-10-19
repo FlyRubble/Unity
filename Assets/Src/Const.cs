@@ -100,7 +100,7 @@
     /// <summary>
     /// 远程版本文件
     /// </summary>
-    public const string REMOTE_VERSION = "/version_V{0}.json";
+    public const string REMOTE_VERSION = "version_V{0}.json";
 
     /// <summary>
     /// 清单文件
@@ -111,6 +111,11 @@
     /// 更新文件
     /// </summary>
     public const string UPDATE_FILE = "data/conf/updatefile.json";
+
+    /// <summary>
+    /// 远程目录(data父目录)
+    /// </summary>
+    public const string REMOTE_DIRECTORY = "v{0}";
 
     #region UI界面
     /// <summary>

@@ -4,7 +4,7 @@
 	"bundleIdentifier": "com.playgame.jtlq",
 	"version": "1.0.0",
 	"bundleVersionCode": 1,
-	"scriptingDefineSymbols": "",
+	"scriptingDefineSymbols": "AB_MODE",
 	"loginUrl": "http://localhost/",
 	"cdn": "http://localhost/",
 	"openGuide": true,

@@ -1,4 +1,13 @@
 {
 	"data": 
-		{}
+		{
+			"data/ui/gameobject.prefab": 
+				{
+					"name": "data/ui/gameobject.prefab",
+					"MD5": "39ef0d66de434e54a12cd027341cb504",
+					"size": 2,
+					"directDependencies": 
+						[]
+				}
+		}
 }

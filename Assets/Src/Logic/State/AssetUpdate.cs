@@ -15,6 +15,26 @@ namespace Framework
     {
         #region Variable
         /// <summary>
+        /// WWW资源请求
+        /// </summary>
+        private WWW m_www = null;
+
+        /// <summary>
+        /// 本地更新清单文件
+        /// </summary>
+        private ManifestConfig m_localUpdateManifest = null;
+
+        /// <summary>
+        /// 远程更新清单文件
+        /// </summary>
+        private ManifestConfig m_remoteUpdateManifest = null;
+
+        /// <summary>
+        /// 是否有资源更新
+        /// </summary>
+        private bool m_hasAssetUpdate = false;
+
+        /// <summary>
         /// 时间，用于计算解压速度
         /// </summary>
         private float m_time = 0;
@@ -32,7 +52,7 @@ namespace Framework
         /// <summary>
         /// 解压资源记录
         /// </summary>
-        private Dictionary<float, AsyncAsset> m_async = new Dictionary<float, AsyncAsset>();
+        private List<AsyncAsset> m_async = new List<AsyncAsset>();
         #endregion
 
         #region Function
@@ -45,52 +65,19 @@ namespace Framework
             base.OnEnter(param);
 
             AssetManager.instance.url = App.persistentDataPath;
-            // 获取清单文件
-            WWW www = new WWW(App.persistentDataPath + Const.MANIFESTFILE);
-            while (!www.isDone) ;
-            App.manifest = JsonReader.Deserialize<ManifestConfig>(www.assetBundle.LoadAsset<TextAsset>(Path.GetFileNameWithoutExtension(www.url)).text);
-            if (www.assetBundle != null)
-            {
-                www.assetBundle.Unload(true);
-            }
-
-            // 打开Loading界面
+            // 清理资源，并且重新打开Loading界面
             AssetManager.instance.UnloadAssets();
-            UIManager.instance.Clear();
-            UIManager.instance.OpenUI(Const.UI_LOADING);
-
-            // 远程Version文件
-            www = new WWW(App.cdn + App.platform + Const.MANIFESTFILE);
+            // 获取本地更新清单文件
+            WWW www = new WWW(App.persistentDataPath + Const.UPDATE_FILE);
             while (!www.isDone) ;
-            App.manifest = JsonReader.Deserialize<ManifestConfig>(www.assetBundle.LoadAsset<TextAsset>(Path.GetFileNameWithoutExtension(www.url)).text);
+            m_localUpdateManifest = JsonReader.Deserialize<ManifestConfig>(www.assetBundle.LoadAsset<TextAsset>(Path.GetFileNameWithoutExtension(www.url)).text);
             if (www.assetBundle != null)
             {
                 www.assetBundle.Unload(true);
             }
-            //Dictionary<string, object> data = JsonReader.Deserialize<Dictionary<string, object>>(t.text);
-            // 解压
-            //m_async.Clear();
-            //AsyncAsset async = AssetManager.instance.AssetBundleLoadAsync(AssetManager.instance.url + Const.UPDATE_FILE, (bResult, asset) => {
-            //    Helper.WriteAllBytes(App.assetPath + Const.UPDATE_FILE, asset.bytes);
-            //    AssetManager.instance.UnloadAssets(asset);
-            //});
-            //m_size += 0.1F;
-            //m_async.Add(0.1F, async);
-            //foreach (var data in App.manifest.data.Values)
-            //{
-            //    m_size += data.size / 1024F;
-            //    async = AssetManager.instance.AssetBundleLoadAsync(AssetManager.instance.url + data.name, (bResult, asset) => {
-            //        Helper.WriteAllBytes(App.assetPath + data.name, asset.bytes);
-            //        AssetManager.instance.UnloadAssets(asset);
-            //    });
-            //    m_async.Add(data.size / 1024F, async);
-            //}
-            //async = AssetManager.instance.AssetBundleLoadAsync(AssetManager.instance.url + Const.MANIFESTFILE, (bResult, asset) => {
-            //    Helper.WriteAllBytes(App.assetPath + Const.MANIFESTFILE, asset.bytes);
-            //    AssetManager.instance.UnloadAssets(asset);
-            //});
-            //m_size += 0.5F;
-            //m_async.Add(0.5F, async);
+
+            // 获取远程更新清单文件
+            m_www = new WWW(Path.Combine(Path.Combine(App.cdn + App.platform, string.Format(Const.REMOTE_DIRECTORY, App.version)), Const.UPDATE_FILE));
         }
 
         /// <summary>
@@ -100,20 +87,106 @@ namespace Framework
         {
             base.Update();
 
-            //if (Time.realtimeSinceStartup >= m_time + 1F)
-            //{
-            //    m_time = Time.realtimeSinceStartup;
+            // 远程更新清单文件加载
+            if (m_www != null && m_www.isDone)
+            {
+                if (string.IsNullOrEmpty(m_www.error))
+                {
+                    m_remoteUpdateManifest = JsonReader.Deserialize<ManifestConfig>(m_www.assetBundle.LoadAsset<TextAsset>(Path.GetFileNameWithoutExtension(m_www.url)).text);
+                    if (m_www.assetBundle != null)
+                    {
+                        m_www.assetBundle.Unload(true);
+                    }
+                }
+                else
+                {
+                    m_remoteUpdateManifest = new ManifestConfig();
+                }
+                StartAssetUpdate();
+                m_www = null;
+            }
 
-            //    float speed = m_currentSize;
-            //    m_currentSize = 0;
-            //    foreach (var data in m_async)
-            //    {
-            //        m_currentSize += data.Key * data.Value.progress;
-            //    }
-            //    speed = m_currentSize - speed;
+            // 更新中...
+            if (m_hasAssetUpdate)
+            {
+                float speed = m_currentSize;
+                if (Time.realtimeSinceStartup >= m_time + 1F)
+                {
+                    m_time = Time.realtimeSinceStartup;
 
-            //    Debugger.LogErrorFormat("解压进度{0:F2}/{1:F2}MB({2:F2}%),解压速度{3:F2}MB/s", m_currentSize, m_size, 100F * m_currentSize / m_size, speed);
-            //}
+                    m_currentSize = 0;
+                    foreach (var data in m_async)
+                    {
+                        m_currentSize += (float)data.args * data.progress;
+                        Debugger.Log(data.url);
+                    }
+                    speed = m_currentSize - speed;
+                }
+                UIManager.instance.OpenUI(Const.UI_LOADING, Param.Create(new object[] { UILoading.SLIDER, m_currentSize / m_size }));
+                if (m_currentSize == m_size)
+                {
+                    m_hasAssetUpdate = false;
+                    AssetUpdateComplete();
+                }
+            }
+        }
+
+        /// <summary>
+        /// 开始资源更新
+        /// </summary>
+        private void StartAssetUpdate()
+        {
+            // 解压
+            m_async.Clear();
+            if (m_remoteUpdateManifest.data.Count > 0)
+            {
+                AsyncAsset async = AssetManager.instance.AssetBundleLoadAsync(Path.Combine(Path.Combine(App.cdn + App.platform, string.Format(Const.REMOTE_DIRECTORY, App.version)), Const.UPDATE_FILE), (bResult, asset) =>
+                {
+                    Util.WriteAllBytes(App.assetPath + Const.UPDATE_FILE, asset.bytes);
+                });
+                async.args = 0.1F;
+                m_size += (float)async.args;
+                m_async.Add(async);
+                foreach (var data in m_remoteUpdateManifest.data.Values)
+                {
+                    if (m_localUpdateManifest.Contains(data.name) && m_localUpdateManifest.Get(data.name).MD5.Equals(data.MD5))
+                    {
+                        continue;
+                    }
+                    async = AssetManager.instance.AssetBundleLoadAsync(Path.Combine(Path.Combine(App.cdn + App.platform , string.Format(Const.REMOTE_DIRECTORY, App.version)), data.name), (bResult, asset) =>
+                    {
+                        Util.WriteAllBytes(App.assetPath + data.name, asset.bytes);
+                    });
+                    async.args = data.size / 1024F;
+                    m_size += (float)async.args;
+                    m_async.Add(async);
+                }
+                async = AssetManager.instance.AssetBundleLoadAsync(Path.Combine(Path.Combine(App.cdn + App.platform, string.Format(Const.REMOTE_DIRECTORY, App.version)), Const.MANIFESTFILE), (bResult, asset) =>
+                {
+                    Util.WriteAllBytes(App.assetPath + Const.MANIFESTFILE, asset.bytes);
+                });
+                async.args = 0.5F;
+                m_size += (float)async.args;
+                m_async.Add(async);
+                // 设置有资源更新标志 至少有update文件和version文件，所以至少要大于2
+                m_hasAssetUpdate = m_async.Count > 2;
+            }
+            else
+            {
+                AssetUpdateComplete();
+            }
+        }
+
+        /// <summary>
+        /// 资源更新完成
+        /// </summary>
+        private void AssetUpdateComplete()
+        {
+            // 清理资源，打开登录
+            AssetManager.instance.UnloadAssets();
+            UIManager.instance.Clear();
+            UIManager.instance.OpenUI(Const.UI_LOADING);
+            Debugger.Log("开始登陆");
         }
         #endregion
     }

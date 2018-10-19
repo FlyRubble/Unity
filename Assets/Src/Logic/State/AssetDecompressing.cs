@@ -6,8 +6,7 @@ using System.Collections.Generic;
 namespace Framework
 {
     using UI;
-    using IO;
-    using JsonFx;
+    using Event;
     /// <summary>
     /// 状态
     /// </summary>
@@ -133,12 +132,12 @@ namespace Framework
                     }
                     speed = m_currentSize - speed;
                 }
-                UIManager.instance.OpenUI(Const.UI_LOADING, Param.Create(new object[] { UILoading.SLIDER, 100F * m_currentSize / m_size }));
+                UIManager.instance.OpenUI(Const.UI_LOADING, Param.Create(new object[] { UILoading.SLIDER, m_currentSize / m_size }));
                 if (m_currentSize == m_size)
                 {
                     m_assetDecompressing = false;
                     //PlayerPrefs.SetString(Const.SANDBOX_VERSION, App.version);
-                    //StateMachine.instance.OnEnter(new AssetUpdate());
+                    Schedule.instance.ScheduleOnce(0.3F, () => { StateMachine.instance.OnEnter(new AssetUpdate()); });
                 }
             }
         }

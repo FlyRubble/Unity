@@ -332,64 +332,64 @@ public sealed class App
     /// 更新
     /// </summary>
     /// <param name="data"></param>
-    public static void Update(Dictionary<string, object> data)
+    public static void Update(Dictionary<string, object> data, List<string> filter = null)
     {
         // 产品名
-        if (data.ContainsKey(Const.PRODUCT_NAME))
+        if (data.ContainsKey(Const.PRODUCT_NAME) && (filter == null || !filter.Contains(Const.PRODUCT_NAME)))
         {
             m_productName = data[Const.PRODUCT_NAME].ToString();
         }
 
         // 游戏版本[App版本、显示版本、资源版本一致]
-        if (data.ContainsKey(Const.VERSION))
+        if (data.ContainsKey(Const.VERSION) && (filter == null || !filter.Contains(Const.VERSION)))
         {
             m_productName = data[Const.VERSION].ToString();
         }
 
         // 登陆地址
-        if (data.ContainsKey(Const.LOGIN_URL))
+        if (data.ContainsKey(Const.LOGIN_URL) && (filter == null || !filter.Contains(Const.LOGIN_URL)))
         {
             m_loginUrl = data[Const.LOGIN_URL].ToString();
         }
 
         // Cdn
-        if (data.ContainsKey(Const.CDN))
+        if (data.ContainsKey(Const.CDN) && (filter == null || !filter.Contains(Const.CDN)))
         {
             m_cdn = data[Const.CDN].ToString();
         }
 
         // 是否开启引导
-        if (data.ContainsKey(Const.OPEN_GUIDE))
+        if (data.ContainsKey(Const.OPEN_GUIDE) && (filter == null || !filter.Contains(Const.OPEN_GUIDE)))
         {
             m_openGuide = (bool)data[Const.OPEN_GUIDE];
         }
 
         // 是否开启更新功能
-        if (data.ContainsKey(Const.OPEN_UPDATE))
+        if (data.ContainsKey(Const.OPEN_UPDATE) && (filter == null || !filter.Contains(Const.OPEN_UPDATE)))
         {
             m_openUpdate = (bool)data[Const.OPEN_UPDATE];
         }
 
         // 是否功能全解锁
-        if (data.ContainsKey(Const.UNLOCK_ALL_FUNCTION))
+        if (data.ContainsKey(Const.UNLOCK_ALL_FUNCTION) && (filter == null || !filter.Contains(Const.UNLOCK_ALL_FUNCTION)))
         {
             m_unlockAllFunction = (bool)data[Const.UNLOCK_ALL_FUNCTION];
         }
 
         // 是否开启日志
-        if (data.ContainsKey(Const.LOG))
+        if (data.ContainsKey(Const.LOG) && (filter == null || !filter.Contains(Const.LOG)))
         {
             m_log = (bool)data[Const.LOG];
         }
 
         // 是否开启Web日志
-        if (data.ContainsKey(Const.WEB_LOG))
+        if (data.ContainsKey(Const.WEB_LOG) && (filter == null || !filter.Contains(Const.WEB_LOG)))
         {
             m_webLog = (bool)data[Const.WEB_LOG];
         }
 
         // WebLog白名单
-        if (data.ContainsKey(Const.WEB_LOG_IP))
+        if (data.ContainsKey(Const.WEB_LOG_IP) && (filter == null || !filter.Contains(Const.WEB_LOG_IP)))
         {
             m_webLogIp.Clear();
             string[] array = data[Const.WEB_LOG_IP].ToString().Split(',', ';', '|');
@@ -403,19 +403,19 @@ public sealed class App
         }
 
         // [安卓]平台标签
-        if (data.ContainsKey(Const.ANDROID_PLATFORM_NAME))
+        if (data.ContainsKey(Const.ANDROID_PLATFORM_NAME) && (filter == null || !filter.Contains(Const.ANDROID_PLATFORM_NAME)))
         {
             m_androidPlatformName = data[Const.ANDROID_PLATFORM_NAME].ToString();
         }
 
         // [苹果]平台标签
-        if (data.ContainsKey(Const.IOS_PLATFORM_NAME))
+        if (data.ContainsKey(Const.IOS_PLATFORM_NAME) && (filter == null || !filter.Contains(Const.IOS_PLATFORM_NAME)))
         {
             m_iOSPlatformName = data[Const.IOS_PLATFORM_NAME].ToString();
         }
 
         // [桌面]平台标签
-        if (data.ContainsKey(Const.DEFAULT_PLATFORM_NAME))
+        if (data.ContainsKey(Const.DEFAULT_PLATFORM_NAME) && (filter == null || !filter.Contains(Const.DEFAULT_PLATFORM_NAME)))
         {
             m_defaultPlatformName = data[Const.DEFAULT_PLATFORM_NAME].ToString();
         }
