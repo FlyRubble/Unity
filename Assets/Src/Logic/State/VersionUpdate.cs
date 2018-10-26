@@ -43,16 +43,20 @@ namespace Framework
 
             if (m_www != null && m_www.isDone)
             {
-                Dictionary<string, object> remoteVersion = JsonReader.Deserialize<Dictionary<string, object>>(m_www.text);
-                App.Update(remoteVersion, new List<string>() { Const.VERSION });
-                Debugger.logEnabled = App.log;
-                Debugger.webLogEnabled = App.webLog;
-                string[] local = App.version.Split('.');
-                string[] remote = (remoteVersion != null && remoteVersion.Count > 0) ? remoteVersion[Const.VERSION].ToString().Split('.') : new string[0];
                 bool forceUpdate = false;
-                if (local.Length == remote.Length)
+                if (string.IsNullOrEmpty(m_www.error))
                 {
-                    forceUpdate = !(int.Parse(local[0]) >= int.Parse(remote[0]) && int.Parse(local[1]) >= int.Parse(remote[1]));
+                    Dictionary<string, object> remoteVersion = JsonReader.Deserialize<Dictionary<string, object>>(m_www.text);
+                    App.Update(remoteVersion, new List<string>() { Const.VERSION });
+                    Debugger.logEnabled = App.log;
+                    Debugger.webLogEnabled = App.webLog;
+                    string[] local = App.version.Split('.');
+                    string[] remote = (remoteVersion != null && remoteVersion.Count > 0) ? remoteVersion[Const.VERSION].ToString().Split('.') : new string[0];
+                    if (local.Length == remote.Length)
+                    {
+                        forceUpdate = !(int.Parse(local[0]) >= int.Parse(remote[0]) && int.Parse(local[1]) >= int.Parse(remote[1]));
+                    }
+
                 }
                 if (forceUpdate)
                 {
