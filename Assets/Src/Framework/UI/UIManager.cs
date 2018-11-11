@@ -39,7 +39,7 @@ namespace Framework
                 m_data = new Dictionary<string, UIBase>();
                 m_param = new Dictionary<string, Param>();
 
-                Util.Load("data/ui/" + Const.UI_CANVAS + ".prefab", (bResult, asset) => {
+                AssetManager.instance.Load("data/ui/" + Const.UI_CANVAS + ".prefab", (bResult, asset) => {
                     if (bResult && asset != null)
                     {
                         GameObject go = GameObject.Instantiate(asset) as GameObject;
@@ -160,7 +160,7 @@ namespace Framework
                     else
                     {
                         m_param.Add(name, param);
-                        Util.Load("data/ui/" + name + ".prefab", (bResult, asset)=> {
+                        AssetManager.instance.Load("data/ui/" + name + ".prefab", (bResult, asset)=> {
                             if (bResult && asset != null)
                             {
                                 GameObject go = GameObject.Instantiate(asset) as GameObject;

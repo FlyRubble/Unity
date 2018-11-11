@@ -11,9 +11,16 @@ public class Launch : MonoBehaviour
     void Awake()
     {
         App.Init();
+        // 选择沙盒路径还是流式路径
+        bool sandbox = App.version.Equals(PlayerPrefs.GetString(Const.SANDBOX_VERSION));
+        AssetManager.instance.url = sandbox ? App.persistentDataPath : App.streamingAssetsPath;
+        // Lua初始化
+        Lua.instance.Init();
+        // 配置参数设置
         Debugger.logEnabled = App.log;
         Debugger.webLogEnabled = App.webLog;
         AssetManager.instance.maxLoader = Const.MAX_LOADER;
+        // 启动定时器
         Schedule.instance.Start();
     }
 

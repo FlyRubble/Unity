@@ -673,18 +673,29 @@ namespace XLua
         {
             try
             {
-                string filename = LuaAPI.lua_tostring(L, 1).Replace('.', '/') + ".lua";
+                // 原始代码Start
+                //string filename = LuaAPI.lua_tostring(L, 1).Replace('.', '/') + ".lua";
+                //UnityEngine.TextAsset file = (UnityEngine.TextAsset)UnityEngine.Resources.Load(filename);
+                // 原始代码End
 
-                // Load with Unity3D resources
-                UnityEngine.TextAsset file = (UnityEngine.TextAsset)UnityEngine.Resources.Load(filename);
-                if (file == null)
+                // 我的代码Start
+                UnityEngine.TextAsset textAsset = null;
+#if UNITY_EDITOR && !AB_MODE
+                string path = "Asset/data/lua/" + LuaAPI.lua_tostring(L, 1).Replace('.', '/') + ".lua";
+                textAsset = (UnityEngine.TextAsset)UnityEditor.AssetDatabase.LoadAssetAtPath(path, typeof(UnityEngine.Object));
+#else
+                string path = UnityAsset.AssetManager.instance.url + "data/lua/" + LuaAPI.lua_tostring(L, 1).Replace('.', '/') + ".txt";
+                textAsset = (UnityEngine.TextAsset)UnityAsset.AssetManager.instance.AssetBundleLoad(path);
+#endif
+                // 我的代码End
+                if (textAsset == null)
                 {
                     LuaAPI.lua_pushstring(L, string.Format(
-                        "\n\tno such resource '{0}'", filename));
+                        "\n\tno such resource '{0}'", path));
                 }
                 else
                 {
-                    if (LuaAPI.xluaL_loadbuffer(L, file.bytes, file.bytes.Length, "@" + filename) != 0)
+                    if (LuaAPI.xluaL_loadbuffer(L, textAsset.bytes, textAsset.bytes.Length, "@" + path) != 0)
                     {
                         return LuaAPI.luaL_error(L, String.Format("error loading module {0} from resource, {1}",
                             LuaAPI.lua_tostring(L, 1), LuaAPI.lua_tostring(L, -1)));

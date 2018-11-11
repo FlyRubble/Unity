@@ -156,26 +156,26 @@ namespace UnityAsset
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
-        public Object AssetBundleLoad(string url)
+        public Object AssetBundleLoad(string path)
         {
             AsyncAsset async = null;
-            if (m_complete.ContainsKey(url))
+            if (m_complete.ContainsKey(path))
             {
-                async = m_complete[url];
+                async = m_complete[path];
             }
             else
             {
-                if (m_loading.ContainsKey(url))
+                if (m_loading.ContainsKey(path))
                 {
-                    async = m_loading[url];
+                    async = m_loading[path];
                 }
                 else
                 {
-                    async = new AssetsBundle(url);
+                    async = new AssetsBundle(path);
                     async.AsyncLoad();
-                    m_complete.Add(async.url, async);
                 }
                 while (!async.isDone) { }
+                m_complete.Add(async.url, async);
             }
 
             return async.mainAsset;
@@ -209,30 +209,6 @@ namespace UnityAsset
             m_queue.Add(new AsyncAssetBundle(async, action));
 
             return async;
-        }
-
-        /// <summary>
-        /// 加载资源
-        /// </summary>
-        /// <param name="path"></param>
-        /// <param name="action"></param>
-        public void Load(string path, Action<bool, Object> action)
-        {
-#if UNITY_EDITOR && !AB_MODE
-            if (action != null)
-            {
-                path = "Assets/" + path;
-                action(true, UnityEditor.AssetDatabase.LoadAssetAtPath(path, typeof(Object)));
-            }
-#else
-            path = m_url + path;
-            if (action != null)
-            {
-                AssetBundleLoadAsync(path, (bResult, asset) => {
-                    action(bResult, asset.mainAsset);
-                });
-            }
-#endif
         }
 
         /// <summary>

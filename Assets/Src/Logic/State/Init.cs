@@ -22,10 +22,6 @@ namespace Framework
         public override void OnEnter(Param param = null)
         {
             base.OnEnter(param);
-
-            // 选择沙盒路径还是流式路径
-            bool sandbox = App.version.Equals(PlayerPrefs.GetString(Const.SANDBOX_VERSION));
-            AssetManager.instance.url = sandbox ? App.persistentDataPath : App.streamingAssetsPath;
             // 获取清单文件
             WWW www = new WWW(AssetManager.instance.url + Const.MANIFESTFILE);
             while (!www.isDone) ;

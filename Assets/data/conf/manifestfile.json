@@ -1,6 +1,14 @@
 {
 	"data": 
 		{
+			"data/conf/lang.json": 
+				{
+					"name": "data/conf/lang.json",
+					"MD5": "e66588e8f49714b7af2c5c282ad30830",
+					"size": 2,
+					"directDependencies": 
+						[]
+				},
 			"data/font/fzjz.ttf": 
 				{
 					"name": "data/font/fzjz.ttf",
@@ -17,14 +25,6 @@
 					"directDependencies": 
 						[]
 				},
-			"data/scene/launch.scene": 
-				{
-					"name": "data/scene/launch.scene",
-					"MD5": "2a9163ed31d56e5a8a4956298ef34320",
-					"size": 132,
-					"directDependencies": 
-						[]
-				},
 			"data/texture/background/bg_0.png": 
 				{
 					"name": "data/texture/background/bg_0.png",
@@ -33,91 +33,19 @@
 					"directDependencies": 
 						[]
 				},
-			"data/texture/common.atlas/000.png": 
+			"data/texture/common.atlas.spriteatlas": 
 				{
-					"name": "data/texture/common.atlas/000.png",
-					"MD5": "c939c5b3624055624323aaf838157fb2",
-					"size": 16,
+					"name": "data/texture/common.atlas.spriteatlas",
+					"MD5": "51cd92af6e5d07422bfe4a66be238231",
+					"size": 18,
 					"directDependencies": 
 						[]
 				},
-			"data/texture/common.atlas/001.png": 
+			"data/texture/font.atlas.spriteatlas": 
 				{
-					"name": "data/texture/common.atlas/001.png",
-					"MD5": "b9f8051845eea15116ca1908498d08d1",
-					"size": 16,
-					"directDependencies": 
-						[]
-				},
-			"data/texture/common.atlas/002.png": 
-				{
-					"name": "data/texture/common.atlas/002.png",
-					"MD5": "356ab49b19d1d304d9932c3600718406",
-					"size": 16,
-					"directDependencies": 
-						[]
-				},
-			"data/texture/common.atlas/003.png": 
-				{
-					"name": "data/texture/common.atlas/003.png",
-					"MD5": "511e2f08e8d03d57f7fcf842d3ceb42a",
-					"size": 16,
-					"directDependencies": 
-						[]
-				},
-			"data/texture/common.atlas/004.png": 
-				{
-					"name": "data/texture/common.atlas/004.png",
-					"MD5": "ea4e4043dfc10e6ebc81fd31f3d14179",
-					"size": 16,
-					"directDependencies": 
-						[]
-				},
-			"data/texture/common.atlas/005.png": 
-				{
-					"name": "data/texture/common.atlas/005.png",
-					"MD5": "45ffe1ec38958ad0c7100bae5a48993f",
-					"size": 16,
-					"directDependencies": 
-						[]
-				},
-			"data/texture/common.atlas/006.png": 
-				{
-					"name": "data/texture/common.atlas/006.png",
-					"MD5": "b8c9deb2469d9f16fb99c72448af5b48",
-					"size": 16,
-					"directDependencies": 
-						[]
-				},
-			"data/texture/common.atlas/007.png": 
-				{
-					"name": "data/texture/common.atlas/007.png",
-					"MD5": "d4611cbd22f9c1c24afbd3a89f3547ca",
-					"size": 16,
-					"directDependencies": 
-						[]
-				},
-			"data/texture/common.atlas/008.png": 
-				{
-					"name": "data/texture/common.atlas/008.png",
-					"MD5": "e5798e9ecf2e3f18c44aef26de8385da",
-					"size": 16,
-					"directDependencies": 
-						[]
-				},
-			"data/texture/common.atlas/009.png": 
-				{
-					"name": "data/texture/common.atlas/009.png",
-					"MD5": "a6b11ca081691be4f3e05bd401a1bf4f",
-					"size": 16,
-					"directDependencies": 
-						[]
-				},
-			"data/texture/font.atlas/000.png": 
-				{
-					"name": "data/texture/font.atlas/000.png",
-					"MD5": "b6161395c78a6bea4ff78f909a1de698",
-					"size": 7,
+					"name": "data/texture/font.atlas.spriteatlas",
+					"MD5": "8623224684fbebf7ae59bffeaae940cd",
+					"size": 8,
 					"directDependencies": 
 						[]
 				},
@@ -129,44 +57,25 @@
 					"directDependencies": 
 						[]
 				},
-			"data/ui/gameobject.prefab": 
-				{
-					"name": "data/ui/gameobject.prefab",
-					"MD5": "39ef0d66de434e54a12cd027341cb504",
-					"size": 2,
-					"directDependencies": 
-						[]
-				},
 			"data/ui/uiloading.prefab": 
 				{
 					"name": "data/ui/uiloading.prefab",
-					"MD5": "c047322a39d2b478ee40ec671b7854fa",
-					"size": 1251,
+					"MD5": "741e004b2e4c19cf333266d1906052e1",
+					"size": 1265,
 					"directDependencies": 
 						[
 							"data/font/msyh.ttf",
-							"data/texture/background/bg_0.png",
-							"data/texture/common.atlas/000.png",
-							"data/texture/common.atlas/001.png",
-							"data/texture/common.atlas/002.png",
-							"data/texture/common.atlas/003.png",
-							"data/texture/common.atlas/004.png"
+							"data/texture/background/bg_0.png"
 						]
 				},
 			"data/ui/uinormaltipsbox.prefab": 
 				{
 					"name": "data/ui/uinormaltipsbox.prefab",
-					"MD5": "917ba841aec439d1a65d73492059503e",
-					"size": 8,
+					"MD5": "5ee1a738845953b386ab9b7f48ad3a09",
+					"size": 26,
 					"directDependencies": 
 						[
-							"data/font/msyh.ttf",
-							"data/texture/common.atlas/005.png",
-							"data/texture/common.atlas/006.png",
-							"data/texture/common.atlas/007.png",
-							"data/texture/common.atlas/008.png",
-							"data/texture/common.atlas/009.png",
-							"data/texture/font.atlas/000.png"
+							"data/font/msyh.ttf"
 						]
 				}
 		}

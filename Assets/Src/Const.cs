@@ -90,7 +90,7 @@
     /// <summary>
     /// 最大同时加载资源数
     /// </summary>
-    public const int MAX_LOADER = 6;
+    public const int MAX_LOADER = 2;
 
     /// <summary>
     /// 更新文件

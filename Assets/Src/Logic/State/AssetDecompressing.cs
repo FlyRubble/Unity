@@ -120,17 +120,22 @@ namespace Framework
 
             if (m_assetDecompressing)
             {
-                float speed = m_currentSize;
-                if (Time.realtimeSinceStartup >= m_time + 1F)
+                float speed = 0;
+                if (Time.realtimeSinceStartup >= m_time + 0.001F)
                 {
                     m_time = Time.realtimeSinceStartup;
 
-                    m_currentSize = 0;
-                    foreach (var data in m_async)
+                    int count = Mathf.Min(Const.MAX_LOADER, m_async.Count);
+                    for (int i = count - 1; i >= 0; --i)
                     {
-                        m_currentSize += (float)data.args * data.progress;
+                        speed += (float)m_async[i].args * m_async[i].progress;
+
+                        if (m_async[i].progress == 1F)
+                        {
+                            m_currentSize += (float)m_async[i].args;
+                            m_async.RemoveAt(i);
+                        }
                     }
-                    speed = m_currentSize - speed;
                 }
                 UIManager.instance.OpenUI(Const.UI_LOADING, Param.Create(new object[] { UILoading.SLIDER, m_currentSize / m_size }));
                 if (m_currentSize == m_size)

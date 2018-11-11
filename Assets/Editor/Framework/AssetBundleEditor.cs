@@ -5,6 +5,8 @@ using Framework.IO;
 using Framework.JsonFx;
 using ICSharpCode.SharpZipLib.Zip;
 using System;
+using UnityEngine.U2D;
+using UnityEditor.U2D;
 
 /// <summary>
 /// 资源打包
@@ -58,9 +60,9 @@ public class AssetBundleEditor
     /// 资源打包并拷贝
     /// </summary>
     /// <param name="output"></param>
-    public static void BuildAssetBundlesAndCopy(string output)
+    public static void BuildAssetBundlesAndCopy(string output, bool rebuild)
     {
-        BuildAssetBundles(output);
+        BuildAssetBundles(output, rebuild);
         BuildManifestFile(output);
         BuildUpdateFile(output);
         CopyAssetBundles(output);
@@ -74,9 +76,9 @@ public class AssetBundleEditor
     /// <param name="version"></param>
     /// <param name="platform"></param>
     /// <param name="cdn"></param>
-    public static void BuildUpdateAssetBundlesAndZip(string output, string dest, string version, string platform, string cdn = null)
+    public static void BuildUpdateAssetBundlesAndZip(string output, string dest, string version, string platform, bool rebuild, string cdn = null)
     {
-        BuildAssetBundles(output);
+        BuildAssetBundles(output, rebuild);
         BuildManifestFile(output);
         BuildUpdateFile(output, cdn + "/" + platform + "/v" + version);
         CopyUpdateAssetBundles(output, dest, version, cdn + "/" + platform);
@@ -85,7 +87,7 @@ public class AssetBundleEditor
     /// <summary>
     /// 资源打包
     /// </summary>
-    public static void BuildAssetBundles(string output)
+    public static void BuildAssetBundles(string output, bool rebuild)
     {
         // 移除所有assetBundleName
         string[] assetBundleNames = AssetDatabase.GetAllAssetBundleNames();
@@ -93,8 +95,16 @@ public class AssetBundleEditor
         {
             AssetDatabase.RemoveAssetBundleName(assetBundleName, true);
         }
+        // 设置图集
+        string dataPath = assetPath + "/data/texture";
+        string[] directoryPaths = Directory.GetDirectories(dataPath, "*.atlas", SearchOption.AllDirectories);
+        foreach (var directoryPath in directoryPaths)
+        {
+            string relativePath = directoryPath.Replace(assetPath, "Assets");
+            SetSpriteAtlas(relativePath);
+        }
         // 设置assetBundleName
-        string dataPath = assetPath + "/data";
+        dataPath = assetPath + "/data";
         string[] filePaths = Directory.GetFiles(dataPath, "*.*", SearchOption.AllDirectories);
         foreach (var filePath in filePaths)
         {
@@ -111,11 +121,21 @@ public class AssetBundleEditor
             { }
             continue;
             }
+            
 
+            if (Path.GetDirectoryName(path).EndsWith(".atlas"))
+            {
+                continue;
+            }
             string relativePath = path.Replace(assetPath, "Assets");
             var asset = AssetImporter.GetAtPath(relativePath);
             switch (extension)
             {
+            case ".lua":
+            {
+                path = path.Substring(0, path.Length - ".lua".Length) + ".txt";
+            }
+            break;
             case ".unity":
             {
                 path = path.Substring(0, path.Length - ".unity".Length) + ".scene";
@@ -126,13 +146,14 @@ public class AssetBundleEditor
         }
 
         // 打包
-        if (Directory.Exists(output))
+        if (rebuild && Directory.Exists(output))
         {
             FileUtil.DeleteFileOrDirectory(output);
             AssetDatabase.Refresh();
         }
         Directory.CreateDirectory(output);
         AssetDatabase.Refresh();
+        SpriteAtlasUtility.PackAllAtlases(buildTarget);
         BuildPipeline.BuildAssetBundles(output, BuildAssetBundleOptions.ChunkBasedCompression, buildTarget);
         // 移除所有assetBundleName
         assetBundleNames = AssetDatabase.GetAllAssetBundleNames();
@@ -501,5 +522,31 @@ public class AssetBundleEditor
             bundle.Unload(true);
         }
         return manifestConfig;
+    }
+
+    /// <summary>
+    /// 设置图集
+    /// </summary>
+    /// <param name="directoryName"></param>
+    /// <param name="relativePath"></param>
+    private static void SetSpriteAtlas(string relativePath)
+    {
+        string spriteAtlasPath = relativePath + ".spriteatlas";
+        SpriteAtlas spriteAtlas = AssetDatabase.LoadAssetAtPath<SpriteAtlas>(spriteAtlasPath);
+        if (spriteAtlas == null)
+        {
+            spriteAtlas = new SpriteAtlas();
+            AssetDatabase.CreateAsset(spriteAtlas, spriteAtlasPath);
+
+            SpriteAtlasPackingSettings spriteAtlasPackingSettings = SpriteAtlasExtensions.GetPackingSettings(spriteAtlas);
+            spriteAtlasPackingSettings.enableTightPacking = false;
+            spriteAtlasPackingSettings.padding = 2;
+            SpriteAtlasTextureSettings spriteAtlasTextureSettings = SpriteAtlasExtensions.GetTextureSettings(spriteAtlas);
+            spriteAtlasTextureSettings.sRGB = true;
+            
+            var obj = AssetDatabase.LoadMainAssetAtPath(relativePath);
+            UnityEngine.Object[] objects = new UnityEngine.Object[] { obj };
+            SpriteAtlasExtensions.Add(spriteAtlas, objects);
+        }
     }
 }

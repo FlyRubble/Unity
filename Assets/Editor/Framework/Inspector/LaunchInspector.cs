@@ -428,7 +428,7 @@ public class LaunchInspector : Editor
         if (m_buildAsset)
         {
             m_buildAsset = false;
-            AssetBundleEditor.BuildAssetBundlesAndCopy(AssetBundleEditor.outputPath);
+            AssetBundleEditor.BuildAssetBundlesAndCopy(AssetBundleEditor.outputPath, true);
             GUIUtility.ExitGUI();
         }
         // 打更新资源包
@@ -436,7 +436,7 @@ public class LaunchInspector : Editor
         {
             m_buildUpdateAsset = false;
             App.Init();
-            AssetBundleEditor.BuildUpdateAssetBundlesAndZip(AssetBundleEditor.outputPath, AssetBundleEditor.outputVersionPath, App.version, App.platform, App.cdn);
+            AssetBundleEditor.BuildUpdateAssetBundlesAndZip(AssetBundleEditor.outputPath, AssetBundleEditor.outputVersionPath, App.version, App.platform, false, App.cdn);
             GUIUtility.ExitGUI();
         }
 
