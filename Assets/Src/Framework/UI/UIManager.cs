@@ -39,7 +39,7 @@ namespace Framework
                 m_data = new Dictionary<string, UIBase>();
                 m_param = new Dictionary<string, Param>();
 
-                AssetManager.instance.Load("data/ui/" + Const.UI_CANVAS + ".prefab", (bResult, asset) => {
+                Action<bool, Object> action = (bResult, asset) => {
                     if (bResult && asset != null)
                     {
                         GameObject go = GameObject.Instantiate(asset) as GameObject;
@@ -48,11 +48,20 @@ namespace Framework
                         go.transform.localPosition = Vector3.zero;
                         go.transform.localScale = Vector3.one;
                         go.transform.localRotation = Quaternion.identity;
-                        
+
                         GameObject.DontDestroyOnLoad(go);
                         m_root = go.transform.Find("Center");
                     }
-                });
+                };
+
+#if UNITY_EDITOR && !AB_MODE
+                if (action != null)
+                {
+                    action(true, UnityEditor.AssetDatabase.LoadAssetAtPath("Assets/data/ui/" + Const.UI_CANVAS + ".prefab", typeof(Object)));
+                }
+#else
+                AssetManager.instance.AssetBundleAsyncLoad(AssetManager.instance.url + "data/ui/" + Const.UI_CANVAS + ".prefab", (bResult, asset) => { action(bResult, asset.mainAsset); });
+#endif
             }
 
             /// <summary>
@@ -160,7 +169,8 @@ namespace Framework
                     else
                     {
                         m_param.Add(name, param);
-                        AssetManager.instance.Load("data/ui/" + name + ".prefab", (bResult, asset)=> {
+
+                        Action<bool, Object> action = (bResult, asset) => {
                             if (bResult && asset != null)
                             {
                                 GameObject go = GameObject.Instantiate(asset) as GameObject;
@@ -187,7 +197,17 @@ namespace Framework
                                 }
                                 m_param.Remove(name);
                             }
+                        };
+#if UNITY_EDITOR && !AB_MODE
+                if (action != null)
+                {
+                    action(true, UnityEditor.AssetDatabase.LoadAssetAtPath("Assets/data/ui/" + name + ".prefab", typeof(Object)));
+                }
+#else
+                        AssetManager.instance.AssetBundleAsyncLoad(AssetManager.instance.url + "data/ui/" + name + ".prefab", (bResult, asset) => {
+                            action(bResult, asset.mainAsset);
                         });
+#endif
                     }
                 }
             }

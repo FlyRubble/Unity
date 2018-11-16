@@ -13,10 +13,18 @@ namespace UnityAsset
 
         #region Property
         /// <summary>
+        /// 记载资源的类型
+        /// </summary>
+        public override LoadType loadType
+        {
+            get { return LoadType.Resource; }
+        }
+
+        /// <summary>
         /// 是否完成
         /// </summary>
         /// <value><c>true</c> if is done; otherwise, <c>false</c>.</value>
-        public new bool isDone
+        public override bool isDone
         {
             get { return m_resourceRequest != null ? m_resourceRequest.isDone : false; }
         }
@@ -25,7 +33,7 @@ namespace UnityAsset
         /// 进度
         /// </summary>
         /// <value>The progress.</value>
-        public new float progress
+        public override float progress
         {
             get { return m_resourceRequest != null ? m_resourceRequest.progress : 0f; }
         }
@@ -72,6 +80,17 @@ namespace UnityAsset
         {
             m_resourceRequest = Resources.LoadAsync(m_url);
             base.AsyncLoad();
+        }
+
+        /// <summary>
+        /// 卸载
+        /// </summary>
+        /// <param name="unloadAllLoadedObjects"></param>
+        public override void Unload(bool unloadAllLoadedObjects)
+        {
+            Resources.UnloadAsset(m_mainAsset);
+            base.Unload(unloadAllLoadedObjects);
+            m_resourceRequest = null;
         }
         #endregion
     }

@@ -14,10 +14,33 @@ public class Lua : Singleton<Lua>
     /// 表
     /// </summary>
     private LuaTable m_scriptEnv = null;
+
+    /// <summary>
+    /// 启动
+    /// </summary>
+    private Action m_awake = null;
+
+    /// <summary>
+    /// 开始
+    /// </summary>
+    private Action m_start = null;
+
+    /// <summary>
+    /// 更新
+    /// </summary>
+    private Action m_update = null;
+
+    /// <summary>
+    /// 销毁
+    /// </summary>
+    private Action m_destroy = null;
     #endregion
 
     #region Function
-    public void Init()
+    /// <summary>
+    /// 启动
+    /// </summary>
+    public void Awake()
     {
         m_luaEnv = new LuaEnv();
         m_scriptEnv = m_luaEnv.NewTable();
@@ -28,12 +51,53 @@ public class Lua : Singleton<Lua>
         meta.Dispose();
 
         m_scriptEnv.Set("self", this);
+        
+        m_luaEnv.DoString("require('main')", "Lua", m_scriptEnv);
 
-        //TextAsset ta = Resources.Load("lua") as TextAsset;
+        m_awake = m_scriptEnv.Get<Action>("awake");
+        if (m_awake != null)
+        {
+            m_awake();
+        }
+        m_start = m_scriptEnv.Get<Action>("start");
+        m_update = m_scriptEnv.Get<Action>("update");
+        m_destroy = m_scriptEnv.Get<Action>("destroy");
+    }
 
-        m_luaEnv.DoString("require('lua')", "Lua", m_scriptEnv);
-        var action = m_scriptEnv.Get<Action>("awake");
-        action();
+    /// <summary>
+    /// 开始
+    /// </summary>
+    public void Start()
+    {
+        if (m_start != null)
+        {
+            m_start();
+        }
+    }
+
+    /// <summary>
+    /// 更新
+    /// </summary>
+    public void Update()
+    {
+        m_luaEnv.Tick();
+        m_update();
+    }
+
+    /// <summary>
+    /// 销毁
+    /// </summary>
+    public void Destroy()
+    {
+        if (m_destroy != null)
+        {
+            m_destroy();
+        }
+        m_awake = null;
+        m_start = null;
+        m_update = null;
+        m_destroy = null;
+        m_luaEnv.Dispose();
     }
     #endregion
 }

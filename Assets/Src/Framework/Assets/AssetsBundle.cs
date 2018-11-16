@@ -1,5 +1,6 @@
-﻿using UnityEngine;
-using System.IO;
+﻿using System.IO;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace UnityAsset
 {
@@ -10,9 +11,27 @@ namespace UnityAsset
 		/// WWW
 		/// </summary>
         private WWW m_www = null;
+        
+        /// <summary>
+        /// 被依赖表(依赖本对象的表)
+        /// </summary>
+        List<AssetsBundle> m_dependentSelf = null;
+
+        /// <summary>
+        /// 依赖表(被本对象依赖的表)
+        /// </summary>
+        List<AssetsBundle> m_selfDependent = null;
         #endregion
 
         #region Property
+        /// <summary>
+        /// 记载资源的类型
+        /// </summary>
+        public override LoadType loadType
+        {
+            get { return LoadType.AssetsBundle; }
+        }
+
         /// <summary>
         /// 是否完成
         /// </summary>
@@ -68,6 +87,28 @@ namespace UnityAsset
                 return m_www != null ? m_www.error : "unknown error";
             }
         }
+
+        /// <summary>
+        /// 被依赖表(依赖本对象的表)
+        /// </summary>
+        public List<AssetsBundle> dependentSelf
+        {
+            get
+            {
+                return m_dependentSelf;
+            }
+        }
+
+        /// <summary>
+        /// 依赖表(被本对象依赖的表)
+        /// </summary>
+        public List<AssetsBundle> selfDependent
+        {
+            get
+            {
+                return m_selfDependent;
+            }
+        }
         #endregion
 
         #region Function
@@ -76,7 +117,28 @@ namespace UnityAsset
         /// </summary>
         public AssetsBundle(string url)
             : base(url)
-        { }
+        {
+            m_dependentSelf = new List<AssetsBundle>();
+            m_selfDependent = new List<AssetsBundle>();
+        }
+
+        /// <summary>
+        /// 添加依赖本对象的资源
+        /// </summary>
+        /// <param name="assets"></param>
+        public void AddDependentSelf(AssetsBundle assets)
+        {
+            m_dependentSelf.Add(assets);
+        }
+        
+        /// <summary>
+        /// 添加自己依赖的资源
+        /// </summary>
+        /// <param name="assets"></param>
+        public void AddSelfDependent(AssetsBundle assets)
+        {
+            m_selfDependent.Add(assets);
+        }
 
         /// <summary>
         /// 异步加载资源
@@ -93,11 +155,24 @@ namespace UnityAsset
         /// <param name="unloadAllLoadedObjects"></param>
         public override void Unload(bool unloadAllLoadedObjects)
         {
-            base.Unload(unloadAllLoadedObjects);
             if (m_www != null && m_www.assetBundle != null && !m_www.assetBundle.isStreamedSceneAssetBundle)
             {
                 m_www.assetBundle.Unload(unloadAllLoadedObjects);
             }
+            base.Unload(unloadAllLoadedObjects);
+            m_www.Dispose();
+            m_www = null;
+
+            for (int i = 0; i < m_dependentSelf.Count; ++i)
+            {
+                m_dependentSelf[i].selfDependent.Remove(this);
+            }
+            for (int i = 0; i < m_selfDependent.Count; ++i)
+            {
+                m_selfDependent[i].dependentSelf.Remove(this);
+            }
+            m_dependentSelf.Clear();
+            m_selfDependent.Clear();
         }
         #endregion
     }

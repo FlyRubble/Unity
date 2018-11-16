@@ -13,7 +13,17 @@ namespace UnityAsset
             Wait = 1,
             Loading = 2,
             Complete = 3,
-            Stop = 4,
+            Unload = 4,
+        }
+
+        /// <summary>
+        /// 加载资源类型
+        /// </summary>
+        public enum LoadType
+        {
+            None = 0,
+            Resource,
+            AssetsBundle,
         }
 
         #region Variable
@@ -21,11 +31,6 @@ namespace UnityAsset
         /// url
         /// </summary>
         protected string m_url = string.Empty;
-
-        /// <summary>
-        /// 是否停止
-        /// </summary>
-        protected bool m_stop = false;
 
         /// <summary>
         /// 主资源
@@ -38,12 +43,20 @@ namespace UnityAsset
         protected LoadState m_loadState = LoadState.None;
 
         /// <summary>
-        /// 参数
+        /// 用户数据
         /// </summary>
-        protected object m_args = null;
+        protected object m_userData = null;
         #endregion
 
         #region Property
+        /// <summary>
+        /// 记载资源的类型
+        /// </summary>
+        public virtual LoadType loadType
+        {
+            get { return LoadType.None; }
+        }
+
         /// <summary>
         /// 得到url
         /// </summary>
@@ -106,12 +119,12 @@ namespace UnityAsset
         }
 
         /// <summary>
-        /// 参数
+        /// 用户数据
         /// </summary>
-        public object args
+        public object userData
         {
-            get { return m_args; }
-            set { m_args = value; }
+            get { return m_userData; }
+            set { m_userData = value; }
         }
         #endregion
 
@@ -122,7 +135,6 @@ namespace UnityAsset
         public AsyncAsset(string url)
         {
             m_url = url;
-            m_stop = false;
             m_loadState = LoadState.Wait;
         }
 
@@ -144,29 +156,13 @@ namespace UnityAsset
         }
 
         /// <summary>
-        /// 停止
-        /// </summary>
-        public void Stop()
-        {
-            m_stop = true;
-            m_loadState = LoadState.Stop;
-        }
-
-        /// <summary>
         /// 卸载资源
         /// </summary>
         /// <param name="unloadAllLoadedObjects">If set to <c>true</c> unload all loaded objects.</param>
         public virtual void Unload(bool unloadAllLoadedObjects)
         {
-            Stop();
-        }
-
-        /// <summary>
-        /// 卸载资源
-        /// </summary>
-        public void Unload()
-        {
-            Unload(false);
+            m_loadState = LoadState.Unload;
+            m_mainAsset = null;
         }
         #endregion
     }

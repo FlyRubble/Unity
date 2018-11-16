@@ -66,7 +66,7 @@ namespace Framework
 
             AssetManager.instance.url = App.persistentDataPath;
             // 清理资源，并且重新打开Loading界面
-            AssetManager.instance.UnloadAssets();
+            AssetManager.instance.UnloadAssets(true);
             // 获取本地更新清单文件
             WWW www = new WWW(App.persistentDataPath + Const.UPDATE_FILE);
             while (!www.isDone) ;
@@ -117,7 +117,7 @@ namespace Framework
                     m_currentSize = 0;
                     foreach (var data in m_async)
                     {
-                        m_currentSize += (float)data.args * data.progress;
+                        m_currentSize += (float)data.userData * data.progress;
                         Debugger.Log(data.url);
                     }
                     speed = m_currentSize - speed;
@@ -140,12 +140,12 @@ namespace Framework
             m_async.Clear();
             if (m_remoteUpdateManifest.data.Count > 0)
             {
-                AsyncAsset async = AssetManager.instance.AssetBundleLoadAsync(Path.Combine(Path.Combine(App.cdn + App.platform, string.Format(Const.REMOTE_DIRECTORY, App.version)), Const.UPDATE_FILE), (bResult, asset) =>
+                AsyncAsset async = AssetManager.instance.AssetBundleAsyncLoad(Path.Combine(Path.Combine(App.cdn + App.platform, string.Format(Const.REMOTE_DIRECTORY, App.version)), Const.UPDATE_FILE), (bResult, asset) =>
                 {
                     Util.WriteAllBytes(App.assetPath + Const.UPDATE_FILE, asset.bytes);
                 });
-                async.args = 0.1F;
-                m_size += (float)async.args;
+                async.userData = 0.1F;
+                m_size += (float)async.userData;
                 m_async.Add(async);
                 foreach (var data in m_remoteUpdateManifest.data.Values)
                 {
@@ -153,20 +153,20 @@ namespace Framework
                     {
                         continue;
                     }
-                    async = AssetManager.instance.AssetBundleLoadAsync(Path.Combine(Path.Combine(App.cdn + App.platform , string.Format(Const.REMOTE_DIRECTORY, App.version)), data.name), (bResult, asset) =>
+                    async = AssetManager.instance.AssetBundleAsyncLoad(Path.Combine(Path.Combine(App.cdn + App.platform , string.Format(Const.REMOTE_DIRECTORY, App.version)), data.name), (bResult, asset) =>
                     {
                         Util.WriteAllBytes(App.assetPath + data.name, asset.bytes);
                     });
-                    async.args = data.size / 1024F;
-                    m_size += (float)async.args;
+                    async.userData = data.size / 1024F;
+                    m_size += (float)async.userData;
                     m_async.Add(async);
                 }
-                async = AssetManager.instance.AssetBundleLoadAsync(Path.Combine(Path.Combine(App.cdn + App.platform, string.Format(Const.REMOTE_DIRECTORY, App.version)), Const.MANIFESTFILE), (bResult, asset) =>
+                async = AssetManager.instance.AssetBundleAsyncLoad(Path.Combine(Path.Combine(App.cdn + App.platform, string.Format(Const.REMOTE_DIRECTORY, App.version)), Const.MANIFESTFILE), (bResult, asset) =>
                 {
                     Util.WriteAllBytes(App.assetPath + Const.MANIFESTFILE, asset.bytes);
                 });
-                async.args = 0.5F;
-                m_size += (float)async.args;
+                async.userData = 0.5F;
+                m_size += (float)async.userData;
                 m_async.Add(async);
                 // 设置有资源更新标志 至少有update文件和version文件，所以至少要大于2
                 m_hasAssetUpdate = m_async.Count > 2;
@@ -183,7 +183,7 @@ namespace Framework
         private void AssetUpdateComplete()
         {
             // 清理资源，打开登录
-            AssetManager.instance.UnloadAssets();
+            AssetManager.instance.UnloadAssets(true);
             UIManager.instance.Clear();
             UIManager.instance.OpenUI(Const.UI_LOADING);
             Debugger.Log("开始登陆");

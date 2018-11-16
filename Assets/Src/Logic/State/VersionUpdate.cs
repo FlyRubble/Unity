@@ -73,7 +73,7 @@ namespace Framework
                 }
                 else
                 {
-                    // 检测沙盒资源更新
+                    // 检测沙盒资源解压
                     StateMachine.instance.OnEnter(new AssetDecompressing());
                 }
                 m_www = null;

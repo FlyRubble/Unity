@@ -48,6 +48,13 @@ namespace UnityAsset
         /// URL
         /// </summary>
         string m_url = string.Empty;
+
+        /// <summary>
+        /// 得到依赖资源
+        /// </summary>
+        /// <returns></returns>
+        public delegate List<string> DependentAsset(string path);
+        private DependentAsset m_getDependentAsset = null;
         #endregion
 
         #region Property
@@ -78,6 +85,20 @@ namespace UnityAsset
             get { return m_url; }
             set { m_url = value; }
         }
+
+        /// <summary>
+        /// 设置依赖资源
+        /// </summary>
+        public DependentAsset setDependentAsset
+        {
+            set
+            {
+                if (value != null)
+                {
+                    m_getDependentAsset = value;
+                }
+            }
+        }
         #endregion
 
         #region Function
@@ -87,9 +108,10 @@ namespace UnityAsset
         public AssetManager()
         {
             m_complete = new Dictionary<string, AsyncAsset>(128);
-            m_loading = new Dictionary<string, AsyncAsset>(64);
+            m_loading = new Dictionary<string, AsyncAsset>(16);
             m_queue = new List<AsyncAssetBundle>(64);
-            m_remove = new List<AsyncAsset>(8);
+            m_remove = new List<AsyncAsset>(m_loading.Count);
+            m_getDependentAsset = (path) => { return new List<string>(); };
         }
 
         /// <summary>
@@ -127,7 +149,7 @@ namespace UnityAsset
         /// <param name="path"></param>
         /// <param name="action"></param>
         /// <returns></returns>
-        public AsyncAsset ResourceLoadAsync(string path, Action<bool, AsyncAsset> action)
+        public AsyncAsset ResourceAsyncLoad(string path, Action<bool, AsyncAsset> action)
         {
             AsyncAsset async = null;
             if (m_complete.ContainsKey(path))
@@ -156,7 +178,7 @@ namespace UnityAsset
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
-        public Object AssetBundleLoad(string path)
+        public AsyncAsset AssetBundleLoad(string path)
         {
             AsyncAsset async = null;
             if (m_complete.ContainsKey(path))
@@ -175,10 +197,23 @@ namespace UnityAsset
                     async.AsyncLoad();
                 }
                 while (!async.isDone) { }
+                async.Complete();
                 m_complete.Add(async.url, async);
             }
 
-            return async.mainAsset;
+            return async;
+        }
+        
+        /// <summary>
+        /// AssetBundle资源加载
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="action"></param>
+        /// <param name="dic"></param>
+        /// <returns></returns>
+        public AsyncAsset AssetBundleAsyncLoad(string path, Action<bool, AsyncAsset> action, Dictionary<string, AsyncAsset> dic = null)
+        {
+            return DependentAssetLoad(path, action, dic);
         }
 
         /// <summary>
@@ -187,7 +222,7 @@ namespace UnityAsset
         /// <param name="path"></param>
         /// <param name="action"></param>
         /// <returns></returns>
-        public AsyncAsset AssetBundleLoadAsync(string path, Action<bool, AsyncAsset> action)
+        private AsyncAsset AssetBundleAsyncLoadWithoutDependent(string path, Action<bool, AsyncAsset> action)
         {
             AsyncAsset async = null;
             if (m_complete.ContainsKey(path))
@@ -209,6 +244,36 @@ namespace UnityAsset
             m_queue.Add(new AsyncAssetBundle(async, action));
 
             return async;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="action"></param>
+        /// <param name="dic"></param>
+        private AsyncAsset DependentAssetLoad(string path, Action<bool, AsyncAsset> action, Dictionary<string, AsyncAsset> dic)
+        {
+            var data = m_getDependentAsset(path);
+            AssetsBundle[] dependent = new AssetsBundle[data.Count];
+            for (int i = 0;i < data.Count; ++i)
+            {
+                dependent[i] = (AssetsBundle)DependentAssetLoad(data[i], action, dic);
+            }
+
+            AssetsBundle asset = (AssetsBundle)AssetBundleAsyncLoadWithoutDependent(path, action);
+            if (null != dic)
+            {
+                dic.Add(path, asset);
+            }
+
+            for (int i = 0; i < dependent.Length; ++i)
+            {
+                dependent[i].AddDependentSelf(asset);
+                asset.AddSelfDependent(dependent[i]);
+            }
+
+            return asset;
         }
 
         /// <summary>
@@ -253,19 +318,12 @@ namespace UnityAsset
                         m_loading.Remove(asyn.url);
                     }
                 }
-                // 等待加载中的处理
-                m_currentMaxLoader = Mathf.Min(m_maxLoader, m_queue.Count);
-                if (m_currentMaxLoader > 0)
+                // 等待加载中的处理                
+                if (m_queue.Count > 0 && m_queue[0].isDone)
                 {
-                    for (int i = 0; i < m_currentMaxLoader; ++i)
-                    {
-                        if (m_queue[0].isDone)
-                        {
-                            AsyncAssetBundle asyncBundle = m_queue[0];
-                            m_queue.RemoveAt(0);
-                            asyncBundle.Complete();
-                        }
-                    }
+                    AsyncAssetBundle asyncBundle = m_queue[0];
+                    m_queue.Remove(asyncBundle);
+                    asyncBundle.Complete();
                 }
             }
         }
@@ -293,17 +351,17 @@ namespace UnityAsset
         /// <summary>
         /// 卸载所有资源
         /// </summary>
-        public void UnloadAssets()
+        /// <param name="unloadAllLoadedObjects"></param>
+        public void UnloadAssets(bool unloadAllLoadedObjects)
         {
-            foreach (var v in m_loading.Values)
+            foreach (var asyn in m_complete.Values)
             {
-                v.Unload(true);
+                asyn.Unload(unloadAllLoadedObjects);
             }
-            foreach (var v in m_complete.Values)
+            foreach (var asyn in m_loading.Values)
             {
-                v.Unload(true);
+                asyn.Unload(unloadAllLoadedObjects);
             }
-            Resources.UnloadUnusedAssets();
 
             m_complete.Clear();
             m_loading.Clear();
@@ -313,56 +371,29 @@ namespace UnityAsset
         /// <summary>
         /// 卸载指定资源
         /// </summary>
-        /// <param name="asset">Asset.</param>
-        public void UnloadAssets(AsyncAsset asset)
+        /// <param name="asset"></param>
+        /// <param name="unloadAllLoadedObjects"></param>
+        public void UnloadAssets(AsyncAsset asset, bool unloadAllLoadedObjects)
         {
             if (null == asset) return;
 
-            UnloadAssets(asset, true);
-        }
-
-        /// <summary>
-        /// 卸载指定资源
-        /// </summary>
-        /// <param name="asset">Asset.</param>
-        public void UnloadAssets(AsyncAsset[] assets)
-        {
-            if (null == assets) return;
-
-            foreach (var asset in assets)
+            if (m_complete.ContainsKey(asset.url) && asset == m_complete[asset.url])
             {
-                UnloadAssets(asset, false);
-            }
-            Resources.UnloadUnusedAssets();
-        }
-
-        /// <summary>
-        /// 卸载指定资源
-        /// </summary>
-        /// <param name="asset"></param>
-        /// <param name="unloadUnusedAssets"></param>
-        private void UnloadAssets(AsyncAsset asset, bool unloadUnusedAssets)
-        {
-            if (m_loading.ContainsKey(asset.url))
-            {
-                m_loading[asset.url].Unload(true);
-                m_loading.Remove(asset.url);
-            }
-            if (m_complete.ContainsKey(asset.url))
-            {
-                m_complete[asset.url].Unload(true);
+                asset.Unload(unloadAllLoadedObjects);
                 m_complete.Remove(asset.url);
             }
-            for (int i = m_queue.Count - 1; i >= 0; --i)
+            else if (m_loading.ContainsKey(asset.url) && asset == m_loading[asset.url])
+            {
+                asset.Unload(unloadAllLoadedObjects);
+                m_loading.Remove(asset.url);
+            }
+            for (int i = 0; i < m_queue.Count; ++i)
             {
                 if (m_queue[i].asyncAsset == asset)
                 {
                     m_queue.RemoveAt(i);
+                    break;
                 }
-            }
-            if (unloadUnusedAssets)
-            {
-                Resources.UnloadUnusedAssets();
             }
         }
 #endregion

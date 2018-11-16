@@ -681,11 +681,12 @@ namespace XLua
                 // 我的代码Start
                 UnityEngine.TextAsset textAsset = null;
 #if UNITY_EDITOR && !AB_MODE
-                string path = "Asset/data/lua/" + LuaAPI.lua_tostring(L, 1).Replace('.', '/') + ".lua";
+                string path = "Assets/data/lua/" + LuaAPI.lua_tostring(L, 1).Replace('.', '/') + ".txt";
                 textAsset = (UnityEngine.TextAsset)UnityEditor.AssetDatabase.LoadAssetAtPath(path, typeof(UnityEngine.Object));
 #else
                 string path = UnityAsset.AssetManager.instance.url + "data/lua/" + LuaAPI.lua_tostring(L, 1).Replace('.', '/') + ".txt";
-                textAsset = (UnityEngine.TextAsset)UnityAsset.AssetManager.instance.AssetBundleLoad(path);
+                UnityAsset.AsyncAsset asyncAsset = UnityAsset.AssetManager.instance.AssetBundleLoad(path);
+                textAsset = (UnityEngine.TextAsset)asyncAsset.mainAsset;
 #endif
                 // 我的代码End
                 if (textAsset == null)

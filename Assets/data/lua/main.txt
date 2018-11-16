@@ -1,0 +1,28 @@
+
+--require("a")
+
+main = {}
+
+-- 启动
+function awake()
+	print("awake")
+end
+
+-- 开始
+function start()
+	print("start")
+end
+
+-- 更新
+function update(time)
+	print(time);
+	--a.update(time)
+	--print("lua update...")
+end
+
+-- 销毁
+function destroy()
+	print("destroy");
+end
+
+return main

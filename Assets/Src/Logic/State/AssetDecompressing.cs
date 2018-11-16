@@ -59,7 +59,7 @@ namespace Framework
                 }
                 // 解压准备
                 m_async.Clear();
-                AsyncAsset async = AssetManager.instance.AssetBundleLoadAsync(AssetManager.instance.url + Const.UPDATE_FILE, (bResult, asset) =>
+                AsyncAsset async = AssetManager.instance.AssetBundleAsyncLoad(AssetManager.instance.url + Const.UPDATE_FILE, (bResult, asset) =>
                 {
                     if (bResult)
                     {
@@ -70,12 +70,12 @@ namespace Framework
                         Debugger.Log(asset.error);
                     }
                 });
-                async.args = 0.1F;
-                m_size += (float)async.args;
+                async.userData = 0.1F;
+                m_size += (float)async.userData;
                 m_async.Add(async);
                 foreach (var data in App.manifest.data.Values)
                 {
-                    async = AssetManager.instance.AssetBundleLoadAsync(AssetManager.instance.url + data.name, (bResult, asset) =>
+                    async = AssetManager.instance.AssetBundleAsyncLoad(AssetManager.instance.url + data.name, (bResult, asset) =>
                     {
                         if (bResult)
                         {
@@ -86,11 +86,11 @@ namespace Framework
                             Debugger.Log(asset.error);
                         }
                     });
-                    async.args = data.size / 1024F;
-                    m_size += (float)async.args;
+                    async.userData = data.size / 1024F;
+                    m_size += (float)async.userData;
                     m_async.Add(async);
                 }
-                async = AssetManager.instance.AssetBundleLoadAsync(AssetManager.instance.url + Const.MANIFESTFILE, (bResult, asset) =>
+                async = AssetManager.instance.AssetBundleAsyncLoad(AssetManager.instance.url + Const.MANIFESTFILE, (bResult, asset) =>
                 {
                     if (bResult)
                     {
@@ -101,8 +101,8 @@ namespace Framework
                         Debugger.LogError(asset.error);
                     }
                 });
-                async.args = 0.5F;
-                m_size += (float)async.args;
+                async.userData = 0.5F;
+                m_size += (float)async.userData;
                 m_async.Add(async);
             }
             else
@@ -128,11 +128,11 @@ namespace Framework
                     int count = Mathf.Min(Const.MAX_LOADER, m_async.Count);
                     for (int i = count - 1; i >= 0; --i)
                     {
-                        speed += (float)m_async[i].args * m_async[i].progress;
+                        speed += (float)m_async[i].userData * m_async[i].progress;
 
                         if (m_async[i].progress == 1F)
                         {
-                            m_currentSize += (float)m_async[i].args;
+                            m_currentSize += (float)m_async[i].userData;
                             m_async.RemoveAt(i);
                         }
                     }
