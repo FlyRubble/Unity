@@ -12,7 +12,7 @@ public class Launch : MonoBehaviour
     {
         App.Init();
         // 选择沙盒路径还是流式路径
-        bool sandbox = App.version.Equals(PlayerPrefs.GetString(Const.SANDBOX_VERSION));
+        bool sandbox = App.version.Equals(Util.GetString(Const.SANDBOX_VERSION));
         AssetManager.instance.url = sandbox ? App.persistentDataPath : App.streamingAssetsPath;
         // Lua启动
         Lua.instance.Awake();

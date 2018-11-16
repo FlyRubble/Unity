@@ -48,8 +48,8 @@ namespace Framework
         {
             base.OnEnter(param);
             
-            // 是否需要更新沙盒资源
-            m_assetDecompressing = !App.version.Equals(PlayerPrefs.GetString(Const.SANDBOX_VERSION));
+            // 是否需要解压资源到沙河路径
+            m_assetDecompressing = !App.version.Equals(Util.GetString(Const.SANDBOX_VERSION));
             if (m_assetDecompressing)
             {
                 // 清空文件夹，以便重新解压

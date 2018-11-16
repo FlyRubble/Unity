@@ -380,7 +380,7 @@ public class LaunchInspector : Editor
             }
             // 清除本地沙盒资源
             if (GUILayout.Button ("清除本地沙盒资源")) {
-                PlayerPrefs.SetString(Const.SANDBOX_VERSION, null);
+                Util.SetString(Const.SANDBOX_VERSION, null);
                 if (Directory.Exists(Application.persistentDataPath))
                 {
                     Directory.Delete(Application.persistentDataPath, true);

@@ -3,6 +3,7 @@
 
 main = {}
 
+local t = CS.LuaFunc;
 -- 启动
 function awake()
 	print("awake")
@@ -15,7 +16,7 @@ end
 
 -- 更新
 function update(time)
-	print(time);
+	print(t.Test());
 	--a.update(time)
 	--print("lua update...")
 end

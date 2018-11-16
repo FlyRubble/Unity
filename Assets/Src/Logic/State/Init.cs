@@ -23,12 +23,11 @@ namespace Framework
         {
             base.OnEnter(param);
             // 获取清单文件
-            WWW www = new WWW(AssetManager.instance.url + Const.MANIFESTFILE);
-            while (!www.isDone) ;
-            App.manifest = JsonReader.Deserialize<ManifestConfig>(www.assetBundle.LoadAsset<TextAsset>(Path.GetFileNameWithoutExtension(www.url)).text);
-            if (www.assetBundle != null)
+            AsyncAsset asset = AssetManager.instance.AssetBundleLoad(AssetManager.instance.url + Const.MANIFESTFILE);
+            if (asset != null && string.IsNullOrEmpty(asset.error))
             {
-                www.assetBundle.Unload(true);
+                App.manifest = JsonReader.Deserialize<ManifestConfig>(asset.mainAsset.ToString());
+                AssetManager.instance.UnloadAssets(asset, true);
             }
             // 加载Loading界面
             UIManager.instance.OpenUI(Const.UI_LOADING, Param.Create(new object[] { UILoading.TEXT_TIPS, Const.ID_GETING, UILoading.SLIDER, 0F, UILoading.TEXT_DETAILS, string.Empty }));

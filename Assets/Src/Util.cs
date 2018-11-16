@@ -28,6 +28,26 @@ public class Util
     }
 
     /// <summary>
+    /// 得到持久化字符串数据
+    /// </summary>
+    /// <param name="key"></param>
+    /// <returns></returns>
+    public static string GetString(string key)
+    {
+        return PlayerPrefs.GetString(key);
+    }
+
+    /// <summary>
+    /// 设置持久化字符串数据
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    public static void SetString(string key, string value)
+    {
+        PlayerPrefs.SetString(key, value);
+    }
+
+    /// <summary>
     /// 查找对象
     /// </summary>
     /// <typeparam name="T"></typeparam>
