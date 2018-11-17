@@ -44,7 +44,7 @@
 			"data/lua/main.txt": 
 				{
 					"name": "data/lua/main.txt",
-					"MD5": "28e7a6b7420ec2b00a792fe2909af190",
+					"MD5": "fa70cb3f1ac066aa1ab489691eceaf47",
 					"size": 2,
 					"directDependencies": 
 						[]
@@ -60,7 +60,7 @@
 			"data/texture/common.atlas.spriteatlas": 
 				{
 					"name": "data/texture/common.atlas.spriteatlas",
-					"MD5": "54a2f98ca01bdbd2d90f434e3641eed4",
+					"MD5": "51cd92af6e5d07422bfe4a66be238231",
 					"size": 18,
 					"directDependencies": 
 						[]
@@ -68,7 +68,7 @@
 			"data/texture/font.atlas.spriteatlas": 
 				{
 					"name": "data/texture/font.atlas.spriteatlas",
-					"MD5": "8623224684fbebf7ae59bffeaae940cd",
+					"MD5": "db67e0088d1f360e9d656557789904b3",
 					"size": 8,
 					"directDependencies": 
 						[]
@@ -84,7 +84,7 @@
 			"data/ui/uiloading.prefab": 
 				{
 					"name": "data/ui/uiloading.prefab",
-					"MD5": "52d85bbb743bc0e7ebc6a93c45b3576c",
+					"MD5": "741e004b2e4c19cf333266d1906052e1",
 					"size": 1265,
 					"directDependencies": 
 						[
@@ -95,7 +95,7 @@
 			"data/ui/uinormaltipsbox.prefab": 
 				{
 					"name": "data/ui/uinormaltipsbox.prefab",
-					"MD5": "087ba70888597954291464d1322e25d8",
+					"MD5": "c687f27714c3a9b6227fbffa1c69d50a",
 					"size": 26,
 					"directDependencies": 
 						[

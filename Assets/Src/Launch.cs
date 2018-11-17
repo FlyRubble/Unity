@@ -14,8 +14,6 @@ public class Launch : MonoBehaviour
         // 选择沙盒路径还是流式路径
         bool sandbox = App.version.Equals(Util.GetString(Const.SANDBOX_VERSION));
         AssetManager.instance.url = sandbox ? App.persistentDataPath : App.streamingAssetsPath;
-        // Lua启动
-        Lua.instance.Awake();
         // 配置参数设置
         Debugger.logEnabled = App.log;
         Debugger.webLogEnabled = App.webLog;
@@ -29,8 +27,8 @@ public class Launch : MonoBehaviour
     /// </summary>
     void Start()
     {
-        Lua.instance.Start();
-        StateMachine.instance.OnEnter(new Init());
+        Lua.instance.Init();
+        //StateMachine.instance.OnEnter(new Init());
     }
 
     /// <summary>
@@ -41,7 +39,7 @@ public class Launch : MonoBehaviour
         Lua.instance.Update();
         AssetManager.instance.Update();
         Schedule.instance.Update(Time.deltaTime);
-        StateMachine.instance.Update();
+        //StateMachine.instance.Update();
     }
 
     /// <summary>

@@ -89,6 +89,17 @@ namespace UnityAsset
         }
 
         /// <summary>
+        /// 得到文本
+        /// </summary>
+        public override string text
+        {
+            get
+            {
+                return (mainAsset != null) ? mainAsset.ToString() : string.Empty;
+            }
+        }
+
+        /// <summary>
         /// 被依赖表(依赖本对象的表)
         /// </summary>
         public List<AssetsBundle> dependentSelf

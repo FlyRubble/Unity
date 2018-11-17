@@ -110,6 +110,14 @@ namespace UnityAsset
         }
 
         /// <summary>
+        /// 得到文本
+        /// </summary>
+        public virtual string text
+        {
+            get { return string.Empty; }
+        }
+
+        /// <summary>
         /// 加载状态
         /// </summary>
         /// <value>The state of the load.</value>

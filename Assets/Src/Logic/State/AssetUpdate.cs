@@ -68,12 +68,11 @@ namespace Framework
             // 清理资源，并且重新打开Loading界面
             AssetManager.instance.UnloadAssets(true);
             // 获取本地更新清单文件
-            WWW www = new WWW(App.persistentDataPath + Const.UPDATE_FILE);
-            while (!www.isDone) ;
-            m_localUpdateManifest = JsonReader.Deserialize<ManifestConfig>(www.assetBundle.LoadAsset<TextAsset>(Path.GetFileNameWithoutExtension(www.url)).text);
-            if (www.assetBundle != null)
+            AsyncAsset async = AssetManager.instance.AssetBundleLoad(AssetManager.instance.url + Const.UPDATE_FILE);
+            if (async != null && string.IsNullOrEmpty(async.error))
             {
-                www.assetBundle.Unload(true);
+                m_localUpdateManifest = JsonReader.Deserialize<ManifestConfig>(async.mainAsset.ToString());
+                AssetManager.instance.UnloadAssets(async, true);
             }
 
             // 获取远程更新清单文件

@@ -1,24 +1,20 @@
-
---require("a")
-
+require("Global");
+local socket = require "socket"
 main = {}
-
-local t = CS.LuaFunc;
--- 启动
-function awake()
-	print("awake")
-end
 
 -- 开始
 function start()
-	print("start")
+	--print(Global.ASSET.AssetBundleLoad(1))
+	local asset = Global.ASSET.AssetBundleLoad("data/conf/manifestfile.json");
+	--local func = function(path) return GL.ASSET:AssetBundleLoad(path); end
+	--local a = func(GL.ASSET.url.."data/conf/manifestfile.json");
+	print(asset.error);
+	--print("end")
 end
 
 -- 更新
-function update(time)
-	print(t.Test());
-	--a.update(time)
-	--print("lua update...")
+function update()
+	print(socket.gettime());
 end
 
 -- 销毁

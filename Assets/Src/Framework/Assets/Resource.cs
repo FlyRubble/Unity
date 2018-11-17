@@ -63,6 +63,17 @@ namespace UnityAsset
                 return m_resourceRequest != null ? "" : "unknown error";
             }
         }
+
+        /// <summary>
+        /// 得到文本
+        /// </summary>
+        public override string text
+        {
+            get
+            {
+                return mainAsset != null ? mainAsset.ToString() : string.Empty;
+            }
+        }
         #endregion
 
         #region Function
