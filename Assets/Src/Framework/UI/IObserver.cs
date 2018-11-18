@@ -12,10 +12,18 @@ namespace Framework
             get;
         }
 
-        /// <summary> 
-        /// 通知名单
+        /// <summary>
+        /// 观察自己的对象表
         /// </summary>
-        List<string> nName
+        List<string> observerSelf
+        {
+            get;
+        }
+
+        /// <summary> 
+        /// 自己观察的对象表
+        /// </summary>
+        List<string> selfObserver
         {
             get;
         }

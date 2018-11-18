@@ -12,12 +12,7 @@ namespace Framework
         /// <summary>
         /// 对象表
         /// </summary>
-        private Dictionary<string, IObserver> m_oData = null;
-
-        /// <summary>
-        /// 对象通知表
-        /// </summary>
-        private Dictionary<string, List<IObserver>> m_nData = null;
+        private Dictionary<string, IObserver> m_data = null;
         #endregion
 
         #region Function
@@ -26,8 +21,7 @@ namespace Framework
         /// </summary>
         public Observer()
         {
-            m_oData = new Dictionary<string, IObserver>();
-            m_nData = new Dictionary<string, List<IObserver>>();
+            m_data = new Dictionary<string, IObserver>();
         }
 
         /// <summary>
@@ -37,25 +31,25 @@ namespace Framework
         public void Register(IObserver obs)
         {
             if (null == obs) return;
-
             if (string.IsNullOrEmpty(obs.getName)) return;
-            if (m_oData.ContainsKey(obs.getName))
+            if (m_data.ContainsKey(obs.getName)) return;
+
+            m_data.Add(obs.getName, obs);
+            foreach (var name in obs.observerSelf)
             {
-                m_oData[obs.getName] = obs;
-            }
-            else
-            {
-                m_oData.Add(obs.getName, obs);
-            }
-            
-            for (int i = 0; i < obs.nName.Count; ++i)
-            {
-                if (string.IsNullOrEmpty(obs.nName[i])) continue;
-                if (!m_nData.ContainsKey(obs.nName[i]))
+                var data = m_data.ContainsKey(name) ? m_data[name] : null;
+                if (null != data && !data.selfObserver.Contains(obs.getName))
                 {
-                    m_nData.Add(obs.nName[i], new List<IObserver>());
+                    data.selfObserver.Add(obs.getName);
                 }
-                m_nData[obs.nName[i]].Add(obs);
+            }
+            foreach (var name in obs.selfObserver)
+            {
+                var data = m_data.ContainsKey(name) ? m_data[name] : null;
+                if (null != data && !data.observerSelf.Contains(obs.getName))
+                {
+                    data.observerSelf.Add(obs.getName);
+                }
             }
         }
 
@@ -66,13 +60,23 @@ namespace Framework
         public void UnRegister(IObserver obs)
         {
             if (null == obs) return;
-            m_oData.Remove(obs.getName);
-            
-            for (int i = 0; i < obs.nName.Count; ++i)
+            if (string.IsNullOrEmpty(obs.getName)) return;
+
+            m_data.Remove(obs.getName);
+            foreach (var name in obs.observerSelf)
             {
-                if (m_nData.ContainsKey(obs.nName[i]))
+                var data = m_data.ContainsKey(name) ? m_data[name] : null;
+                if (null != data && data.selfObserver.Contains(obs.getName))
                 {
-                    m_nData[obs.nName[i]].Remove(obs);
+                    data.selfObserver.Remove(obs.getName);
+                }
+            }
+            foreach (var name in obs.selfObserver)
+            {
+                var data = m_data.ContainsKey(name) ? m_data[name] : null;
+                if (null != data && data.observerSelf.Contains(obs.getName))
+                {
+                    data.observerSelf.Remove(obs.getName);
                 }
             }
         }
@@ -85,42 +89,19 @@ namespace Framework
         public void AddNotification(IObserver obs, string name)
         {
             if (null == obs) return;
-
+            if (string.IsNullOrEmpty(obs.getName)) return;
             if (string.IsNullOrEmpty(name)) return;
-            if (!m_nData.ContainsKey(name))
-            {
-                m_nData.Add(name, new List<IObserver>());
-            }
-            m_nData[name].Add(obs);
-            
-            if (!obs.nName.Contains(name))
-            {
-                obs.nName.Add(name);
-            }
-        }
 
-        /// <summary>
-        /// 添加通知
-        /// </summary>
-        /// <param name="obs"></param>
-        /// <param name="name"></param>
-        public void AddNotification(IObserver obs, string[] name)
-        {
-            if (null == obs) return;
-
-            if (null == name) return;
-            for (int i = 0; i < name.Length; ++i)
+            if (m_data.ContainsKey(obs.getName) && m_data.ContainsKey(name))
             {
-                if (string.IsNullOrEmpty(name[i])) continue;
-                if (!m_nData.ContainsKey(name[i]))
+                if (!obs.selfObserver.Contains(name))
                 {
-                    m_nData.Add(name[i], new List<IObserver>());
+                    obs.selfObserver.Add(name);
                 }
-                m_nData[name[i]].Add(obs);
-
-                if (!obs.nName.Contains(name[i]))
+                var data = m_data[name];
+                if (!data.observerSelf.Contains(obs.getName))
                 {
-                    obs.nName.Add(name[i]);
+                    data.observerSelf.Add(obs.getName);
                 }
             }
         }
@@ -129,24 +110,58 @@ namespace Framework
         /// 添加通知
         /// </summary>
         /// <param name="obs"></param>
-        /// <param name="name"></param>
-        public void AddNotification(IObserver obs, List<string> name)
+        /// <param name="names"></param>
+        public void AddNotification(IObserver obs, string[] names)
         {
             if (null == obs) return;
+            if (string.IsNullOrEmpty(obs.getName)) return;
+            if (null == names) return;
 
-            if (null == name) return;
-            for (int i = 0; i < name.Count; ++i)
+            for (int i = 0; i < names.Length; ++i)
             {
-                if (string.IsNullOrEmpty(name[i])) continue;
-                if (!m_nData.ContainsKey(name[i]))
+                string name = names[i];
+                if (string.IsNullOrEmpty(name)) continue;
+                if (m_data.ContainsKey(obs.getName) && m_data.ContainsKey(name))
                 {
-                    m_nData.Add(name[i], new List<IObserver>());
+                    if (!obs.selfObserver.Contains(name))
+                    {
+                        obs.selfObserver.Add(name);
+                    }
+                    var data = m_data[name];
+                    if (!data.observerSelf.Contains(obs.getName))
+                    {
+                        data.observerSelf.Add(obs.getName);
+                    }
                 }
-                m_nData[name[i]].Add(obs);
+            }
+        }
 
-                if (!obs.nName.Contains(name[i]))
+        /// <summary>
+        /// 添加通知
+        /// </summary>
+        /// <param name="obs"></param>
+        /// <param name="names"></param>
+        public void AddNotification(IObserver obs, List<string> names)
+        {
+            if (null == obs) return;
+            if (string.IsNullOrEmpty(obs.getName)) return;
+            if (null == names) return;
+
+            for (int i = 0; i < names.Count; ++i)
+            {
+                string name = names[i];
+                if (string.IsNullOrEmpty(name)) continue;
+                if (m_data.ContainsKey(obs.getName) && m_data.ContainsKey(name))
                 {
-                    obs.nName.Add(name[i]);
+                    if (!obs.selfObserver.Contains(name))
+                    {
+                        obs.selfObserver.Add(name);
+                    }
+                    var data = m_data[name];
+                    if (!data.observerSelf.Contains(obs.getName))
+                    {
+                        data.observerSelf.Add(obs.getName);
+                    }
                 }
             }
         }
@@ -160,43 +175,19 @@ namespace Framework
         public void InsertNotification(IObserver obs, string name, int index = 0)
         {
             if (null == obs) return;
-
+            if (string.IsNullOrEmpty(obs.getName)) return;
             if (string.IsNullOrEmpty(name)) return;
-            if (!m_nData.ContainsKey(name))
-            {
-                m_nData.Add(name, new List<IObserver>());
-            }
-            m_nData[name].Insert(index, obs);
 
-            if (!obs.nName.Contains(name))
+            if (m_data.ContainsKey(obs.getName) && m_data.ContainsKey(name))
             {
-                obs.nName.Insert(index, name);
-            }
-        }
-
-        /// <summary>
-        /// 插入通知
-        /// </summary>
-        /// <param name="obs"></param>
-        /// <param name="name"></param>
-        /// <param name="index"></param>
-        public void InsertNotification(IObserver obs, string[] name, int index = 0)
-        {
-            if (null == obs) return;
-
-            if (null == name) return;
-            for (int i = name.Length - 1; i >= 0; --i)
-            {
-                if (string.IsNullOrEmpty(name[i])) continue;
-                if (!m_nData.ContainsKey(name[i]))
+                if (!obs.selfObserver.Contains(name))
                 {
-                    m_nData.Add(name[i], new List<IObserver>());
+                    obs.selfObserver.Insert(index, name);
                 }
-                m_nData[name[i]].Insert(index, obs);
-
-                if (!obs.nName.Contains(name[i]))
+                var data = m_data[name];
+                if (!data.observerSelf.Contains(obs.getName))
                 {
-                    obs.nName.Insert(index, name[i]);
+                    data.observerSelf.Add(obs.getName);
                 }
             }
         }
@@ -205,25 +196,60 @@ namespace Framework
         /// 插入通知
         /// </summary>
         /// <param name="obs"></param>
-        /// <param name="name"></param>
+        /// <param name="names"></param>
         /// <param name="index"></param>
-        public void InsertNotification(IObserver obs, List<string> name, int index = 0)
+        public void InsertNotification(IObserver obs, string[] names, int index = 0)
         {
             if (null == obs) return;
+            if (string.IsNullOrEmpty(obs.getName)) return;
+            if (null == names) return;
 
-            if (null == name) return;
-            for(int i = name.Count - 1; i >= 0; --i)
+            for (int i = 0; i < names.Length; ++i)
             {
-                if (string.IsNullOrEmpty(name[i])) continue;
-                if (!m_nData.ContainsKey(name[i]))
+                string name = names[i];
+                if (string.IsNullOrEmpty(name)) continue;
+                if (m_data.ContainsKey(obs.getName) && m_data.ContainsKey(name))
                 {
-                    m_nData.Add(name[i], new List<IObserver>());
+                    if (!obs.selfObserver.Contains(name))
+                    {
+                        obs.selfObserver.Insert(index, name);
+                    }
+                    var data = m_data[name];
+                    if (!data.observerSelf.Contains(obs.getName))
+                    {
+                        data.observerSelf.Add(obs.getName);
+                    }
                 }
-                m_nData[name[i]].Insert(index, obs);
+            }
+        }
 
-                if (!obs.nName.Contains(name[i]))
+        /// <summary>
+        /// 插入通知
+        /// </summary>
+        /// <param name="obs"></param>
+        /// <param name="names"></param>
+        /// <param name="index"></param>
+        public void InsertNotification(IObserver obs, List<string> names, int index = 0)
+        {
+            if (null == obs) return;
+            if (string.IsNullOrEmpty(obs.getName)) return;
+            if (null == names) return;
+
+            for (int i = 0; i < names.Count; ++i)
+            {
+                string name = names[i];
+                if (string.IsNullOrEmpty(name)) continue;
+                if (m_data.ContainsKey(obs.getName) && m_data.ContainsKey(name))
                 {
-                    obs.nName.Insert(index, name[i]);
+                    if (!obs.selfObserver.Contains(name))
+                    {
+                        obs.selfObserver.Insert(index, name);
+                    }
+                    var data = m_data[name];
+                    if (!data.observerSelf.Contains(obs.getName))
+                    {
+                        data.observerSelf.Add(obs.getName);
+                    }
                 }
             }
         }
@@ -236,14 +262,21 @@ namespace Framework
         public void RemoveNotification(IObserver obs, string name)
         {
             if (null == obs) return;
+            if (string.IsNullOrEmpty(obs.getName)) return;
+            if (null == name) return;
 
-            if (string.IsNullOrEmpty(name)) return;
-            if (m_nData.ContainsKey(name))
+            if (m_data.ContainsKey(obs.getName) && m_data.ContainsKey(name))
             {
-                m_nData[name].Remove(obs);
+                if (obs.selfObserver.Contains(name))
+                {
+                    obs.selfObserver.Remove(name);
+                }
+                var data = m_data[name];
+                if (data.observerSelf.Contains(obs.getName))
+                {
+                    data.observerSelf.Remove(obs.getName);
+                }
             }
-            
-            obs.nName.Remove(name);
         }
 
 
@@ -251,20 +284,28 @@ namespace Framework
         /// 移除通知
         /// </summary>
         /// <param name="obs"></param>
-        /// <param name="name"></param>
-        public void RemoveNotification(IObserver obs, string[] name)
+        /// <param name="names"></param>
+        public void RemoveNotification(IObserver obs, string[] names)
         {
             if (null == obs) return;
+            if (string.IsNullOrEmpty(obs.getName)) return;
+            if (null == names) return;
 
-            if (null == name) return;
-            for (int i = 0; i < name.Length; ++i)
+            for (int i = 0; i < names.Length; ++i)
             {
-                if (string.IsNullOrEmpty(name[i])) continue;
-                if (m_nData.ContainsKey(name[i]))
+                string name = names[i];
+                if (m_data.ContainsKey(obs.getName) && m_data.ContainsKey(name))
                 {
-                    m_nData[name[i]].Remove(obs);
+                    if (obs.selfObserver.Contains(name))
+                    {
+                        obs.selfObserver.Remove(name);
+                    }
+                    var data = m_data[name];
+                    if (data.observerSelf.Contains(obs.getName))
+                    {
+                        data.observerSelf.Remove(obs.getName);
+                    }
                 }
-                obs.nName.Remove(name[i]);
             }
         }
 
@@ -272,20 +313,28 @@ namespace Framework
         /// 移除通知
         /// </summary>
         /// <param name="obs"></param>
-        /// <param name="name"></param>
-        public void RemoveNotification(IObserver obs, List<string> name)
+        /// <param name="names"></param>
+        public void RemoveNotification(IObserver obs, List<string> names)
         {
             if (null == obs) return;
+            if (string.IsNullOrEmpty(obs.getName)) return;
+            if (null == names) return;
 
-            if (null == name) return;
-            for (int i = 0; i < name.Count; ++i)
+            for (int i = 0; i < names.Count; ++i)
             {
-                if (string.IsNullOrEmpty(name[i])) continue;
-                if (m_nData.ContainsKey(name[i]))
+                string name = names[i];
+                if (m_data.ContainsKey(obs.getName) && m_data.ContainsKey(name))
                 {
-                    m_nData[name[i]].Remove(obs);
+                    if (obs.selfObserver.Contains(name))
+                    {
+                        obs.selfObserver.Remove(name);
+                    }
+                    var data = m_data[name];
+                    if (data.observerSelf.Contains(obs.getName))
+                    {
+                        data.observerSelf.Remove(obs.getName);
+                    }
                 }
-                obs.nName.Remove(name[i]);
             }
         }
 
@@ -298,9 +347,9 @@ namespace Framework
         {
             if (string.IsNullOrEmpty(name)) return;
 
-            if (m_oData.ContainsKey(name))
+            if (m_data.ContainsKey(name))
             {
-                m_oData[name].OnNotification(param);
+                m_data[name].OnNotification(param);
             }
         }
 
@@ -313,13 +362,15 @@ namespace Framework
         {
             if (string.IsNullOrEmpty(name)) return;
 
-            if (m_nData.ContainsKey(name))
+            if (m_data.ContainsKey(name))
             {
-                var obs = m_nData[name];
-                for (int i = 0; i < obs.Count; ++i)
+                var obs = m_data[name];
+                for (int i = 0; i < obs.selfObserver.Count; ++i)
                 {
-                    if (null == obs[i]) continue;
-                    obs[i].OnNotification(param);
+                    if (m_data.ContainsKey(obs.selfObserver[i]))
+                    {
+                        m_data[obs.selfObserver[i]].OnNotification(param);
+                    }
                 }
             }
         }
@@ -330,9 +381,7 @@ namespace Framework
         public override void Clear()
         {
             base.Clear();
-
-            m_oData.Clear();
-            m_nData.Clear();
+            m_data.Clear();
         }
         #endregion
     }

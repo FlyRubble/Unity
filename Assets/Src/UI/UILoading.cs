@@ -60,7 +60,7 @@ public class UILoading : UIBase
     {
         base.OnNotification(param);
 
-        if (m_param.Contain(OPEN) || m_param.Contain(UPDATE))
+        if (m_param.Contain(OPEN) || m_param.Contain(REFRESH))
         {
             if (m_param.Contain(TEXT_TIPS))
             {

@@ -19,14 +19,23 @@ namespace Framework
             public const string OPEN = "open";
 
             /// <summary>
-            /// 更新
+            /// 刷新
             /// </summary>
-            public const string UPDATE = "update";
+            public const string REFRESH = "refresh";
 
             /// <summary>
             /// 关闭
             /// </summary>
             public const string CLOSE = "close";
+
+            const string AWAKE = "awake";
+            const string ONENABLE = "onEnable";
+            const string START = "start";
+            const string FIXEDUPDATE = "fixedUpdate";
+            const string UPDATE = "update";
+            const string LATEUPDATE = "lateUpdate";
+            const string ONDISABLE = "onDisable";
+            const string ONDESTROY = "onDestroy";
             #endregion
 
             #region Variable
@@ -65,14 +74,24 @@ namespace Framework
             protected GraphicRaycaster m_graphicRaycaster = null;
 
             /// <summary>
-            /// 通知表(监听对象表)
+            /// 观察自己的对象表
             /// </summary>
-            List<string> m_nName = new List<string>() { };
+            private List<string> m_observerSelf = new List<string>() { };
 
             /// <summary>
-            /// 参数
+            /// 自己观察的对象表
+            /// </summary>
+            private List<string> m_selfObserver = new List<string>() { };
+
+            /// <summary>
+            /// 普通参数
             /// </summary>
             protected Param m_param = null;
+
+            /// <summary>
+            /// 组件事件
+            /// </summary>
+            private Dictionary<string, Action> m_event = null;
 
             /// <summary>
             /// 是否显示可见
@@ -90,13 +109,21 @@ namespace Framework
             }
 
             /// <summary>
-            /// 通知表
+            /// 观察自己的对象表
             /// </summary>
-            public List<string> nName
+            public virtual List<string> observerSelf
             {
-                get { return m_nName; }
+                get { return m_observerSelf; }
             }
 
+            /// <summary> 
+            /// 自己观察的对象表
+            /// </summary>
+            public virtual List<string> selfObserver
+            {
+                get { return m_selfObserver; }
+            }
+            
             /// <summary>
             /// 是否需要缓存
             /// </summary>
@@ -123,6 +150,7 @@ namespace Framework
             #endregion
 
             #region Function
+            #region Component
             /// <summary>
             /// 启动
             /// </summary>
@@ -133,6 +161,11 @@ namespace Framework
                 m_graphicRaycaster = gameObject.AddComponent<GraphicRaycaster>();
 
                 Observer.instance.Register(this);
+
+                if (m_event.ContainsKey(AWAKE) && null != m_event[AWAKE])
+                {
+                    m_event[AWAKE]();
+                }
             }
 
             /// <summary>
@@ -140,7 +173,10 @@ namespace Framework
             /// </summary>
             protected virtual void OnEnable()
             {
-                
+                if (m_event.ContainsKey(ONENABLE) && null != m_event[ONENABLE])
+                {
+                    m_event[ONENABLE]();
+                }
             }
 
             /// <summary>
@@ -148,7 +184,10 @@ namespace Framework
             /// </summary>
             protected virtual void Start()
             {
-                
+                if (m_event.ContainsKey(ONENABLE) && null != m_event[ONENABLE])
+                {
+                    m_event[ONENABLE]();
+                }
             }
 
             /// <summary>
@@ -156,7 +195,10 @@ namespace Framework
             /// </summary>
             protected virtual void FixedUpdate()
             {
-                
+                if (m_event.ContainsKey(FIXEDUPDATE) && null != m_event[FIXEDUPDATE])
+                {
+                    m_event[FIXEDUPDATE]();
+                }
             }
 
             /// <summary>
@@ -164,7 +206,10 @@ namespace Framework
             /// </summary>
             protected virtual void Update()
             {
-                
+                if (m_event.ContainsKey(UPDATE) && null != m_event[UPDATE])
+                {
+                    m_event[UPDATE]();
+                }
             }
 
             /// <summary>
@@ -172,7 +217,10 @@ namespace Framework
             /// </summary>
             protected virtual void LateUpdate()
             {
-                
+                if (m_event.ContainsKey(LATEUPDATE) && null != m_event[LATEUPDATE])
+                {
+                    m_event[LATEUPDATE]();
+                }
             }
 
             /// <summary>
@@ -180,7 +228,10 @@ namespace Framework
             /// </summary>
             protected virtual void OnDisable()
             {
-                
+                if (m_event.ContainsKey(ONDISABLE) && null != m_event[ONDISABLE])
+                {
+                    m_event[ONDISABLE]();
+                }
             }
 
             /// <summary>
@@ -188,76 +239,15 @@ namespace Framework
             /// </summary>
             protected virtual void OnDestroy()
             {
+                Param.Destroy(m_param);
+                if (m_event.ContainsKey(ONDESTROY) && null != m_event[ONDESTROY])
+                {
+                    m_event[ONDESTROY]();
+                }
+                m_event.Clear();
                 Observer.instance.UnRegister(this);
             }
-
-            #region Component
-
             #endregion
-
-            /// <summary>
-            /// 打开
-            /// </summary>
-            /// <param name="param"></param>
-            public void Open(Param param = null)
-            {
-                if (null == param)
-                {
-                    param = Param.Create();
-                }
-                Action action = param[OPEN] as Action;
-                Action open = () => {
-                    this.Show();
-                    if (null != action)
-                    {
-                        action();
-                    }
-                };
-                param.Add(OPEN, open);
-                param.Remove(UPDATE);
-                param.Remove(CLOSE);
-                OnNotification(param);
-            }
-
-            /// <summary>
-            /// 更新
-            /// </summary>
-            /// <param name="param"></param>
-            public void Update(Param param = null)
-            {
-                if (null == param)
-                {
-                    param = Param.Create();
-                }
-                param.TryAdd(UPDATE, null);
-                param.Remove(OPEN);
-                param.Remove(CLOSE);
-                OnNotification(param);
-            }
-
-            /// <summary>
-            /// 关闭
-            /// </summary>
-            /// <param name="param"></param>
-            public void Close(Param param = null)
-            {
-                if (null == param)
-                {
-                    param = Param.Create();
-                }
-                Action action = param[CLOSE] as Action;
-                Action close = () => {
-                    this.Hide();
-                    if (null != action)
-                    {
-                        action();
-                    }
-                };
-                param.Add(CLOSE, close);
-                param.Remove(OPEN);
-                param.Remove(UPDATE);
-                OnNotification(param);
-            }
 
             /// <summary>
             /// 显示
@@ -272,7 +262,8 @@ namespace Framework
                 case Sibling.First:
                 {
                     transform.SetAsFirstSibling();
-                } break;
+                }
+                break;
                 case Sibling.Last:
                 {
                     transform.SetAsLastSibling();
@@ -343,9 +334,9 @@ namespace Framework
                 Param.Destroy(m_param);
                 m_param = param;
                 
-                if (m_param.Contain(UPDATE))
+                if (m_param.Contain(REFRESH))
                 {
-                    Action update = m_param[UPDATE] as Action;
+                    Action update = m_param[REFRESH] as Action;
                     if (null != update)
                     {
                         update();
@@ -367,6 +358,83 @@ namespace Framework
                         open();
                     }
                 }
+            }
+
+
+            /// <summary>
+            /// 打开
+            /// </summary>
+            /// <param name="param"></param>
+            public void Open(Param param = null)
+            {
+                if (null == m_event)
+                {
+                    m_event = new Dictionary<string, Action>();
+                    if (param.Contain(AWAKE)) m_event.Add(AWAKE, param[AWAKE] as Action);
+                    if (param.Contain(START)) m_event.Add(START, param[START] as Action);
+                    if (param.Contain(ONENABLE)) m_event.Add(ONENABLE, param[ONENABLE] as Action);
+                    if (param.Contain(FIXEDUPDATE)) m_event.Add(FIXEDUPDATE, param[FIXEDUPDATE] as Action);
+                    if (param.Contain(UPDATE)) m_event.Add(UPDATE, param[UPDATE] as Action);
+                    if (param.Contain(LATEUPDATE)) m_event.Add(LATEUPDATE, param[LATEUPDATE] as Action);
+                    if (param.Contain(ONDISABLE)) m_event.Add(ONDISABLE, param[ONDISABLE] as Action);
+                    if (param.Contain(ONDESTROY)) m_event.Add(ONDESTROY, param[ONDESTROY] as Action);
+                }
+                if (null == param)
+                {
+                    param = Param.Create();
+                }
+                Action action = param[OPEN] as Action;
+                Action open = () => {
+                    this.Show();
+                    if (null != action)
+                    {
+                        action();
+                    }
+                };
+                param.Add(OPEN, open);
+                param.Remove(REFRESH);
+                param.Remove(CLOSE);
+                OnNotification(param);
+            }
+
+            /// <summary>
+            /// 更新
+            /// </summary>
+            /// <param name="param"></param>
+            public void Update(Param param = null)
+            {
+                if (null == param)
+                {
+                    param = Param.Create();
+                }
+                param.TryAdd(REFRESH, null);
+                param.Remove(OPEN);
+                param.Remove(CLOSE);
+                OnNotification(param);
+            }
+
+            /// <summary>
+            /// 关闭
+            /// </summary>
+            /// <param name="param"></param>
+            public void Close(Param param = null)
+            {
+                if (null == param)
+                {
+                    param = Param.Create();
+                }
+                Action action = param[CLOSE] as Action;
+                Action close = () => {
+                    this.Hide();
+                    if (null != action)
+                    {
+                        action();
+                    }
+                };
+                param.Add(CLOSE, close);
+                param.Remove(OPEN);
+                param.Remove(REFRESH);
+                OnNotification(param);
             }
             #endregion
         }
