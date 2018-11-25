@@ -113,6 +113,11 @@
     public const string UPDATE_FILE = "data/conf/updatefile.json";
 
     /// <summary>
+    /// 语言配置文件
+    /// </summary>
+    public const string LANG_FILE = "data/conf/lang.json";
+
+    /// <summary>
     /// 远程目录(data父目录)
     /// </summary>
     public const string REMOTE_DIRECTORY = "v{0}";
@@ -132,23 +137,5 @@
     /// 普通提示框
     /// </summary>
     public const string UI_NORMAL_TIPS_BOX = "uinormaltipsbox";
-    #endregion
-
-    #region 语言
-    /// <summary>
-    /// 网络不可达
-    /// </summary>
-    public const string ID_NETWORK_INVALID = "连接网络失败，请检查网络设置。";
-
-    /// <summary>
-    /// 版本过低，请更新版本。
-    /// </summary>
-    public const string ID_VERSION_LOW = "客户端版本过低，确定安装新版本？";
-
-    /// <summary>
-    /// 请求资源中
-    /// </summary>
-    public const string ID_GETING = "请求资源中...";
-    
     #endregion
 }

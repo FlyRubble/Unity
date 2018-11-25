@@ -19,19 +19,34 @@ namespace Framework
         private bool m_assetDecompressing = false;
 
         /// <summary>
-        /// 时间，用于计算解压速度
-        /// </summary>
-        private float m_time = 0;
-
-        /// <summary>
         /// 要解压的资源大小
         /// </summary>
-        private float m_size = 0;
+        private float m_size = 0F;
 
         /// <summary>
-        /// 当前已解压大小
+        /// 当前已解压大小(已解压完整文件大小)
         /// </summary>
-        private float m_currentSize = 0;
+        private float m_currentSize = 0F;
+
+        /// <summary>
+        /// 当前已解压大小(真实)
+        /// </summary>
+        private float m_currentRealSize = 0F;
+
+        /// <summary>
+        /// 上一秒已解压大小(真实)
+        /// </summary>
+        private float m_lastRealSize = 0F;
+
+        /// <summary>
+        /// 时间，协助计算解压速度
+        /// </summary>
+        private float m_time = 0F;
+
+        /// <summary>
+        /// 速度
+        /// </summary>
+        private float m_speed = 0F;
 
         /// <summary>
         /// 解压资源记录
@@ -59,18 +74,18 @@ namespace Framework
                 }
                 // 解压准备
                 m_async.Clear();
-                AsyncAsset async = AssetManager.instance.AssetBundleAsyncLoad(AssetManager.instance.url + Const.UPDATE_FILE, (bResult, asset) =>
+                AsyncAsset async = AssetManager.instance.AssetBundleAsyncLoad(AssetManager.instance.url + Const.MANIFESTFILE, (bResult, asset) =>
                 {
                     if (bResult)
                     {
-                        Util.WriteAllBytes(App.assetPath + Const.UPDATE_FILE, asset.bytes);
+                        Util.WriteAllBytes(App.assetPath + Const.MANIFESTFILE, asset.bytes);
                     }
                     else
                     {
-                        Debugger.Log(asset.error);
+                        Debugger.LogError(asset.error);
                     }
-                });
-                async.userData = 0.1F;
+                }, dependence: false);
+                async.userData = 0.5F;
                 m_size += (float)async.userData;
                 m_async.Add(async);
                 foreach (var data in App.manifest.data.Values)
@@ -83,27 +98,29 @@ namespace Framework
                         }
                         else
                         {
-                            Debugger.Log(asset.error);
+                            Debugger.LogError(asset.error);
                         }
-                    });
+                    }, dependence: false);
                     async.userData = data.size / 1024F;
                     m_size += (float)async.userData;
                     m_async.Add(async);
                 }
-                async = AssetManager.instance.AssetBundleAsyncLoad(AssetManager.instance.url + Const.MANIFESTFILE, (bResult, asset) =>
+                async = AssetManager.instance.AssetBundleAsyncLoad(AssetManager.instance.url + Const.UPDATE_FILE, (bResult, asset) =>
                 {
                     if (bResult)
                     {
-                        Util.WriteAllBytes(App.assetPath + Const.MANIFESTFILE, asset.bytes);
+                        Util.WriteAllBytes(App.assetPath + Const.UPDATE_FILE, asset.bytes);
                     }
                     else
                     {
                         Debugger.LogError(asset.error);
                     }
-                });
-                async.userData = 0.5F;
+                }, dependence: false);
+                async.userData = 0.1F;
                 m_size += (float)async.userData;
                 m_async.Add(async);
+
+                m_time = Time.realtimeSinceStartup;
             }
             else
             {
@@ -120,29 +137,38 @@ namespace Framework
 
             if (m_assetDecompressing)
             {
-                float speed = 0;
-                if (Time.realtimeSinceStartup >= m_time + 0.001F)
+                m_currentRealSize = 0;
+                int count = Mathf.Min(Const.MAX_LOADER, m_async.Count);
+                for (int i = count - 1; i >= 0; --i)
                 {
-                    m_time = Time.realtimeSinceStartup;
-
-                    int count = Mathf.Min(Const.MAX_LOADER, m_async.Count);
-                    for (int i = count - 1; i >= 0; --i)
+                    if (m_async[i].progress == 1F)
                     {
-                        speed += (float)m_async[i].userData * m_async[i].progress;
-
-                        if (m_async[i].progress == 1F)
-                        {
-                            m_currentSize += (float)m_async[i].userData;
-                            m_async.RemoveAt(i);
-                        }
+                        m_currentSize += (float)m_async[i].userData;
+                        m_async.RemoveAt(i);
+                        continue;
                     }
+                    m_currentRealSize += (float)m_async[i].userData * m_async[i].progress;
                 }
-                UIManager.instance.OpenUI(Const.UI_LOADING, Param.Create(new object[] { UILoading.SLIDER, m_currentSize / m_size }));
+                m_currentRealSize += m_currentSize;
+                
+                if (Time.realtimeSinceStartup >= m_time + 1F)
+                {
+                    m_speed = m_currentRealSize - m_lastRealSize;
+                    m_lastRealSize = m_currentRealSize;
+                    m_time = Time.realtimeSinceStartup;
+                }
+
+                UIManager.instance.OpenUI(Const.UI_LOADING, Param.Create(new object[] {
+                    UILoading.TEXT_TIPS, ConfigManager.GetLang("Asset_Decompressing"), UILoading.SLIDER, m_currentSize / m_size
+                }));
                 if (m_currentSize == m_size)
                 {
                     m_assetDecompressing = false;
-                    //PlayerPrefs.SetString(Const.SANDBOX_VERSION, App.version);
-                    Schedule.instance.ScheduleOnce(0.3F, () => { StateMachine.instance.OnEnter(new AssetUpdate()); });
+                    PlayerPrefs.SetString(Const.SANDBOX_VERSION, App.version);
+                    Schedule.instance.ScheduleOnce(0.18F, () =>
+                    {
+                        StateMachine.instance.OnEnter(new AssetUpdate());
+                    });
                 }
             }
         }

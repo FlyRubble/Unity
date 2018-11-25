@@ -139,7 +139,10 @@ namespace UnityAsset
         /// <param name="assets"></param>
         public void AddDependentSelf(AssetsBundle assets)
         {
-            m_dependentSelf.Add(assets);
+            if (!m_dependentSelf.Contains(assets))
+            {
+                m_dependentSelf.Add(assets);
+            }
         }
         
         /// <summary>
@@ -148,7 +151,10 @@ namespace UnityAsset
         /// <param name="assets"></param>
         public void AddSelfDependent(AssetsBundle assets)
         {
-            m_selfDependent.Add(assets);
+            if (!m_selfDependent.Contains(assets))
+            {
+                m_selfDependent.Add(assets);
+            }
         }
 
         /// <summary>

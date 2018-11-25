@@ -4,9 +4,9 @@
 			"data/conf/lang.json": 
 				{
 					"name": "data/conf/lang.json",
-					"MD5": "e66588e8f49714b7af2c5c282ad30830",
+					"MD5": "602271bdb4c93f07cdbabbb5c7beff3a",
 					"size": 2,
-					"directDependencies": 
+					"dependencies": 
 						[]
 				},
 			"data/font/fzjz.ttf": 
@@ -14,7 +14,7 @@
 					"name": "data/font/fzjz.ttf",
 					"MD5": "84ab130301c545dfc8e612a9020157b8",
 					"size": 1056,
-					"directDependencies": 
+					"dependencies": 
 						[]
 				},
 			"data/font/msyh.ttf": 
@@ -22,31 +22,39 @@
 					"name": "data/font/msyh.ttf",
 					"MD5": "4a4ffe4b2a4954630606aa3e62a906b1",
 					"size": 1481,
-					"directDependencies": 
+					"dependencies": 
 						[]
 				},
-			"data/lua/a.txt": 
+			"data/lua/common/gl.txt": 
 				{
-					"name": "data/lua/a.txt",
-					"MD5": "f1f07561612b02132a63c0f172fbc5b2",
+					"name": "data/lua/common/gl.txt",
+					"MD5": "429d13f198f3465c6965343338631fd9",
 					"size": 2,
-					"directDependencies": 
+					"dependencies": 
 						[]
 				},
-			"data/lua/lua.txt": 
+			"data/lua/common/uimanager.txt": 
 				{
-					"name": "data/lua/lua.txt",
-					"MD5": "02d6e22bb4a88d280f656d9d426df147",
+					"name": "data/lua/common/uimanager.txt",
+					"MD5": "7065b0b150f3a1764ffde26db208c849",
 					"size": 2,
-					"directDependencies": 
+					"dependencies": 
+						[]
+				},
+			"data/lua/global.txt": 
+				{
+					"name": "data/lua/global.txt",
+					"MD5": "9f79bc3c3307ae3fba54254e75f0bb29",
+					"size": 2,
+					"dependencies": 
 						[]
 				},
 			"data/lua/main.txt": 
 				{
 					"name": "data/lua/main.txt",
-					"MD5": "fa70cb3f1ac066aa1ab489691eceaf47",
+					"MD5": "57eb2487a2162d8a725725a4821bb670",
 					"size": 2,
-					"directDependencies": 
+					"dependencies": 
 						[]
 				},
 			"data/texture/background/bg_0.png": 
@@ -54,23 +62,23 @@
 					"name": "data/texture/background/bg_0.png",
 					"MD5": "6148bc064604ad495b1b35d064c3af02",
 					"size": 1246,
-					"directDependencies": 
+					"dependencies": 
 						[]
 				},
 			"data/texture/common.atlas.spriteatlas": 
 				{
 					"name": "data/texture/common.atlas.spriteatlas",
-					"MD5": "51cd92af6e5d07422bfe4a66be238231",
+					"MD5": "54a2f98ca01bdbd2d90f434e3641eed4",
 					"size": 18,
-					"directDependencies": 
+					"dependencies": 
 						[]
 				},
 			"data/texture/font.atlas.spriteatlas": 
 				{
 					"name": "data/texture/font.atlas.spriteatlas",
-					"MD5": "db67e0088d1f360e9d656557789904b3",
+					"MD5": "8623224684fbebf7ae59bffeaae940cd",
 					"size": 8,
-					"directDependencies": 
+					"dependencies": 
 						[]
 				},
 			"data/ui/canvas.prefab": 
@@ -78,15 +86,15 @@
 					"name": "data/ui/canvas.prefab",
 					"MD5": "97f104112fd3ac1cb4b5de1c5ba40baa",
 					"size": 5,
-					"directDependencies": 
+					"dependencies": 
 						[]
 				},
 			"data/ui/uiloading.prefab": 
 				{
 					"name": "data/ui/uiloading.prefab",
-					"MD5": "741e004b2e4c19cf333266d1906052e1",
+					"MD5": "52d85bbb743bc0e7ebc6a93c45b3576c",
 					"size": 1265,
-					"directDependencies": 
+					"dependencies": 
 						[
 							"data/font/msyh.ttf",
 							"data/texture/background/bg_0.png"
@@ -95,9 +103,9 @@
 			"data/ui/uinormaltipsbox.prefab": 
 				{
 					"name": "data/ui/uinormaltipsbox.prefab",
-					"MD5": "c687f27714c3a9b6227fbffa1c69d50a",
+					"MD5": "087ba70888597954291464d1322e25d8",
 					"size": 26,
-					"directDependencies": 
+					"dependencies": 
 						[
 							"data/font/msyh.ttf"
 						]

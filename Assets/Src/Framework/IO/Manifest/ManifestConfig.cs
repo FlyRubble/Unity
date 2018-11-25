@@ -59,6 +59,17 @@ namespace Framework
             }
 
             /// <summary>
+            /// 得到依赖资源表
+            /// </summary>
+            /// <param name="name"></param>
+            /// <returns></returns>
+            public List<string> GetDependencies(string name)
+            {
+                Manifest manifest = Get(name);
+                return manifest != null ? manifest.dependencies : new List<string>();
+            }
+
+            /// <summary>
             /// 是否包含值
             /// </summary>
             /// <param name="name"></param>

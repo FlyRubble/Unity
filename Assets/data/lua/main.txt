@@ -4,17 +4,26 @@ main = {}
 
 -- 开始
 function start()
-	--print(Global.ASSET.AssetBundleLoad(1))
-	local asset = Global.ASSET.AssetBundleLoad("data/conf/manifestfile.json");
-	--local func = function(path) return GL.ASSET:AssetBundleLoad(path); end
-	--local a = func(GL.ASSET.url.."data/conf/manifestfile.json");
-	print(asset.error);
-	--print("end")
+	local ll = CS.Framework.Param.Create();
+	print(type(ll));
+	
+	ll:AddEvent('update', destroy);
+	--local c = ll:GetAction("update");
+	--print(type(c));
+	Global.UI.OpenUI("uiloading", ll);
+end
+
+function aa(v)
+print(v.GetString('name'));
+end
+
+function load(result, obj)
+	print("load");
 end
 
 -- 更新
 function update()
-	print(socket.gettime());
+	--print(socket.gettime());
 end
 
 -- 销毁

@@ -1,41 +1,23 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using Framework;
 using Framework.Event;
+using Framework.UI;
 using UnityAsset;
+
+public delegate void EventA(bool bResult, Object obj);
 
 public class LuaCallCS
 {
+    #region UIManager
     /// <summary>
-    /// 初始化全局时间
+    /// 打开UI
     /// </summary>
-    /// <returns></returns>
-    public static Dictionary<string, object> Init()
+    /// <param name="name"></param>
+    /// <param name="param"></param>
+    public static void OpenUI(string name, Param param = null)
     {
-        Dictionary<string, object> data = new Dictionary<string, object>();
-        data.Add("AssetManager", AssetManager.instance);
-
-        return data;
+        UIManager.instance.OpenUI(name, param);
     }
-
-    /// <summary>
-    /// AssetBundle资源加载
-    /// </summary>
-    /// <param name="path"></param>
-    /// <returns></returns>
-    public static AsyncAsset AssetBundleLoad(string path)
-    {
-        return AssetManager.instance.AssetBundleLoad(path);
-    }
-
-    /// <summary>
-    /// AssetBundle异步加载
-    /// </summary>
-    /// <param name="path"></param>
-    /// <param name="action"></param>
-    /// <param name="dic"></param>
-    /// <returns></returns>
-    public static AsyncAsset AssetBundleAsyncLoad(string path, Action<bool, AsyncAsset> action, Dictionary<string, AsyncAsset> dic = null)
-    {
-        return AssetManager.instance.AssetBundleAsyncLoad(path, action, dic);
-    }
+    #endregion
 }

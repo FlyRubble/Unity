@@ -383,13 +383,15 @@ public class LaunchInspector : Editor
                 Util.SetString(Const.SANDBOX_VERSION, null);
                 if (Directory.Exists(Application.persistentDataPath))
                 {
+                    var start = System.DateTime.Now;
                     Directory.Delete(Application.persistentDataPath, true);
+                    Debug.Log("clear persistent data finished! use " + (System.DateTime.Now - start).TotalMilliseconds + " ms");
                 }
             }
 
             value = PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
             index = value.Contains("AB_MODE") ? 1 : 0;
-            EditorGUI.BeginDisabledGroup(index == 0);
+            EditorGUI.BeginDisabledGroup(index < 0);
             {
                 // 打完整资源包应用
                 if (GUILayout.Button("打包完整资源"))
@@ -424,19 +426,23 @@ public class LaunchInspector : Editor
 		EditorGUI.EndChangeCheck ();
         EditorGUI.EndDisabledGroup();
 
-        // 打完整资源包应用
+        // 打完整资源包
         if (m_buildAsset)
         {
+            var start = System.DateTime.Now;
             m_buildAsset = false;
             AssetBundleEditor.BuildAssetBundlesAndCopy(AssetBundleEditor.outputPath, true);
+            Debug.Log("build asset finished! use " + (System.DateTime.Now - start).TotalMilliseconds + " ms");
             GUIUtility.ExitGUI();
         }
         // 打更新资源包
         if (m_buildUpdateAsset)
         {
+            var start = System.DateTime.Now;
             m_buildUpdateAsset = false;
             App.Init();
             AssetBundleEditor.BuildUpdateAssetBundlesAndZip(AssetBundleEditor.outputPath, AssetBundleEditor.outputVersionPath, App.version, App.platform, false, App.cdn);
+            Debug.Log("build update asset finished! use " + (System.DateTime.Now - start).TotalMilliseconds + " ms");
             GUIUtility.ExitGUI();
         }
 

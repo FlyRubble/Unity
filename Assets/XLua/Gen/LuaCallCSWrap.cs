@@ -31,10 +31,8 @@ namespace XLua.CSObjectWrap
 			Utils.EndObjectRegister(type, L, translator, null, null,
 			    null, null, null);
 
-		    Utils.BeginClassRegister(type, L, __CreateInstance, 4, 0, 0);
-			Utils.RegisterFunc(L, Utils.CLS_IDX, "Init", _m_Init_xlua_st_);
-            Utils.RegisterFunc(L, Utils.CLS_IDX, "AssetBundleLoad", _m_AssetBundleLoad_xlua_st_);
-            Utils.RegisterFunc(L, Utils.CLS_IDX, "AssetBundleAsyncLoad", _m_AssetBundleAsyncLoad_xlua_st_);
+		    Utils.BeginClassRegister(type, L, __CreateInstance, 2, 0, 0);
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "OpenUI", _m_OpenUI_xlua_st_);
             
 			
             
@@ -75,60 +73,7 @@ namespace XLua.CSObjectWrap
         
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_Init_xlua_st_(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-            
-                
-                {
-                    
-                        System.Collections.Generic.Dictionary<string, object> gen_ret = LuaCallCS.Init(  );
-                        translator.Push(L, gen_ret);
-                    
-                    
-                    
-                    return 1;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_AssetBundleLoad_xlua_st_(RealStatePtr L)
-        {
-		    try {
-            
-                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            
-            
-            
-                
-                {
-                    string _path = LuaAPI.lua_tostring(L, 1);
-                    
-                        UnityAsset.AsyncAsset gen_ret = LuaCallCS.AssetBundleLoad( _path );
-                        translator.Push(L, gen_ret);
-                    
-                    
-                    
-                    return 1;
-                }
-                
-            } catch(System.Exception gen_e) {
-                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
-            }
-            
-        }
-        
-        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_AssetBundleAsyncLoad_xlua_st_(RealStatePtr L)
+        static int _m_OpenUI_xlua_st_(RealStatePtr L)
         {
 		    try {
             
@@ -138,37 +83,33 @@ namespace XLua.CSObjectWrap
             
 			    int gen_param_count = LuaAPI.lua_gettop(L);
             
-                if(gen_param_count == 3&& (LuaAPI.lua_isnil(L, 1) || LuaAPI.lua_type(L, 1) == LuaTypes.LUA_TSTRING)&& translator.Assignable<Framework.Event.Action<bool, UnityAsset.AsyncAsset>>(L, 2)&& translator.Assignable<System.Collections.Generic.Dictionary<string, UnityAsset.AsyncAsset>>(L, 3)) 
+                if(gen_param_count == 2&& (LuaAPI.lua_isnil(L, 1) || LuaAPI.lua_type(L, 1) == LuaTypes.LUA_TSTRING)&& translator.Assignable<Framework.Param>(L, 2)) 
                 {
-                    string _path = LuaAPI.lua_tostring(L, 1);
-                    Framework.Event.Action<bool, UnityAsset.AsyncAsset> _action = translator.GetDelegate<Framework.Event.Action<bool, UnityAsset.AsyncAsset>>(L, 2);
-                    System.Collections.Generic.Dictionary<string, UnityAsset.AsyncAsset> _dic = (System.Collections.Generic.Dictionary<string, UnityAsset.AsyncAsset>)translator.GetObject(L, 3, typeof(System.Collections.Generic.Dictionary<string, UnityAsset.AsyncAsset>));
+                    string _name = LuaAPI.lua_tostring(L, 1);
+                    Framework.Param _param = (Framework.Param)translator.GetObject(L, 2, typeof(Framework.Param));
                     
-                        UnityAsset.AsyncAsset gen_ret = LuaCallCS.AssetBundleAsyncLoad( _path, _action, _dic );
-                        translator.Push(L, gen_ret);
+                    LuaCallCS.OpenUI( _name, _param );
                     
                     
                     
-                    return 1;
+                    return 0;
                 }
-                if(gen_param_count == 2&& (LuaAPI.lua_isnil(L, 1) || LuaAPI.lua_type(L, 1) == LuaTypes.LUA_TSTRING)&& translator.Assignable<Framework.Event.Action<bool, UnityAsset.AsyncAsset>>(L, 2)) 
+                if(gen_param_count == 1&& (LuaAPI.lua_isnil(L, 1) || LuaAPI.lua_type(L, 1) == LuaTypes.LUA_TSTRING)) 
                 {
-                    string _path = LuaAPI.lua_tostring(L, 1);
-                    Framework.Event.Action<bool, UnityAsset.AsyncAsset> _action = translator.GetDelegate<Framework.Event.Action<bool, UnityAsset.AsyncAsset>>(L, 2);
+                    string _name = LuaAPI.lua_tostring(L, 1);
                     
-                        UnityAsset.AsyncAsset gen_ret = LuaCallCS.AssetBundleAsyncLoad( _path, _action );
-                        translator.Push(L, gen_ret);
+                    LuaCallCS.OpenUI( _name );
                     
                     
                     
-                    return 1;
+                    return 0;
                 }
                 
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
             
-            return LuaAPI.luaL_error(L, "invalid arguments to LuaCallCS.AssetBundleAsyncLoad!");
+            return LuaAPI.luaL_error(L, "invalid arguments to LuaCallCS.OpenUI!");
             
         }
         

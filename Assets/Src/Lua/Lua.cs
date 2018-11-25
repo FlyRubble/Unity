@@ -1,4 +1,5 @@
 ﻿using XLua;
+using Framework.UI;
 using Framework.Event;
 using Framework.Singleton;
 
@@ -63,6 +64,7 @@ public class Lua : Singleton<Lua>
     byte[] Loader(ref string fileName)
     {
         byte[] result = new byte[0];
+
 #if UNITY_EDITOR && !AB_MODE
         string path = "Assets/data/lua/" + fileName.Replace(".", "/").ToLower() + ".txt";
         string text = UnityEditor.AssetDatabase.LoadAssetAtPath(path, typeof(UnityEngine.Object)).ToString();
@@ -96,6 +98,7 @@ public class Lua : Singleton<Lua>
         m_start = null;
         m_update = null;
         m_destroy = null;
+        UIManager.instance.ClearImmediate();
         m_luaEnv.Dispose();
     }
     #endregion

@@ -29,7 +29,7 @@ namespace Framework
             /// <summary>
             /// 依赖文件名
             /// </summary>
-            List<string> m_directDependencies = null;
+            List<string> m_dependencies = null;
             #endregion
 
             #region Property
@@ -66,10 +66,10 @@ namespace Framework
             /// 得到依赖文件名
             /// </summary>
             /// <value>The file names.</value>
-            public List<string> directDependencies
+            public List<string> dependencies
             {
-                get { return m_directDependencies; }
-                private set { m_directDependencies = value; }
+                get { return m_dependencies; }
+                set { m_dependencies = value; }
             }
             #endregion
 
@@ -79,7 +79,7 @@ namespace Framework
             /// </summary>
             public Manifest()
             {
-                m_directDependencies = new List<string>();
+                m_dependencies = new List<string>();
             }
             #endregion
         }

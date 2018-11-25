@@ -1,8 +1,0 @@
-Asset = {}
-
-	local a = Global.Data:get_Item("AssetManager");
-function Asset.AssetBundleLoad(path)
-	return a:AssetBundleLoad(path);
-end
-
-return Asset;

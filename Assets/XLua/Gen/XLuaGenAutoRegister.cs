@@ -21,11 +21,7 @@ namespace XLua.CSObjectWrap
         {
 		    XLua.LuaEnv.AddIniter((luaenv, translator) => {
 			    
-				translator.DelayWrapLoader(typeof(App), AppWrap.__Register);
-				
-				translator.DelayWrapLoader(typeof(UnityAsset.AsyncAsset), UnityAssetAsyncAssetWrap.__Register);
-				
-				translator.DelayWrapLoader(typeof(UnityAsset.AssetManager), UnityAssetAssetManagerWrap.__Register);
+				translator.DelayWrapLoader(typeof(Framework.Param), FrameworkParamWrap.__Register);
 				
 				translator.DelayWrapLoader(typeof(LuaCallCS), LuaCallCSWrap.__Register);
 				

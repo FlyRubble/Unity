@@ -39,10 +39,10 @@ namespace Framework
                 m_data = new Dictionary<string, UIBase>();
                 m_param = new Dictionary<string, Param>();
 
-                Action<bool, Object> action = (bResult, asset) => {
-                    if (bResult && asset != null)
+                AssetManager.instance.Load("data/ui/" + Const.UI_CANVAS + ".prefab", (bResult, obj) => {
+                    if (bResult && obj != null)
                     {
-                        GameObject go = GameObject.Instantiate(asset) as GameObject;
+                        GameObject go = GameObject.Instantiate(obj) as GameObject;
                         go.name = go.name.Replace("(Clone)", "");
                         go.transform.parent = m_root;
                         go.transform.localPosition = Vector3.zero;
@@ -52,16 +52,7 @@ namespace Framework
                         GameObject.DontDestroyOnLoad(go);
                         m_root = go.transform.Find("Center");
                     }
-                };
-
-#if UNITY_EDITOR && !AB_MODE
-                if (action != null)
-                {
-                    action(true, UnityEditor.AssetDatabase.LoadAssetAtPath("Assets/data/ui/" + Const.UI_CANVAS + ".prefab", typeof(Object)));
-                }
-#else
-                AssetManager.instance.AssetBundleAsyncLoad(AssetManager.instance.url + "data/ui/" + Const.UI_CANVAS + ".prefab", (bResult, asset) => { action(bResult, asset.mainAsset); });
-#endif
+                }, async: false);
             }
 
             /// <summary>
@@ -72,28 +63,6 @@ namespace Framework
             public bool Contain(string name)
             {
                 return m_data.ContainsKey(name);
-            }
-
-            /// <summary>
-            /// 得到UI
-            /// </summary>
-            /// <typeparam name="T"></typeparam>
-            /// <returns></returns>
-            public T GetUI<T>() where T : UIBase
-            {
-                string name = typeof(T).ToString();
-                return GetUI<T>(name);
-            }
-
-            /// <summary>
-            /// 得到UI
-            /// </summary>
-            /// <typeparam name="T"></typeparam>
-            /// <param name="name"></param>
-            /// <returns></returns>
-            public T GetUI<T>(string name) where T : UIBase
-            {
-                return (T)GetUI(name);
             }
 
             /// <summary>
@@ -118,22 +87,9 @@ namespace Framework
             /// <summary>
             /// 打开UI
             /// </summary>
-            /// <typeparam name="T"></typeparam>
-            /// <param name="param"></param>
-            /// <returns></returns>
-            public void OpenUI<T>(Param param = null) where T : UIBase
-            {
-                string name = typeof(T).ToString();
-
-                OpenUI(name, param);
-            }
-
-            /// <summary>
-            /// 打开UI
-            /// </summary>
             /// <param name="name"></param>
             /// <param name="param"></param>
-            public void OpenUI(string name, Param param = null)
+            public void OpenUI(string name, Param param = null, bool immediate = false)
             {
                 if (string.IsNullOrEmpty(name))
                 {
@@ -169,11 +125,12 @@ namespace Framework
                     else
                     {
                         m_param.Add(name, param);
-
-                        Action<bool, Object> action = (bResult, asset) => {
-                            if (bResult && asset != null)
+                        
+                        AssetManager.instance.Load("data/ui/" + name + ".prefab", (bResult, obj) =>
+                        {
+                            if (bResult && obj != null)
                             {
-                                GameObject go = GameObject.Instantiate(asset) as GameObject;
+                                GameObject go = GameObject.Instantiate(obj) as GameObject;
                                 go.name = go.name.Replace("(Clone)", "");
                                 go.transform.parent = m_root;
                                 go.transform.localPosition = Vector3.zero;
@@ -197,70 +154,9 @@ namespace Framework
                                 }
                                 m_param.Remove(name);
                             }
-                        };
-#if UNITY_EDITOR && !AB_MODE
-                if (action != null)
-                {
-                    action(true, UnityEditor.AssetDatabase.LoadAssetAtPath("Assets/data/ui/" + name + ".prefab", typeof(Object)));
-                }
-#else
-                        AssetManager.instance.AssetBundleAsyncLoad(AssetManager.instance.url + "data/ui/" + name + ".prefab", (bResult, asset) => {
-                            action(bResult, asset.mainAsset);
-                        });
-#endif
+                        }, async: !immediate);
                     }
                 }
-            }
-
-            /// <summary>
-            /// 仅打开一个UI,并且隐藏其它显示的UI
-            /// </summary>
-            /// <typeparam name="T"></typeparam>
-            /// <param name="param"></param>
-            public void OpenOneUI<T>(Param param = null) where T : UIBase
-            {
-                string name = typeof(T).ToString();
-
-                OpenOneUI(name, param);
-            }
-
-            /// <summary>
-            /// 仅打开一个UI,并且隐藏其它显示的UI
-            /// </summary>
-            /// <param name="name"></param>
-            /// <param name="param"></param>
-            public void OpenOneUI(string name, Param param = null)
-            {
-                if (string.IsNullOrEmpty(name))
-                {
-                    Debugger.LogErrorFormat("UI: name '{0}' is null or empty!", name);
-                    return;
-                }
-
-                Action<Param> action = (o) => {
-                    List<string> list = o["show"] as List<string>;
-                    if (!list.Contains(name))
-                    {
-                        this.OpenUI(name, param);
-                    }
-                };
-
-                Param p = Param.Create();
-                p.Add("closeall", action);
-                p.Add("filter", new List<string>() { name });
-                CloseAllUI(p);
-            }
-
-            /// <summary>
-            /// 更新UI
-            /// </summary>
-            /// <typeparam name="T"></typeparam>
-            /// <param name="param"></param>
-            public void UpdateUI<T>(Param param = null) where T : UIBase
-            {
-                string name = typeof(T).ToString();
-
-                UpdateUI(name, param);
             }
 
             /// <summary>
@@ -288,18 +184,6 @@ namespace Framework
                         Debugger.LogErrorFormat("UI: '{0}' is not exist!", name);
                     }
                 }
-            }
-
-            /// <summary>
-            /// 关闭UI
-            /// </summary>
-            /// <typeparam name="T"></typeparam>
-            /// <param name="param"></param>
-            public void CloseUI<T>(Param param = null) where T : UIBase
-            {
-                string name = typeof(T).ToString();
-
-                CloseUI(name, param);
             }
 
             /// <summary>
@@ -344,31 +228,13 @@ namespace Framework
             public void CloseAllUI(Param param = null)
             {
                 Action closeAll = param["closeall"] as Action;
-                Action<Param> closeAllWithParam = param["closeall"] as Action<Param>;
+                param.Remove("closeall");
                 List<string> filter = param["filter"] as List<string>;
-                Param.Destroy(param);
+                param.Remove("filter");
 
                 int showNum = 0;
-                List<UIBase> list = new List<UIBase>();
-                List<string> filterList = new List<string>();
-                foreach (var t in m_data.Values)
-                {
-                    if (t.show)
-                    {
-                        if (filter.Contains(t.getName))
-                        {
-                            filterList.Add(t.getName);
-                            continue;
-                        }
-                        else
-                        {
-                            list.Add(t);
-                        }
-                    }
-                }
-                showNum = list.Count;
-
-                Param p = Param.Create();
+                Param.Destroy(param);
+                param = Param.Create();
                 Action close = () => {
                     --showNum;
                     if (showNum == 0)
@@ -377,36 +243,24 @@ namespace Framework
                         {
                             closeAll();
                         }
-                        else if (null != closeAllWithParam)
-                        {
-                            p = Param.Create();
-                            p.Add("show", filterList);
-                            closeAllWithParam(p);
-                        }
                     }
                 };
-                p.Add("close", close);
-                for (int i = 0; i < list.Count; ++i)
+                param.Add("close", close);
+
+                List<string> nameList = new List<string>(m_data.Keys);
+                foreach (var name in nameList)
                 {
-                    list[i].Close(p);
-                    if (!list[i].cache)
+                    if (m_data[name].show && filter.Contains(name))
                     {
-                        GameObject.Destroy(list[i].gameObject);
-                        m_data.Remove(list[i].getName);
+                        ++showNum;
+                        m_data[name].Close();
+                        if (!m_data[name].cache)
+                        {
+                            GameObject.Destroy(m_data[name].gameObject);
+                            m_data.Remove(name);
+                        }
                     }
                 }
-            }
-
-            /// <summary>
-            /// 设置同对象中的顺序
-            /// </summary>
-            /// <typeparam name="T"></typeparam>
-            /// <param name="index"></param>
-            public void SetSiblingIndex<T>(int index) where T : UIBase
-            {
-                string name = typeof(T).ToString();
-
-                SetSiblingIndex(name, index);
             }
 
             /// <summary>
@@ -434,18 +288,6 @@ namespace Framework
                         Debugger.LogErrorFormat("UI: '{0}' is not exist!", name);
                     }
                 }
-            }
-
-            /// <summary>
-            /// 设置UI在同父对象下顺序
-            /// </summary>
-            /// <typeparam name="T"></typeparam>
-            /// <param name="names">排序在姐妹对象前面</param>
-            public void SetSiblingIndex<T>(params string[] names) where T : UIBase
-            {
-                string name = typeof(T).ToString();
-
-                SetSiblingIndex(name, names);
             }
 
             /// <summary>
@@ -494,12 +336,31 @@ namespace Framework
             {
                 base.Clear();
 
-                foreach (var t in m_data)
+                foreach (var t in m_data.Values)
                 {
-                    if (null != t.Value)
+                    if (null != t)
                     {
-                        t.Value.Close();
-                        GameObject.DestroyImmediate(t.Value.gameObject);
+                        t.Close();
+                        GameObject.Destroy(t.gameObject);
+                    }
+                }
+                m_data.Clear();
+                m_param.Clear();
+            }
+
+            /// <summary>
+            /// 立即清理数据
+            /// </summary>
+            public override void ClearImmediate()
+            {
+                base.ClearImmediate();
+
+                foreach (var t in m_data.Values)
+                {
+                    if (null != t)
+                    {
+                        t.Close();
+                        GameObject.DestroyImmediate(t.gameObject);
                     }
                 }
                 m_data.Clear();

@@ -47,17 +47,24 @@ namespace Framework
                 if (string.IsNullOrEmpty(m_www.error))
                 {
                     Dictionary<string, object> remoteVersion = JsonReader.Deserialize<Dictionary<string, object>>(m_www.text);
-                    App.Update(remoteVersion, new List<string>() { Const.VERSION });
-                    Debugger.logEnabled = App.log;
-                    Debugger.webLogEnabled = App.webLog;
-                    string[] local = App.version.Split('.');
-                    string[] remote = (remoteVersion != null && remoteVersion.Count > 0) ? remoteVersion[Const.VERSION].ToString().Split('.') : new string[0];
-                    if (local.Length == remote.Length)
+                    if (remoteVersion != null)
                     {
-                        forceUpdate = !(int.Parse(local[0]) >= int.Parse(remote[0]) && int.Parse(local[1]) >= int.Parse(remote[1]));
+                        App.Update(remoteVersion, new List<string>() { Const.VERSION });
+                        Debugger.logEnabled = App.log;
+                        Debugger.webLogEnabled = App.webLog;
+                        string[] local = App.version.Split('.');
+                        string[] remote = remoteVersion.ContainsKey(Const.VERSION) ? remoteVersion[Const.VERSION].ToString().Split('.') : new string[0];
+                        if (local.Length == remote.Length)
+                        {
+                            forceUpdate = !(int.Parse(local[0]) >= int.Parse(remote[0]) && int.Parse(local[1]) >= int.Parse(remote[1]));
+                        }
                     }
 
                 }
+                
+                m_www.Dispose();
+                m_www = null;
+
                 if (forceUpdate)
                 {
                     // 需要更新版本
@@ -65,18 +72,16 @@ namespace Framework
                         Application.OpenURL(App.newVersionDownloadUrl);
                     };
                     Action close = () => {
-                        UIManager.instance.CloseUI(Const.UI_NORMAL_TIPS_BOX);
                         Application.Quit();
                     };
                     UIManager.instance.OpenUI(Const.UI_NORMAL_TIPS_BOX, Param.Create(new object[] {
-                        UINormalTipsBox.ACTION_SURE, sure, UINormalTipsBox.TEXT_CONTENT, Const.ID_VERSION_LOW, UINormalTipsBox.ACTION_CLOSE, close }));
+                        UINormalTipsBox.ACTION_SURE, sure, UINormalTipsBox.TEXT_CONTENT, ConfigManager.GetLang("Version_Low"), UINormalTipsBox.ACTION_CLOSE, close }));
                 }
                 else
                 {
                     // 检测沙盒资源解压
                     StateMachine.instance.OnEnter(new AssetDecompressing());
                 }
-                m_www = null;
             }
         }
         #endregion

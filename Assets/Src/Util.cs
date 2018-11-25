@@ -28,6 +28,47 @@ public class Util
     }
 
     /// <summary>
+    /// 得到MD5值
+    /// </summary>
+    /// <param name="bytes"></param>
+    /// <returns></returns>
+    public static string GetMD5(byte[] bytes)
+    {
+        string md5Value = string.Empty;
+        try
+        {
+            System.Security.Cryptography.MD5 md5 = new System.Security.Cryptography.MD5CryptoServiceProvider();
+            byte[] retVal = md5.ComputeHash(bytes);
+
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            for (int i = 0; i < retVal.Length; i++)
+            {
+                sb.Append(retVal[i].ToString("x2"));
+            }
+            md5Value = sb.ToString();
+        }
+        catch (System.Exception e)
+        {
+            throw new System.Exception(e.Message);
+        }
+        return md5Value;
+    }
+
+    /// <summary>
+    /// 得到MD5值
+    /// </summary>
+    /// <param name="file"></param>
+    /// <returns></returns>
+    public static string GetMD5(string file)
+    {
+        if (File.Exists(file))
+        {
+            return GetMD5(File.ReadAllBytes(file));
+        }
+        return string.Empty;
+    }
+
+    /// <summary>
     /// 得到持久化字符串数据
     /// </summary>
     /// <param name="key"></param>
@@ -46,6 +87,25 @@ public class Util
     {
         PlayerPrefs.SetString(key, value);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     /// <summary>
     /// 查找对象
@@ -354,39 +414,5 @@ public class Util
     public static string GetLanguage(string id, string defaultText)
     {
         return defaultText;
-    }
-
-    /// <summary>
-    /// 得到多语言文本
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="defaultText"></param>
-    /// <param name="args"></param>
-    /// <returns></returns>
-    public static string GetLanguageFormat(string id, string defaultText, params object[] args)
-    {
-        return string.Format(GetLanguage(id, defaultText), args);
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    public static void Msg(string msg, bool quit = false)
-    {
-        Debug.LogError(msg);
-        if (quit)
-        {
-            Application.Quit();
-        }
     }
 }

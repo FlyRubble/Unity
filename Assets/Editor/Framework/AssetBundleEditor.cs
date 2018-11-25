@@ -206,7 +206,7 @@ public class AssetBundleEditor
             {
                 TextAsset text = www.assetBundle.LoadAsset(Path.GetFileNameWithoutExtension(url)) as TextAsset;
                 oldManifestConfig = JsonReader.Deserialize<ManifestConfig>(text.text);
-                www.assetBundle.Unload(true);
+                www.assetBundle.Unload(false);
             }
             www.Dispose();
         }
@@ -221,7 +221,7 @@ public class AssetBundleEditor
             {
                 TextAsset text = www.assetBundle.LoadAsset(Path.GetFileNameWithoutExtension(url)) as TextAsset;
                 manifestConfig = JsonReader.Deserialize<ManifestConfig>(text.text);
-                www.assetBundle.Unload(true);
+                www.assetBundle.Unload(false);
             }
             www.Dispose();
         }
@@ -355,7 +355,7 @@ public class AssetBundleEditor
 #endif
                     DateTime dt = DateTime.Now;
                     string date = string.Format("{0}.{1}.{2}_{3}.{4}.{5}", dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second);
-                    string md5 = GetMD5(fileBytes);
+                    string md5 = Util.GetMD5(fileBytes);
                     File.WriteAllBytes(string.Format("{0}/{1}_{2}_{3}_{4}.zip", dest, platform, version, date, md5), fileBytes);
                 }
             }
@@ -461,33 +461,6 @@ public class AssetBundleEditor
     }
 
     /// <summary>
-    /// 得到MD5值
-    /// </summary>
-    /// <param name="bytes"></param>
-    /// <returns></returns>
-    private static string GetMD5(byte[] bytes)
-    {
-        string md5Value = string.Empty;
-        try
-        {
-            System.Security.Cryptography.MD5 md5 = new System.Security.Cryptography.MD5CryptoServiceProvider();
-            byte[] retVal = md5.ComputeHash(bytes);
-
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
-            for (int i = 0; i < retVal.Length; i++)
-            {
-                sb.Append(retVal[i].ToString("x2"));
-            }
-            md5Value = sb.ToString();
-        }
-        catch (System.Exception e)
-        {
-            throw new System.Exception(e.Message);
-        }
-        return md5Value;
-    }
-
-    /// <summary>
     /// 得到清单文件
     /// </summary>
     /// <returns></returns>
@@ -515,7 +488,7 @@ public class AssetBundleEditor
                 manifest.size = ab.size;
                 foreach (var dependenciesName in abManifest.GetDirectDependencies(bundleNames[i]))
                 {
-                    manifest.directDependencies.Add(dependenciesName);
+                    manifest.dependencies.Add(dependenciesName);
                 }
                 manifestConfig.Add(manifest);
             }

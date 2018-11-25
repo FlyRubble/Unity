@@ -1543,6 +1543,8 @@ namespace CSObjectWrapEditor
             GenCodeForClass();
             GenLuaRegister();
             callCustomGen();
+            // 复制代码
+            AssetDatabase.CopyAsset("Assets/XLua/link.lib", "Assets/XLua/Gen/UnityEngineLightWrap.cs");
             Debug.Log("finished! use " + (DateTime.Now - start).TotalMilliseconds + " ms");
             AssetDatabase.Refresh();
         }

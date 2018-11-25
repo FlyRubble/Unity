@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.IO;
+using System.Collections.Generic;
 using System.Linq;
 using Framework.Singleton;
 using UnityEngine;
@@ -93,10 +94,7 @@ namespace UnityAsset
         {
             set
             {
-                if (value != null)
-                {
-                    m_getDependentAsset = value;
-                }
+                m_getDependentAsset = value;
             }
         }
         #endregion
@@ -149,7 +147,7 @@ namespace UnityAsset
         /// <param name="path"></param>
         /// <param name="action"></param>
         /// <returns></returns>
-        public AsyncAsset ResourceAsyncLoad(string path, Action<bool, AsyncAsset> action)
+        public AsyncAsset ResourceAsyncLoad(string path, Action<bool, AsyncAsset> complete)
         {
             AsyncAsset async = null;
             if (m_complete.ContainsKey(path))
@@ -168,7 +166,7 @@ namespace UnityAsset
                     m_loading.Add(async.url, async);
                 }
             }
-            m_queue.Add(new AsyncAssetBundle(async, action));
+            m_queue.Add(new AsyncAssetBundle(async, complete));
 
             return async;
         }
@@ -180,6 +178,15 @@ namespace UnityAsset
         /// <returns></returns>
         public AsyncAsset AssetBundleLoad(string path)
         {
+            // 依赖加载
+            string assetBundleName = "data/" + GetAssetBundleName(path);
+            var data = m_getDependentAsset(assetBundleName);
+            AssetsBundle[] dependent = new AssetsBundle[data.Count];
+            for (int i = 0; i < data.Count; ++i)
+            {
+                dependent[i] = (AssetsBundle)AssetBundleLoad(path.Replace(assetBundleName, data[i]));
+            }
+
             AsyncAsset async = null;
             if (m_complete.ContainsKey(path))
             {
@@ -199,6 +206,16 @@ namespace UnityAsset
                 while (!async.isDone) { }
                 async.Complete();
                 m_complete.Add(async.url, async);
+
+                // 计算依赖关系
+                if (dependent != null)
+                {
+                    for (int i = 0; i < dependent.Length; ++i)
+                    {
+                        dependent[i].AddDependentSelf((AssetsBundle)async);
+                        ((AssetsBundle)async).AddSelfDependent(dependent[i]);
+                    }
+                }
             }
 
             return async;
@@ -211,9 +228,50 @@ namespace UnityAsset
         /// <param name="action"></param>
         /// <param name="dic"></param>
         /// <returns></returns>
-        public AsyncAsset AssetBundleAsyncLoad(string path, Action<bool, AsyncAsset> action, Dictionary<string, AsyncAsset> dic = null)
+        public AsyncAsset AssetBundleAsyncLoad(string path, Action<bool, AsyncAsset> complete, Action<bool, AsyncAsset> action = null, bool dependence = true, Dictionary<string, AsyncAsset> dic = null)
         {
-            return DependentAssetLoad(path, action, dic);
+            return AssetBundleAsyncLoadDependent(path, complete, action, dependence, dic);
+        }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="action"></param>
+        /// <param name="dic"></param>
+        private AsyncAsset AssetBundleAsyncLoadDependent(string path, Action<bool, AsyncAsset> complete, Action<bool, AsyncAsset> action, bool dependence, Dictionary<string, AsyncAsset> dic)
+        {
+            // 依赖加载
+            AssetsBundle[] dependent = null;
+            if (dependence)
+            {
+                string assetBundleName = "data/" + GetAssetBundleName(path);
+                var data = m_getDependentAsset(assetBundleName);
+                dependent = new AssetsBundle[data.Count];
+                for (int i = 0; i < data.Count; ++i)
+                {
+                    dependent[i] = (AssetsBundle)AssetBundleAsyncLoadDependent(path.Replace(assetBundleName, data[i]), action, action, dependence, dic);
+                }
+            }
+
+            // 加载本资源
+            AssetsBundle asset = (AssetsBundle)AssetBundleAsyncLoadWithoutDependent(path, complete);
+            if (null != dic)
+            {
+                dic.Add(path, asset);
+            }
+
+            // 计算依赖关系
+            if (dependence && dependent != null)
+            {
+                for (int i = 0; i < dependent.Length; ++i)
+                {
+                    dependent[i].AddDependentSelf(asset);
+                    asset.AddSelfDependent(dependent[i]);
+                }
+            }
+
+            return asset;
         }
 
         /// <summary>
@@ -247,33 +305,20 @@ namespace UnityAsset
         }
 
         /// <summary>
-        /// 
+        /// 得到AB资源名
         /// </summary>
         /// <param name="path"></param>
-        /// <param name="action"></param>
-        /// <param name="dic"></param>
-        private AsyncAsset DependentAssetLoad(string path, Action<bool, AsyncAsset> action, Dictionary<string, AsyncAsset> dic)
+        /// <param name="stopFileName"></param>
+        /// <returns></returns>
+        private string GetAssetBundleName(string path, string stopFileName = "data")
         {
-            var data = m_getDependentAsset(path);
-            AssetsBundle[] dependent = new AssetsBundle[data.Count];
-            for (int i = 0;i < data.Count; ++i)
+            string name = Path.GetFileName(path);
+            DirectoryInfo info = Directory.GetParent(path);
+            if (!info.Name.Equals(stopFileName))
             {
-                dependent[i] = (AssetsBundle)DependentAssetLoad(data[i], action, dic);
+                name = GetAssetBundleName(info.FullName) + "/" + name;
             }
-
-            AssetsBundle asset = (AssetsBundle)AssetBundleAsyncLoadWithoutDependent(path, action);
-            if (null != dic)
-            {
-                dic.Add(path, asset);
-            }
-
-            for (int i = 0; i < dependent.Length; ++i)
-            {
-                dependent[i].AddDependentSelf(asset);
-                asset.AddSelfDependent(dependent[i]);
-            }
-
-            return asset;
+            return name;
         }
 
         /// <summary>

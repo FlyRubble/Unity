@@ -4,7 +4,7 @@
 	"bundleIdentifier": "com.playgame.jtlq",
 	"version": "1.0.0",
 	"bundleVersionCode": 1,
-	"scriptingDefineSymbols": "xlua.release",
+	"scriptingDefineSymbols": "AB_MODE;xlua.release",
 	"loginUrl": "http://localhost/",
 	"cdn": "http://localhost/",
 	"openGuide": true,

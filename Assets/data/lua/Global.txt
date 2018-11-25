@@ -1,6 +1,4 @@
 Global = Global or {}
 
-Global.APP = CS.App;
 Global.LCC = CS.LuaCallCS;
-Global.Data = Global.LCC.Init();
-Global.ASSET = require("Common.ASSET");
+Global.UI = require("Common.UIManager");

@@ -157,6 +157,7 @@ namespace Framework
             protected virtual void Awake()
             {
                 gameObject.SetActive(true);
+                m_event = new Dictionary<string, Action>();
                 m_canvas = gameObject.AddComponent<Canvas>();
                 m_graphicRaycaster = gameObject.AddComponent<GraphicRaycaster>();
 
@@ -244,7 +245,7 @@ namespace Framework
                 {
                     m_event[ONDESTROY]();
                 }
-                m_event.Clear();
+                ClearEvent();
                 Observer.instance.UnRegister(this);
             }
             #endregion
@@ -360,6 +361,36 @@ namespace Framework
                 }
             }
 
+            /// <summary>
+            /// 尝试添加一个事件
+            /// </summary>
+            /// <param name="key"></param>
+            /// <param name="action"></param>
+            private void TryAddEvent(string key, Action action)
+            {
+                if (m_event.ContainsKey(key))
+                {
+                    m_event[key] = action;
+                }
+                else
+                {
+                    m_event.Add(key, action);
+                }
+            }
+
+            /// <summary>
+            /// 清理事件
+            /// </summary>
+            private void ClearEvent()
+            {
+                List<string> list = new List<string>(m_event.Keys);
+                foreach (var e in list)
+                {
+                    m_event[e] = null;
+                }
+
+                m_event.Clear();
+            }
 
             /// <summary>
             /// 打开
@@ -367,17 +398,16 @@ namespace Framework
             /// <param name="param"></param>
             public void Open(Param param = null)
             {
-                if (null == m_event)
+                if (null != m_event && null != param)
                 {
-                    m_event = new Dictionary<string, Action>();
-                    if (param.Contain(AWAKE)) m_event.Add(AWAKE, param[AWAKE] as Action);
-                    if (param.Contain(START)) m_event.Add(START, param[START] as Action);
-                    if (param.Contain(ONENABLE)) m_event.Add(ONENABLE, param[ONENABLE] as Action);
-                    if (param.Contain(FIXEDUPDATE)) m_event.Add(FIXEDUPDATE, param[FIXEDUPDATE] as Action);
-                    if (param.Contain(UPDATE)) m_event.Add(UPDATE, param[UPDATE] as Action);
-                    if (param.Contain(LATEUPDATE)) m_event.Add(LATEUPDATE, param[LATEUPDATE] as Action);
-                    if (param.Contain(ONDISABLE)) m_event.Add(ONDISABLE, param[ONDISABLE] as Action);
-                    if (param.Contain(ONDESTROY)) m_event.Add(ONDESTROY, param[ONDESTROY] as Action);
+                    if (param.Contain(AWAKE)) { TryAddEvent(AWAKE, param[AWAKE] as Action); param.RemoveEvent(AWAKE); }
+                    if (param.Contain(START)) { TryAddEvent(START, param[START] as Action); param.RemoveEvent(START); }
+                    if (param.Contain(ONENABLE)) { TryAddEvent(ONENABLE, param[ONENABLE] as Action); param.RemoveEvent(ONENABLE); }
+                    if (param.Contain(FIXEDUPDATE)) { TryAddEvent(FIXEDUPDATE, param[FIXEDUPDATE] as Action); param.RemoveEvent(FIXEDUPDATE); }
+                    if (param.Contain(UPDATE)) { TryAddEvent(UPDATE, param[UPDATE] as Action); param.RemoveEvent(UPDATE); }
+                    if (param.Contain(LATEUPDATE)) { TryAddEvent(LATEUPDATE, param[LATEUPDATE] as Action); param.RemoveEvent(LATEUPDATE); }
+                    if (param.Contain(ONDISABLE)) { TryAddEvent(ONDISABLE, param[ONDISABLE] as Action); param.RemoveEvent(ONDISABLE); }
+                    if (param.Contain(ONDESTROY)) { TryAddEvent(ONDESTROY, param[ONDESTROY] as Action); param.RemoveEvent(ONDESTROY); }
                 }
                 if (null == param)
                 {

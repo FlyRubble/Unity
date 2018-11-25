@@ -131,6 +131,36 @@ namespace Framework
         }
 
         /// <summary>
+        /// 添加事件
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        public void AddEvent(object name, Action value)
+        {
+            if (m_param.ContainsKey(name))
+            {
+                m_param[name] = value;
+            }
+            else
+            {
+                m_param.Add(name, value);
+            }
+        }
+
+        /// <summary>
+        /// 移除事件
+        /// </summary>
+        /// <param name="name"></param>
+        public void RemoveEvent(object name)
+        {
+            if (m_param.ContainsKey(name))
+            {
+                m_param[name] = null;
+                m_param.Remove(name);
+            }
+        }
+
+        /// <summary>
         /// 添加
         /// </summary>
         /// <param name="param"></param>

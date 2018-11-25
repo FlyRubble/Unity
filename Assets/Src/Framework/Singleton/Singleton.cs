@@ -25,10 +25,15 @@ namespace Framework
             /// 清理数据
             /// </summary>
             public virtual void Clear() { }
-			#endregion
+            
+            /// <summary>
+            /// 立即清理数据
+            /// </summary>
+            public virtual void ClearImmediate() { }
+            #endregion
 
-			// 内部类
-			sealed class Nested
+            // 内部类
+            sealed class Nested
 			{
 				#region Variable
 				internal static readonly T g_instance = new T();
