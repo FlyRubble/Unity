@@ -18,11 +18,15 @@
     },
     {
       "uuid": "Asset_Decompressing",
-      "value": "正在解压资源，此过程不消耗您的流量"
+      "value": "正在解压资源，此过程不消耗您的流量，请稍等..."
     },
     {
       "uuid": "Asset_Updating",
       "value": "资源更新中..."
+    },
+    {
+      "uuid": "Asset_Loading",
+      "value": "资源加载中..."
     }
   ]
 }

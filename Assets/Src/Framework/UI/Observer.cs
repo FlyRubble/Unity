@@ -61,6 +61,7 @@ namespace Framework
         {
             if (null == obs) return;
             if (string.IsNullOrEmpty(obs.getName)) return;
+            if (!m_data.ContainsKey(obs.getName)) return;
 
             m_data.Remove(obs.getName);
             foreach (var name in obs.observerSelf)

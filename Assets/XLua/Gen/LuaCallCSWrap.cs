@@ -31,8 +31,11 @@ namespace XLua.CSObjectWrap
 			Utils.EndObjectRegister(type, L, translator, null, null,
 			    null, null, null);
 
-		    Utils.BeginClassRegister(type, L, __CreateInstance, 2, 0, 0);
-			Utils.RegisterFunc(L, Utils.CLS_IDX, "OpenUI", _m_OpenUI_xlua_st_);
+		    Utils.BeginClassRegister(type, L, __CreateInstance, 5, 0, 0);
+			Utils.RegisterFunc(L, Utils.CLS_IDX, "AssetManager_UnloadAssets", _m_AssetManager_UnloadAssets_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "UIManager_OpenUI", _m_UIManager_OpenUI_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "UIManager_Clear", _m_UIManager_Clear_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "UIManager_ClearImmediate", _m_UIManager_ClearImmediate_xlua_st_);
             
 			
             
@@ -73,7 +76,31 @@ namespace XLua.CSObjectWrap
         
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_OpenUI_xlua_st_(RealStatePtr L)
+        static int _m_AssetManager_UnloadAssets_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+            
+            
+                
+                {
+                    bool _unloadAllLoadedObjects = LuaAPI.lua_toboolean(L, 1);
+                    
+                    LuaCallCS.AssetManager_UnloadAssets( _unloadAllLoadedObjects );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_UIManager_OpenUI_xlua_st_(RealStatePtr L)
         {
 		    try {
             
@@ -88,7 +115,7 @@ namespace XLua.CSObjectWrap
                     string _name = LuaAPI.lua_tostring(L, 1);
                     Framework.Param _param = (Framework.Param)translator.GetObject(L, 2, typeof(Framework.Param));
                     
-                    LuaCallCS.OpenUI( _name, _param );
+                    LuaCallCS.UIManager_OpenUI( _name, _param );
                     
                     
                     
@@ -98,7 +125,7 @@ namespace XLua.CSObjectWrap
                 {
                     string _name = LuaAPI.lua_tostring(L, 1);
                     
-                    LuaCallCS.OpenUI( _name );
+                    LuaCallCS.UIManager_OpenUI( _name );
                     
                     
                     
@@ -109,7 +136,53 @@ namespace XLua.CSObjectWrap
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
             
-            return LuaAPI.luaL_error(L, "invalid arguments to LuaCallCS.OpenUI!");
+            return LuaAPI.luaL_error(L, "invalid arguments to LuaCallCS.UIManager_OpenUI!");
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_UIManager_Clear_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+            
+            
+                
+                {
+                    
+                    LuaCallCS.UIManager_Clear(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_UIManager_ClearImmediate_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+            
+            
+                
+                {
+                    
+                    LuaCallCS.UIManager_ClearImmediate(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
             
         }
         

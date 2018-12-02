@@ -14,9 +14,9 @@ namespace UnityAsset
         {
             AsyncAsset asyncAsset = null;
 #if UNITY_EDITOR && !AB_MODE
-        if (action != null)
+        if (complete != null)
         {
-            action(true, UnityEditor.AssetDatabase.LoadAssetAtPath("Assets/" + path, typeof(Object)));
+            complete(true, UnityEditor.AssetDatabase.LoadAssetAtPath("Assets/" + path, typeof(Object)));
         }
 #else
             if (async)

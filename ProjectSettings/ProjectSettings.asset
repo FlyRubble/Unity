@@ -665,7 +665,7 @@ PlayerSettings:
   webGLCompressionFormat: 1
   webGLLinkerTarget: 1
   scriptingDefineSymbols:
-    1: AB_MODE;xlua.release
+    1: 
     7: AB_MODE
   platformArchitecture: {}
   scriptingBackend: {}

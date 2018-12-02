@@ -4,7 +4,23 @@
 			"data/conf/lang.json": 
 				{
 					"name": "data/conf/lang.json",
-					"MD5": "602271bdb4c93f07cdbabbb5c7beff3a",
+					"MD5": "ef59ccfe3e3e6b2f6dc84caed7d801df",
+					"size": 2,
+					"dependencies": 
+						[]
+				},
+			"data/conf/test.json": 
+				{
+					"name": "data/conf/test.json",
+					"MD5": "29dcb11c1fe9904d021a10f79e8a73fe",
+					"size": 2,
+					"dependencies": 
+						[]
+				},
+			"data/conf/test0.json": 
+				{
+					"name": "data/conf/test0.json",
+					"MD5": "ee8e31d8c8f4e28701ed4c9a104e7897",
 					"size": 2,
 					"dependencies": 
 						[]
@@ -33,6 +49,14 @@
 					"dependencies": 
 						[]
 				},
+			"data/lua/common/json.txt": 
+				{
+					"name": "data/lua/common/json.txt",
+					"MD5": "77fdba2650031ec23c7fe86748620f72",
+					"size": 6,
+					"dependencies": 
+						[]
+				},
 			"data/lua/common/uimanager.txt": 
 				{
 					"name": "data/lua/common/uimanager.txt",
@@ -52,7 +76,7 @@
 			"data/lua/main.txt": 
 				{
 					"name": "data/lua/main.txt",
-					"MD5": "57eb2487a2162d8a725725a4821bb670",
+					"MD5": "271d1e9d8aec8f62dc7d7a03fad1c2e0",
 					"size": 2,
 					"dependencies": 
 						[]

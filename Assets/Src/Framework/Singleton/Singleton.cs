@@ -25,11 +25,6 @@ namespace Framework
             /// 清理数据
             /// </summary>
             public virtual void Clear() { }
-            
-            /// <summary>
-            /// 立即清理数据
-            /// </summary>
-            public virtual void ClearImmediate() { }
             #endregion
 
             // 内部类

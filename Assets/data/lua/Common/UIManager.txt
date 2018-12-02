@@ -2,7 +2,7 @@
 UI = {}
 
 function UI.OpenUI(name, param)
-	return Global.LCC.OpenUI(name, param);
+	return Global.LCC.UIManager_OpenUI(name, param);
 end
 
 return UI;

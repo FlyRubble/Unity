@@ -46,27 +46,27 @@ namespace Framework
         private bool m_assetUpdating = false;
 
         /// <summary>
-        /// 要解压的资源大小
+        /// 要更新的资源大小
         /// </summary>
         private float m_size = 0;
 
         /// <summary>
-        /// 当前已解压大小
+        /// 当前已更新大小
         /// </summary>
         private float m_currentSize = 0;
 
         /// <summary>
-        /// 当前已解压大小(真实)
+        /// 当前已更新大小(真实)
         /// </summary>
         private float m_currentRealSize = 0F;
 
         /// <summary>
-        /// 上一秒已解压大小(真实)
+        /// 上一秒已更新大小(真实)
         /// </summary>
         private float m_lastRealSize = 0F;
 
         /// <summary>
-        /// 时间，协助计算解压速度
+        /// 时间，协助计算更新速度
         /// </summary>
         private float m_time = 0F;
 
@@ -76,7 +76,7 @@ namespace Framework
         private float m_speed = 0F;
 
         /// <summary>
-        /// 解压资源记录
+        /// 更新资源记录
         /// </summary>
         private List<AsyncAsset> m_async = new List<AsyncAsset>();
         #endregion
@@ -89,9 +89,14 @@ namespace Framework
         public override void OnEnter(Param param = null)
         {
             base.OnEnter(param);
-            
-            AssetManager.instance.UnloadAssets(false);
+
             AssetManager.instance.url = App.persistentDataPath;
+            // 加载Loading界面
+            AssetManager.instance.UnloadAssets(true);
+            UIManager.instance.Clear();
+            UIManager.instance.OpenUI(Const.UI_LOADING, Param.Create(new object[] {
+                UILoading.TEXT_TIPS, ConfigManager.GetLang("Asset_Request"), UILoading.SLIDER, 0F, UILoading.TEXT_DETAILS, string.Empty
+            }), immediate: true);
             // 获取本地更新清单文件
             AsyncAsset async = AssetManager.instance.AssetBundleLoad(AssetManager.instance.url + Const.UPDATE_FILE);
             if (async != null && string.IsNullOrEmpty(async.error))
@@ -141,12 +146,6 @@ namespace Framework
                 int count = Mathf.Min(Const.MAX_LOADER, m_async.Count);
                 for (int i = count - 1; i >= 0; --i)
                 {
-                    if (m_async[i].progress == 1F)
-                    {
-                        m_currentSize += (float)m_async[i].userData;
-                        m_async.RemoveAt(i);
-                        continue;
-                    }
                     m_currentRealSize += (float)m_async[i].userData * m_async[i].progress;
                 }
                 m_currentRealSize += m_currentSize;
@@ -175,7 +174,7 @@ namespace Framework
         private void StartAssetUpdate()
         {
             bool hasAssetUpdate = false;
-            // 解压
+            // 更新
             m_async.Clear();
             if (m_remoteUpdateManifest.data.Count > 0)
             {
@@ -189,7 +188,9 @@ namespace Framework
                         {
                             if (bResult)
                             {
-                                Util.WriteAllBytes(App.assetPath + Const.UPDATE_FILE, asset.bytes);
+                                Util.WriteAllBytes(App.assetPath + Const.MANIFESTFILE, asset.bytes);
+                                m_currentSize += (float)asset.userData;
+                                m_async.Remove(asset);
                             }
                             else
                             {
@@ -218,6 +219,8 @@ namespace Framework
                                 if (bResult)
                                 {
                                     Util.WriteAllBytes(App.assetPath + data.name, asset.bytes);
+                                    m_currentSize += (float)asset.userData;
+                                    m_async.Remove(asset);
                                 }
                                 else
                                 {
@@ -233,7 +236,9 @@ namespace Framework
                         {
                             if (bResult)
                             {
-                                Util.WriteAllBytes(App.assetPath + Const.MANIFESTFILE, asset.bytes);
+                                Util.WriteAllBytes(App.assetPath + Const.UPDATE_FILE, asset.bytes);
+                                m_currentSize += (float)asset.userData;
+                                m_async.Remove(asset);
                             }
                             else
                             {
@@ -269,11 +274,8 @@ namespace Framework
         /// </summary>
         private void AssetUpdateComplete()
         {
-            // 清理资源
-            AssetManager.instance.UnloadAssets(true);
-            UIManager.instance.Clear();
-            // 加载资源
-            UIManager.instance.OpenUI(Const.UI_LOADING, immediate: true);
+            // 资源加载
+            StateMachine.instance.OnEnter(new AssetLoad());
         }
         #endregion
     }

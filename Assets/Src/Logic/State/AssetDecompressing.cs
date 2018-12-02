@@ -79,6 +79,8 @@ namespace Framework
                     if (bResult)
                     {
                         Util.WriteAllBytes(App.assetPath + Const.MANIFESTFILE, asset.bytes);
+                        m_currentSize += (float)asset.userData;
+                        m_async.Remove(asset);
                     }
                     else
                     {
@@ -95,6 +97,8 @@ namespace Framework
                         if (bResult)
                         {
                             Util.WriteAllBytes(App.assetPath + data.name, asset.bytes);
+                            m_currentSize += (float)asset.userData;
+                            m_async.Remove(asset);
                         }
                         else
                         {
@@ -110,6 +114,8 @@ namespace Framework
                     if (bResult)
                     {
                         Util.WriteAllBytes(App.assetPath + Const.UPDATE_FILE, asset.bytes);
+                        m_currentSize += (float)asset.userData;
+                        m_async.Remove(asset);
                     }
                     else
                     {
@@ -141,12 +147,6 @@ namespace Framework
                 int count = Mathf.Min(Const.MAX_LOADER, m_async.Count);
                 for (int i = count - 1; i >= 0; --i)
                 {
-                    if (m_async[i].progress == 1F)
-                    {
-                        m_currentSize += (float)m_async[i].userData;
-                        m_async.RemoveAt(i);
-                        continue;
-                    }
                     m_currentRealSize += (float)m_async[i].userData * m_async[i].progress;
                 }
                 m_currentRealSize += m_currentSize;
@@ -165,10 +165,7 @@ namespace Framework
                 {
                     m_assetDecompressing = false;
                     PlayerPrefs.SetString(Const.SANDBOX_VERSION, App.version);
-                    Schedule.instance.ScheduleOnce(0.18F, () =>
-                    {
-                        StateMachine.instance.OnEnter(new AssetUpdate());
-                    });
+                    StateMachine.instance.OnEnter(new AssetUpdate());
                 }
             }
         }

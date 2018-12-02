@@ -2,3 +2,4 @@ Global = Global or {}
 
 Global.LCC = CS.LuaCallCS;
 Global.UI = require("Common.UIManager");
+Global.Config = Config;

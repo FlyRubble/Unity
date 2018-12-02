@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Framework.Singleton;
+using Framework.Event;
 
 /// <summary>
 /// 配置管理
@@ -13,6 +14,11 @@ public class ConfigManager : Singleton<ConfigManager>
     /// 统一配置表在加载之前使用(唯一)
     /// </summary>
     private LangConfig m_langConfig = null;
+
+    /// <summary>
+    /// 需要加载的配置表
+    /// </summary>
+    private Dictionary<string, Action<string>> m_loadList = null;
     #endregion
 
     #region Property
@@ -26,6 +32,17 @@ public class ConfigManager : Singleton<ConfigManager>
             return m_langConfig;
         }
     }
+
+    /// <summary>
+    /// 获取加载列表
+    /// </summary>
+    public Dictionary<string, Action<string>> loadList
+    {
+        get
+        {
+            return m_loadList;
+        }
+    }
     #endregion
 
     #region Function
@@ -35,6 +52,24 @@ public class ConfigManager : Singleton<ConfigManager>
     public ConfigManager()
     {
         m_langConfig = new LangConfig();
+        m_loadList = new Dictionary<string, Action<string>>();
+    }
+
+
+    /// <summary>
+    /// 初始化
+    /// </summary>
+    public void Init()
+    {
+        //m_loadList.Add("data/conf/lang.json", m_langConfig.Init);
+    }
+
+    /// <summary>
+    /// 初始化
+    /// </summary>
+    public void Add(string path, Action<string> action)
+    {
+        m_loadList.Add(path, action);
     }
 
     /// <summary>

@@ -351,10 +351,8 @@ namespace Framework
             /// <summary>
             /// 立即清理数据
             /// </summary>
-            public override void ClearImmediate()
+            public void ClearImmediate()
             {
-                base.ClearImmediate();
-
                 foreach (var t in m_data.Values)
                 {
                     if (null != t)
